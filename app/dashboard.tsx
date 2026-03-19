@@ -1,127 +1,116 @@
+import React, { useRef, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions } from 'react-native';
-import { Activity, Bell, MapPin, Heart, Sparkles, Clock, Scale, Dog, Star, ChevronRight } from 'lucide-react-native';
+import { Bell, MapPin, Heart, Clock, Scale, Dog, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
 import { usePet } from '@/store/PetContext';
-import React, { useState, useRef, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Defs, LinearGradient as SvgGradient, Stop, Line, Text as SvgText, Rect } from 'react-native-svg';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
-// Weight chart data
 const CHART_DATA = [
   { month: 'Oct', value: 32.5 },
   { month: 'Nov', value: 33.1 },
-  { month: 'Déc', value: 33.8 },
+  { month: 'Dec', value: 33.8 },
   { month: 'Jan', value: 34.2 },
-  { month: 'Fév', value: 34.0 },
+  { month: 'Feb', value: 34.0 },
   { month: 'Mar', value: 33.9 },
-  { month: 'Avr', value: 34.0 },
+  { month: 'Apr', value: 34.0 },
 ];
 
 function WeightLineChart() {
-  const chartW = Math.min(SCREEN_W - 96, 600);
-  const chartH = 160;
-  const padL = 40; const padR = 20; const padT = 20; const padB = 40;
+  const chartW = Math.min(SCREEN_W - 48, 600); 
+  const chartH = 140;
+  const padL = 40; const padR = 20; const padT = 30; const padB = 30; 
   const W = chartW - padL - padR;
   const H = chartH - padT - padB;
 
   const vals = CHART_DATA.map(d => d.value);
-  const minV = Math.min(...vals) - 1;
-  const maxV = Math.max(...vals) + 0.5;
+  const minV = Math.floor(Math.min(...vals)) - 0.5;
+  const maxV = Math.ceil(Math.max(...vals)) + 0.5;
 
   const toX = (i: number) => padL + (i / (CHART_DATA.length - 1)) * W;
   const toY = (v: number) => padT + H - ((v - minV) / (maxV - minV)) * H;
 
-  // SVG path for the line
-  const linePath = CHART_DATA.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i).toFixed(1)} ${toY(d.value).toFixed(1)}`).join(' ');
-  // Fill area under line
+  const getSmilePath = () => {
+    let d = `M ${toX(0).toFixed(1)} ${toY(CHART_DATA[0].value).toFixed(1)} `;
+    for (let i = 1; i < CHART_DATA.length; i++) {
+        const p0 = CHART_DATA[i - 1];
+        const p1 = CHART_DATA[i];
+        const cx = (toX(i - 1) + toX(i)) / 2;
+        d += `C ${cx.toFixed(1)} ${toY(p0.value).toFixed(1)}, ${cx.toFixed(1)} ${toY(p1.value).toFixed(1)}, ${toX(i).toFixed(1)} ${toY(p1.value).toFixed(1)} `;
+    }
+    return d;
+  }
+  
+  const linePath = getSmilePath();
   const areaPath = linePath + ` L ${toX(CHART_DATA.length - 1).toFixed(1)} ${(padT + H).toFixed(1)} L ${toX(0).toFixed(1)} ${(padT + H).toFixed(1)} Z`;
 
-  // Peak point index
-  const peakIdx = vals.indexOf(Math.max(...vals));
+  const peakIdx = CHART_DATA.findIndex(d => d.value === Math.max(...vals));
 
   return (
     <Svg width={chartW} height={chartH}>
       <Defs>
         <SvgGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#A855F7" stopOpacity="0.5" />
-          <Stop offset="1" stopColor="#A855F7" stopOpacity="0.05" />
+          <Stop offset="0" stopColor="#B638F6" stopOpacity="0.4" />
+          <Stop offset="1" stopColor="#B638F6" stopOpacity="0.0" />
         </SvgGradient>
         <SvgGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-          <Stop offset="0" stopColor="#8B5CF6" />
-          <Stop offset="1" stopColor="#D946EF" />
+          <Stop offset="0" stopColor="#6E23DD" />
+          <Stop offset="1" stopColor="#EA3EE0" />
         </SvgGradient>
       </Defs>
 
       {/* Grid lines */}
       {[0.25, 0.5, 0.75].map((t, i) => (
-        <Line key={i}
-          x1={padL} y1={padT + H * t}
-          x2={padL + W} y2={padT + H * t}
-          stroke="rgba(255,255,255,0.08)" strokeWidth="1"
-        />
+        <Line key={i} x1={padL} y1={padT + H * t} x2={padL + W} y2={padT + H * t} stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="3,3" />
       ))}
 
-      {/* Area fill */}
       <Path d={areaPath} fill="url(#areaGrad)" />
+      <Path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Line */}
-      <Path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Peak Label Pill right above the peak point */}
+      {(() => {
+        const px = toX(peakIdx); const py = toY(vals[peakIdx]);
+        return (
+          <React.Fragment key="peak">
+            <Rect x={px - 22} y={py - 24} width={44} height={18} rx={9} fill="#8231E0" />
+            <SvgText x={px} y={py - 12} textAnchor="middle" fill="white" fontSize="9" fontWeight="900">
+              +1.5kg
+            </SvgText>
+          </React.Fragment>
+        );
+      })()}
 
-      {/* Dots */}
       {/* Dots and Labels */}
       {CHART_DATA.map((d, i) => {
-        const isPeak = i === peakIdx;
         const cx = toX(i); const cy = toY(d.value);
         return (
           <React.Fragment key={i}>
-            <Circle
-              cx={cx} cy={cy}
-              r={5}
-              fill="#fff"
-              stroke="#D946EF"
-              strokeWidth={3}
-            />
-            {/* Value text above dot */}
-            <SvgText x={cx} y={cy - 12} textAnchor="middle" fill="#fff" fontSize="10" fontWeight="700">
+            <Circle cx={cx} cy={cy} r={4} fill="#27094F" stroke="#EA3EE0" strokeWidth={2} />
+            <Circle cx={cx} cy={cy} r={2.5} fill="#fff" />
+            <SvgText x={cx} y={cy - 10} textAnchor="middle" fill="#fff" fontSize="9" fontWeight="800">
               {d.value.toFixed(1)}
             </SvgText>
-            {isPeak && (
-              <>
-                <Rect x={cx - 24} y={cy - 38} width={48} height={20} rx={10} fill="#8B5CF6" />
-                <SvgText x={cx} y={cy - 24} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">
-                  +1.5kg
-                </SvgText>
-              </>
-            )}
           </React.Fragment>
         );
       })}
 
       {/* X axis labels */}
       {CHART_DATA.map((d, i) => (
-        <SvgText key={i}
-          x={toX(i)} y={chartH - 5}
-          textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="10" fontWeight="600"
-        >
+        <SvgText key={`xl${i}`} x={toX(i)} y={chartH - 12} textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="10" fontWeight="600">
           {d.month}
         </SvgText>
       ))}
 
-      {/* Y axis */}
       {/* Y axis rotated label */}
-      <SvgText
-        x={-chartH / 2} y={15}
-        transform="rotate(-90)"
-        textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="10" fontWeight="600"
-      >
+      <SvgText x={-(chartH / 2) + 5} y={15} transform="rotate(-90)" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="10" fontWeight="600">
         Weight (kg)
       </SvgText>
       
       {/* X axis subtitle */}
-      <SvgText x={padL + W / 2} y={chartH + 12} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="10" fontWeight="600">
+      <SvgText x={padL + W / 2} y={chartH - 0} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="600">
         Months
       </SvgText>
     </Svg>
@@ -130,175 +119,140 @@ function WeightLineChart() {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { pet, loading } = usePet();
-  const router = useRouter();
+  const { pet } = usePet();
   const fullName = user?.user_metadata?.full_name?.split(' ')[0] || 'Sarah';
+  const router = useRouter();
+  
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.96)).current;
 
   useEffect(() => {
-    if (!loading) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
-        Animated.spring(scaleAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
-      ]).start();
-    }
-  }, [loading]);
+    Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
+  }, [fadeAnim]);
 
-  if (loading) return (
-    <View style={styles.loading}>
-      <LinearGradient colors={['#170B3B', '#000']} style={StyleSheet.absoluteFill} />
-      <Activity color="#A855F7" size={40} />
-    </View>
-  );
-
-  const currentPet = pet || { name: 'Buddy', breed: 'Golden Retriever', age: '3 ans', weight: '34 kg', photo: null };
-  const petPhoto = (pet as any)?.photo || null;
+  const currentPet = pet || { name: 'Buddy', breed: 'Golden Retriever', age: '3 yrs', weight: '34 kg', photo: null };
+  // Mock image for Buddy if no pet uploaded vs golden retriever
+  const buddyImg = currentPet.photo || 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Golden_Retriever_transparent.png';
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#2A0B59', '#14032E', '#0B011A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-      {/* Bokeh orbs */}
-      <View style={styles.orb1} /><View style={styles.orb2} /><View style={styles.orb3} />
+      {/* Exact Match Background Gradient: deep violet to blackish indigo */}
+      <LinearGradient colors={['#3F1174', '#150330', '#0B011A']} start={{ x: 0, y: 0 }} end={{ x: 0.8, y: 1 }} style={StyleSheet.absoluteFill} />
+      
+      {/* Large Glowing Orbs for the "aura" effect found in the mockup */}
+      <View style={styles.glowTopRight} />
+      <View style={styles.glowMidLeft} />
+      <View style={styles.glowBottomRight} />
 
-      <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-
-        {/* ── HEADER ── */}
+      <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { opacity: fadeAnim }]}>
+        
+        {/* HEADER: Nav-like top bar matching mockup */}
         <View style={styles.header}>
-          <View style={styles.logoRow}>
-            <LinearGradient colors={['#A855F7', '#D946EF']} style={styles.logoBg}>
-              <Heart color="white" size={18} fill="white" />
-            </LinearGradient>
-            <Text style={styles.brand}>VetCare <Text style={{ fontWeight: '400', color: 'rgba(255,255,255,0.7)' }}>Pro</Text></Text>
+          <View style={styles.brandRow}>
+            {/* The Heart-Paw substitute */}
+            <View style={styles.brandIcon}>
+              <Heart color="#C084FC" fill="#C084FC" size={24} />
+              <Dog color="#3F1174" size={12} style={{position: 'absolute', top: 6, left: 6}} />
+            </View>
+            <Text style={styles.brandText}>VetCare <Text style={{fontWeight: '400'}}>Pro</Text></Text>
           </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconBtn}><Bell color="white" size={20} /></TouchableOpacity>
+          
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.bellBtn}>
+              <Bell color="#fff" size={20} />
+              <View style={styles.bellDot} />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/settings' as any)}>
-              {petPhoto ? (
-                <Image source={{ uri: petPhoto }} style={styles.avatar} />
-              ) : (
-                <Image source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop' }} style={styles.avatar} />
-              )}
+              <Image source={{uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'}} style={styles.avatar} />
             </TouchableOpacity>
           </View>
         </View>
 
-        <Text style={styles.welcomeText}>Welcome back, <Text style={styles.nameHighlight}>{fullName}</Text>!</Text>
+        {/* WELCOME TEXT */}
+        <Text style={styles.welcomeText}>Welcome back, {fullName}!</Text>
 
-        {/* ── HERO PET CARD ── */}
+        {/* ── HERO PET CARD (BUDDY) ── */}
         <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={() => router.push('/pet-profile' as any)}>
-          <LinearGradient colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.03)']} style={styles.heroGlass}>
-            <View style={styles.heroRow}>
-              {/* Left Side: Image */}
-              <View style={styles.heroLeft}>
-                <Image
-                  source={petPhoto ? { uri: petPhoto } : { uri: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop&crop=face' }}
-                  style={styles.heroPetImg}
-                />
-                <LinearGradient colors={['transparent', 'rgba(30,12,60,0.8)']} style={styles.heroPetOverlay} />
-                <Text style={styles.heroName}>{currentPet.name}</Text>
-              </View>
+          <LinearGradient colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.04)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.heroGlass}>
+            
+            {/* Left side: Golden Retriever taking up the height, slightly overflowing */}
+            <View style={styles.heroLeft}>
+              <Image 
+                source={{uri: buddyImg}} 
+                style={styles.heroImage} 
+                resizeMode="contain" 
+              />
+              <Text style={styles.heroName}>{currentPet.name}</Text>
+            </View>
 
-              {/* Right Side: Stats vertically */}
-              <View style={styles.heroRight}>
-                <View style={styles.statPill}>
-                  <View style={styles.statIconBg}><Clock color="#fff" size={14} /></View>
-                  <View>
-                    <Text style={styles.statL}>Age</Text>
-                    <Text style={styles.statV}>{currentPet.age}</Text>
-                  </View>
+            {/* Right side: 3 Stats Pills stacked vertically */}
+            <View style={styles.heroRight}>
+              <View style={styles.statPill}>
+                <View style={styles.statIcon}><Clock color="#fff" size={12} /></View>
+                <View>
+                  <Text style={styles.statLabel}>Age</Text>
+                  <Text style={styles.statValue}>{currentPet.age}</Text>
                 </View>
-                <View style={[styles.statPill, { marginVertical: 14 }]}>
-                  <View style={styles.statIconBg}><Scale color="#fff" size={14} /></View>
-                  <View>
-                    <Text style={styles.statL}>Weight</Text>
-                    <Text style={styles.statV}>{currentPet.weight}</Text>
-                  </View>
+              </View>
+              <View style={styles.statPill}>
+                <View style={styles.statIcon}><Scale color="#fff" size={12} /></View>
+                <View>
+                  <Text style={styles.statLabel}>Weight</Text>
+                  <Text style={styles.statValue}>{currentPet.weight}</Text>
                 </View>
-                <View style={styles.statPill}>
-                  <View style={styles.statIconBg}><Dog color="#fff" size={14} /></View>
-                  <View>
-                    <Text style={styles.statL}>Type</Text>
-                    <Text style={styles.statV}>{currentPet.breed}</Text>
-                  </View>
+              </View>
+              <View style={styles.statPill}>
+                <View style={styles.statIcon}><Dog color="#fff" size={12} /></View>
+                <View>
+                  <Text style={styles.statLabel}>Type</Text>
+                  <Text style={styles.statValue}>{currentPet.breed}</Text>
                 </View>
               </View>
             </View>
+            
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* ── WEIGHT TRACKER ── */}
-        <View style={styles.card}>
-          <LinearGradient colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)']} style={styles.cardGlass}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Health Weight Tracker</Text>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {/* ── HEALTH WEIGHT TRACKER ── */}
+        <View style={styles.glassCard}>
+          <LinearGradient colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.03)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.glassInner}>
+            <Text style={styles.cardTitle}>Health Weight Tracker</Text>
+            <View style={styles.chartContainer}>
               <WeightLineChart />
-            </ScrollView>
+            </View>
           </LinearGradient>
         </View>
 
-        {/* ── QUICK ACTIONS ── */}
-        <Text style={styles.sectionTitle}>Actions rapides</Text>
-        <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/appointments' as any)}>
-            <LinearGradient colors={['rgba(168,85,247,0.25)', 'rgba(124,58,237,0.1)']} style={styles.quickBtnGrad}>
-              <Text style={styles.quickIcon}>📅</Text>
-              <Text style={styles.quickLabel}>Agenda</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/map' as any)}>
-            <LinearGradient colors={['rgba(59,130,246,0.25)', 'rgba(37,99,235,0.1)']} style={styles.quickBtnGrad}>
-              <Text style={styles.quickIcon}>🗺️</Text>
-              <Text style={styles.quickLabel}>Carte & Météo</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/ai-assist' as any)}>
-            <LinearGradient colors={['rgba(16,185,129,0.25)', 'rgba(5,150,105,0.1)']} style={styles.quickBtnGrad}>
-              <Text style={styles.quickIcon}>🤖</Text>
-              <Text style={styles.quickLabel}>VetAI</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/history' as any)}>
-            <LinearGradient colors={['rgba(245,158,11,0.25)', 'rgba(217,119,6,0.1)']} style={styles.quickBtnGrad}>
-              <Text style={styles.quickIcon}>📋</Text>
-              <Text style={styles.quickLabel}>Historique</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── VETS ── */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Local Veterinarians</Text>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
+        {/* ── LOCAL VETERINARIANS ── */}
+        <Text style={styles.sectionTitle}>Local Veterinarians</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
           <VetCard name="Happy Paws Clinic" rating="4.9" dist="1.2 mi" img="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop" />
           <VetCard name="City Vet Hospital" rating="4.7" dist="2.5 mi" img="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop" />
           <VetCard name="Pet Wellness Center" rating="4.8" dist="0.8 mi" img="https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" />
         </ScrollView>
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: 100 }} />
       </Animated.ScrollView>
     </SafeAreaView>
   );
 }
 
-function VetCard({ name, rating, dist, img }: any) {
+function VetCard({ name, rating, dist, img }: {name:string, rating:string, dist:string, img:string}) {
   const router = useRouter();
   return (
-    <TouchableOpacity style={styles.vetCard} onPress={() => router.push('/map' as any)}>
-      <LinearGradient colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.02)']} style={styles.vetCardGlass}>
-        <View style={styles.vetImgContainer}>
+    <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
+      <LinearGradient colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.03)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.vetCardGlass}>
+        <View style={styles.vetImgWrap}>
           <Image source={{ uri: img }} style={styles.vetImg} />
         </View>
-        <View style={styles.vetContent}>
-          <Text style={styles.vetName}>{name}</Text>
-          <View style={styles.vetMeta}>
-            <Star color="#F59E0B" size={12} fill="#F59E0B" />
+        <Text style={styles.vetName} numberOfLines={2}>{name}</Text>
+        <View style={styles.vetMetaRow}>
+          <View style={styles.vetMetaItem}>
+            <Star color="#F59E0B" size={10} fill="#F59E0B" />
             <Text style={styles.vetRating}>{rating}</Text>
-            <MapPin color="rgba(255,255,255,0.6)" size={10} style={{ marginLeft: 8 }} />
-            <Text style={styles.vetDist}>{dist}</Text>
+          </View>
+          <View style={styles.vetMetaItem}>
+             <MapPin color="rgba(255,255,255,0.6)" size={10} />
+             <Text style={styles.vetDist}>{dist}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -307,57 +261,53 @@ function VetCard({ name, rating, dist, img }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scroll: { padding: 24, paddingTop: 60, paddingBottom: 100 },
-  orb1: { position: 'absolute', width: 500, height: 500, borderRadius: 250, backgroundColor: 'rgba(124,58,237,0.15)', top: -100, right: -150, filter: 'blur(40px)' },
-  orb2: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(217,70,239,0.12)', top: 250, left: -100, filter: 'blur(30px)' },
-  orb3: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(168,85,247,0.08)', bottom: 0, right: -100, filter: 'blur(40px)' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  logoRow: { flexDirection: 'row', alignItems: 'center' },
-  logoBg: { padding: 8, borderRadius: 10 },
-  brand: { color: 'white', fontSize: 20, fontWeight: '900', marginLeft: 8 },
-  headerRight: { flexDirection: 'row', alignItems: 'center' },
-  iconBtn: { backgroundColor: 'transparent', padding: 10, marginRight: 8 },
-  avatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: '#fff' },
-  welcomeText: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 24 },
-  nameHighlight: { color: '#fff' },
+  container: { flex: 1, backgroundColor: '#150330' },
+  scroll: { padding: 24, paddingTop: 50 },
   
-  heroCard: { borderRadius: 32, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 30 },
-  heroGlass: { flex: 1, padding: 16 },
-  heroRow: { flexDirection: 'row', alignItems: 'center' },
-  heroLeft: { width: '45%', aspectRatio: 0.8, borderRadius: 24, overflow: 'hidden' },
-  heroPetImg: { width: '100%', height: '100%' },
-  heroPetOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', padding: 16 },
-  heroName: { color: 'white', fontSize: 28, fontWeight: '900', zIndex: 5 },
-  heroRight: { flex: 1, paddingLeft: 16, justifyContent: 'center' },
-  statPill: { flexDirection: 'row', alignItems: 'center' },
-  statIconBg: { backgroundColor: 'rgba(255,255,255,0.15)', padding: 10, borderRadius: 16, marginRight: 12 },
-  statL: { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '500' },
-  statV: { color: '#fff', fontSize: 15, fontWeight: '800', marginTop: 2 },
+  // Ambient Aura Glowing Effects
+  glowTopRight: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: '#8B1874', top: -100, right: -150, opacity: 0.35, filter: 'blur(60px)' },
+  glowMidLeft: { position: 'absolute', width: 350, height: 350, borderRadius: 175, backgroundColor: '#6C24B5', top: 250, left: -150, opacity: 0.25, filter: 'blur(70px)' },
+  glowBottomRight: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: '#B638F6', bottom: 50, right: -100, opacity: 0.2, filter: 'blur(60px)' },
 
-  card: { borderRadius: 32, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', marginBottom: 28 },
-  cardGlass: { padding: 24, flex: 1 },
-  cardHeader: { marginBottom: 16 },
-  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
-
-  quickActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 36 },
-  quickBtn: { width: '48%', marginBottom: 12, borderRadius: 28, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  quickBtnGrad: { padding: 20, alignItems: 'center' },
-  quickIcon: { fontSize: 28, marginBottom: 8 },
-  quickLabel: { color: '#fff', fontSize: 13, fontWeight: '900' },
-
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  sectionTitle: { color: '#fff', fontSize: 18, fontWeight: '800', marginBottom: 16 },
-  seeAll: { color: '#A855F7', fontSize: 14, fontWeight: '800' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  brandRow: { flexDirection: 'row', alignItems: 'center' },
+  brandIcon: { width: 32, height: 32, justifyContent: 'center', alignItems: 'center' },
+  brandText: { color: 'white', fontSize: 18, fontWeight: '800', marginLeft: 4, letterSpacing: -0.5 },
+  headerActions: { flexDirection: 'row', alignItems: 'center' },
+  bellBtn: { padding: 8, marginRight: 8, position: 'relative' },
+  bellDot: { position: 'absolute', top: 8, right: 10, width: 8, height: 8, backgroundColor: '#EF4444', borderRadius: 4, borderWidth: 1.5, borderColor: '#2A0A4A' },
+  avatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1.5, borderColor: '#fff' },
   
-  vetCard: { width: 150, marginRight: 16, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+  welcomeText: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 28, letterSpacing: -0.5 },
+  
+  // Hero Card "Buddy"
+  heroCard: { width: '100%', height: 200, borderRadius: 32, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20 },
+  heroGlass: { flex: 1, flexDirection: 'row', paddingRight: 20 },
+  heroLeft: { flex: 1.2, justifyContent: 'flex-end', alignItems: 'center', position: 'relative' },
+  heroImage: { width: '120%', height: '110%', position: 'absolute', bottom: -10, left: -10 },
+  heroName: { color: '#fff', fontSize: 28, fontWeight: '900', position: 'absolute', bottom: 20, left: 24, textShadowColor: 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 },
+  heroRight: { flex: 0.8, justifyContent: 'center', gap: 10 },
+  statPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  statIcon: { backgroundColor: 'transparent', marginRight: 8 },
+  statLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '600', textTransform: 'uppercase' },
+  statValue: { color: '#fff', fontSize: 12, fontWeight: '800' },
+
+  // Glass Card Generic (Tracker)
+  glassCard: { width: '100%', borderRadius: 28, overflow: 'hidden', marginBottom: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20 },
+  glassInner: { padding: 24 },
+  cardTitle: { color: '#fff', fontSize: 19, fontWeight: '800', marginBottom: 20 },
+  chartContainer: { alignItems: 'center', marginLeft: -12 }, // offset padding for Y axis label
+
+  sectionTitle: { color: '#fff', fontSize: 19, fontWeight: '800', marginBottom: 16 },
+
+  // Vet Card exactly matching mockup
+  vetCardWrap: { width: 140, height: 160, marginRight: 16, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.2, shadowRadius: 10 },
   vetCardGlass: { flex: 1, padding: 12 },
-  vetImgContainer: { width: '100%', aspectRatio: 1.5, borderRadius: 16, overflow: 'hidden', marginBottom: 12 },
+  vetImgWrap: { width: '100%', height: 75, borderRadius: 16, overflow: 'hidden', marginBottom: 12 },
   vetImg: { width: '100%', height: '100%' },
-  vetContent: { flex: 1 },
-  vetName: { color: '#fff', fontSize: 13, fontWeight: '800', marginBottom: 6 },
-  vetMeta: { flexDirection: 'row', alignItems: 'center' },
-  vetRating: { color: '#F59E0B', fontSize: 11, fontWeight: '800', marginLeft: 4 },
-  vetDist: { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '600', marginLeft: 4 },
+  vetName: { color: '#fff', fontSize: 13, fontWeight: '800', marginVertical: 6, lineHeight: 16 },
+  vetMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
+  vetMetaItem: { flexDirection: 'row', alignItems: 'center' },
+  vetRating: { color: '#F59E0B', fontSize: 10, fontWeight: '800', marginLeft: 4 },
+  vetDist: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '600', marginLeft: 4 },
 });
