@@ -8,11 +8,13 @@ export interface Pet {
   breed: string;
   age: string;
   weight: string;
+  photo?: string | null;
 }
 
 interface PetContextType {
   pet: Pet | null;
   savePet: (data: Partial<Pet>) => Promise<void>;
+  updatePet: (data: Partial<Pet>) => Promise<void>;
   resetPet: () => void;
   loading: boolean;
 }
@@ -48,13 +50,16 @@ export function PetProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Alias for compatibility
+  const updatePet = savePet;
+
   const resetPet = async () => {
     setPet(null);
     await AsyncStorage.removeItem('vetcare_pet');
   };
 
   return (
-    <PetContext.Provider value={{ pet, savePet, resetPet, loading }}>
+    <PetContext.Provider value={{ pet, savePet, updatePet, resetPet, loading }}>
       {children}
     </PetContext.Provider>
   );

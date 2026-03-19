@@ -128,10 +128,10 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 14, fontWeight: '900', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16, marginLeft: 12 },
   menuGroup: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 40, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 32 },
   menuItem: { flexDirection: 'row', alignItems: 'center', padding: 20 },
-  menuIconBg: { padding: 12, borderRadius: 18, borderSize: 1, borderWidth: 1 },
+  menuIconBg: { padding: 12, borderRadius: 18, borderWidth: 1 },
   menuTitle: { fontSize: 17, fontWeight: '800', color: '#FFFFFF' },
   menuSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: '600', marginTop: 2 },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 24, borderRadius: 32, backgroundColor: 'rgba(239, 68, 68, 0.1)', marginBottom: 24, borderSize: 1, borderColor: 'rgba(239, 68, 68, 0.2)', borderWidth: 1 },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 24, borderRadius: 32, backgroundColor: 'rgba(239, 68, 68, 0.1)', marginBottom: 24, borderColor: 'rgba(239, 68, 68, 0.2)', borderWidth: 1 },
   logoutText: { color: '#EF4444', fontSize: 17, fontWeight: '800', marginLeft: 12 },
   versionText: { textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 13, fontWeight: '700' }
 });

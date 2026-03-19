@@ -19,7 +19,8 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
      const s = segments[0];
      if (path === 'dashboard' && s === 'dashboard') return true;
      if (path === 'history' && s === 'history') return true;
-     if (path === 'ai-assist' && s === 'ai-assist') return true;
+     if (path === 'appointments' && s === 'appointments') return true;
+     if (path === 'map' && s === 'map') return true;
      if (path === 'settings' && s === 'settings') return true;
      return false;
   };
@@ -46,8 +47,8 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
         <View style={styles.navLinks}>
            <NavItem icon={Home} label="Accueil" path="dashboard" />
            <NavItem icon={Heart} label="Santé" path="history" />
-           <NavItem icon={Calendar} label="Rendez-vous" path="history" />
-           <NavItem icon={MapPin} label="Carte" path="dashboard" />
+           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" />
+           <NavItem icon={MapPin} label="Carte" path="map" />
            <NavItem icon={User} label="Profil" path="settings" />
         </View>
         <View style={styles.topRight}>
@@ -64,8 +65,8 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
     <View style={styles.bottomNav}>
        <NavItem icon={Home} label="Accueil" path="dashboard" />
        <NavItem icon={Heart} label="Santé" path="history" />
-       <NavItem icon={Calendar} label="Agenda" path="history" />
-       <NavItem icon={MapPin} label="Carte" path="dashboard" />
+       <NavItem icon={Calendar} label="Agenda" path="appointments" />
+       <NavItem icon={MapPin} label="Carte" path="map" />
        <NavItem icon={User} label="Profil" path="settings" />
     </View>
   );
@@ -129,6 +130,8 @@ function RootLayoutNav() {
              <Stack.Screen name="onboarding" />
              <Stack.Screen name="dashboard" />
              <Stack.Screen name="history" />
+             <Stack.Screen name="appointments" />
+             <Stack.Screen name="map" />
              <Stack.Screen name="settings" />
              <Stack.Screen name="ai-assist" />
              <Stack.Screen name="pet-profile" />
