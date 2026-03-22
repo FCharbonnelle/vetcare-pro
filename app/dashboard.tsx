@@ -157,11 +157,19 @@ export default function Dashboard() {
           </View>
           
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.bellBtn}>
+            <TouchableOpacity
+              style={styles.bellBtn}
+              accessibilityLabel="Notifications"
+              accessibilityRole="button"
+            >
               <Bell color="#fff" size={20} />
               <View style={styles.bellDot} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/settings' as any)}>
+            <TouchableOpacity
+              onPress={() => router.push('/settings' as any)}
+              accessibilityLabel="Mon profil"
+              accessibilityRole="button"
+            >
               <Image source={{uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'}} style={styles.avatar} />
             </TouchableOpacity>
           </View>
