@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions, ActivityIndicator } from 'react-native';
 import { Bell, MapPin, Heart, Clock, Scale, Dog, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
@@ -118,8 +118,8 @@ function WeightLineChart() {
 }
 
 export default function Dashboard() {
-  const { user } = useAuth();
-  const { pet } = usePet();
+  const { user, isLoading: authLoading } = useAuth();
+  const { pet, loading: petLoading } = usePet();
   const fullName = user?.user_metadata?.full_name?.split(' ')[0] || 'Sarah';
   const router = useRouter();
   
@@ -132,6 +132,14 @@ export default function Dashboard() {
   const currentPet = pet || { name: 'Buddy', breed: 'Golden Retriever', age: '3 yrs', weight: '34 kg', photo: null };
   // Mock image for Buddy if no pet uploaded vs golden retriever
   const buddyImg = currentPet.photo || 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Golden_Retriever_transparent.png';
+
+  if (authLoading || petLoading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#A855F7" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>

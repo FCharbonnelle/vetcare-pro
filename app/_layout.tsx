@@ -8,6 +8,7 @@ import { AuthProvider } from '@/store/AuthContext';
 import { PetProvider } from '@/store/PetContext';
 import { Home, Heart, Calendar, MapPin, User, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { initRevenueCat } from '@/services/revenuecat';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -83,6 +84,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
+      initRevenueCat().catch(e => console.error('RC Init failed', e));
       SplashScreen.hideAsync();
     }
   }, [loaded]);

@@ -1,11 +1,19 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated } from 'react-native';
-import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, ActivityIndicator, Alert } from 'react-native';
+import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Camera } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
+import { scanHealthRecord } from '@/services/ocr';
+import { supabase, isMockMode } from '@/services/supabase';
+import { useAuth } from '@/store/AuthContext';
+import { usePet } from '@/store/PetContext';
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+  const { pet } = usePet();
+  const [loading, setLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -15,6 +23,45 @@ export default function HistoryScreen() {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  const handleScan = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission refusée', "L'accès à l'appareil photo est requis.");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setLoading(true);
+      try {
+        const ocrResult = await scanHealthRecord(result.assets[0].uri);
+
+        if (!isMockMode && user && pet) {
+           const { error } = await supabase
+             .from('health_records')
+             .insert({
+               pet_id: pet.id,
+               record_type: ocrResult.record_type,
+               visit_date: ocrResult.visit_date,
+               extracted_text: { summary: ocrResult.extracted_info },
+             });
+
+           if (error) throw error;
+        }
+
+        Alert.alert('Scan Réussi', `Le document (${ocrResult.record_type}) a été analysé et enregistré.`);
+      } catch (error) {
+        Alert.alert('Erreur', "Le scan n'a pas pu être complété.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
     <TouchableOpacity style={styles.historyItem}>
@@ -62,10 +109,16 @@ export default function HistoryScreen() {
 
         <View style={styles.sectionHeader}>
            <Text style={styles.sectionTitle}>Activités récentes</Text>
-           <TouchableOpacity style={styles.addBtnContainer}>
-              <Plus color="#A855F7" size={20} />
-              <Text style={styles.addBtnText}>Nouveau</Text>
-           </TouchableOpacity>
+           <View style={{ flexDirection: 'row' }}>
+             <TouchableOpacity style={[styles.addBtnContainer, { marginRight: 10 }]} onPress={handleScan}>
+                {loading ? <ActivityIndicator size="small" color="#A855F7" /> : <Camera color="#A855F7" size={20} />}
+                <Text style={styles.addBtnText}>Scanner</Text>
+             </TouchableOpacity>
+             <TouchableOpacity style={styles.addBtnContainer}>
+                <Plus color="#A855F7" size={20} />
+                <Text style={styles.addBtnText}>Nouveau</Text>
+             </TouchableOpacity>
+           </View>
         </View>
 
         <View style={styles.listContainer}>
