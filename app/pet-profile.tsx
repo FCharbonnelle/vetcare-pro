@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Alert, Platform, Modal } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Alert, Platform, Modal, ActivityIndicator } from 'react-native';
 import { Camera, Save, ChevronLeft, Heart, Sparkles, Dog, Scale, Clock, X, Upload, ImageIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
@@ -26,6 +26,7 @@ export default function PetProfile() {
   const router = useRouter();
   const { pet, updatePet } = usePet();
   const [name, setName] = useState(pet?.name || 'Buddy');
+  const [isSaving, setIsSaving] = useState(false);
   const [breed, setBreed] = useState(pet?.breed || 'Golden Retriever');
   const [age, setAge] = useState(pet?.age || '3 ans');
   const [weight, setWeight] = useState(pet?.weight || '34 kg');
@@ -39,8 +40,13 @@ export default function PetProfile() {
   }, []);
 
   const handleSave = async () => {
-    await updatePet({ name, breed, age, weight, photo } as any);
-    router.back();
+    setIsSaving(true);
+    try {
+      await updatePet({ name, breed, age, weight, photo } as any);
+      router.back();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const pickFromGallery = async () => {
@@ -115,11 +121,23 @@ export default function PetProfile() {
       <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { opacity: fadeAnim }]}>
 
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backBtn}
+            accessibilityLabel="Retour"
+            accessibilityRole="button"
+          >
             <ChevronLeft color="#fff" size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Éditer le profil</Text>
-          <TouchableOpacity onPress={handleSave} style={styles.saveBtnTop}>
+          <TouchableOpacity
+            onPress={handleSave}
+            style={styles.saveBtnTop}
+            accessibilityLabel="Enregistrer le profil"
+            accessibilityRole="button"
+            disabled={isSaving}
+            accessibilityState={{ disabled: isSaving }}
+          >
             <Save color="#A855F7" size={22} />
           </TouchableOpacity>
         </View>
@@ -147,19 +165,39 @@ export default function PetProfile() {
 
           {/* Photo options */}
           <View style={styles.photoOptions}>
-            <TouchableOpacity style={styles.photoOption} onPress={pickFromGallery}>
+            <TouchableOpacity
+              style={styles.photoOption}
+              onPress={pickFromGallery}
+              accessibilityLabel="Choisir depuis la galerie"
+              accessibilityRole="button"
+            >
               <ImageIcon color="#A855F7" size={18} />
               <Text style={styles.photoOptionText}>Galerie</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.photoOption} onPress={pickFromCamera}>
+            <TouchableOpacity
+              style={styles.photoOption}
+              onPress={pickFromCamera}
+              accessibilityLabel="Prendre une photo"
+              accessibilityRole="button"
+            >
               <Camera color="#10B981" size={18} />
               <Text style={[styles.photoOptionText, { color: '#10B981' }]}>Appareil</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.photoOption} onPress={() => setShowAvatarModal(true)}>
+            <TouchableOpacity
+              style={styles.photoOption}
+              onPress={() => setShowAvatarModal(true)}
+              accessibilityLabel="Choisir un avatar"
+              accessibilityRole="button"
+            >
               <Dog color="#F59E0B" size={18} />
               <Text style={[styles.photoOptionText, { color: '#F59E0B' }]}>Avatar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.photoOption} onPress={pickFromFile}>
+            <TouchableOpacity
+              style={styles.photoOption}
+              onPress={pickFromFile}
+              accessibilityLabel="Choisir un fichier"
+              accessibilityRole="button"
+            >
               <Upload color="#3B82F6" size={18} />
               <Text style={[styles.photoOptionText, { color: '#3B82F6' }]}>Fichier</Text>
             </TouchableOpacity>
@@ -174,9 +212,20 @@ export default function PetProfile() {
           <InputField icon={Scale} label="POIDS ACTUEL" value={weight} onChangeText={setWeight} placeholder="Ex: 34 kg..." />
         </View>
 
-        <TouchableOpacity style={styles.saveBtnLarge} onPress={handleSave}>
+        <TouchableOpacity
+          style={styles.saveBtnLarge}
+          onPress={handleSave}
+          disabled={isSaving}
+          accessibilityLabel="Enregistrer les modifications"
+          accessibilityRole="button"
+          accessibilityState={{ disabled: isSaving }}
+        >
           <LinearGradient colors={['#A855F7', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.saveBtnGrad}>
-            <Text style={styles.saveBtnText}>Enregistrer les modifications</Text>
+            {isSaving ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.saveBtnText}>Enregistrer les modifications</Text>
+            )}
           </LinearGradient>
         </TouchableOpacity>
 
