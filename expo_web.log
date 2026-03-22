@@ -1,0 +1,73 @@
+Starting project at /app
+Starting Metro Bundler
+
+The following packages should be updated for best compatibility with the installed expo version:
+  @react-native-async-storage/async-storage@3.0.1 - expected version: 2.2.0
+  react-native-svg@15.15.4 - expected version: 15.15.3
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules/expo-router/entry.js ▓▓▓▓░░░░░░░░░░░░ 25.0% (15/89)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓░░░░░░░░░░░░░░░ 10.4% (19/59)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.6% (181/257)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓░░░░░░░░░░░░ 30.5% (105/220)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 51.3% (266/378)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓░░░░░░░░░░░ 31.9% (236/418)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 51.3% (291/422)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓░░░░░░░░░░░ 31.9% ( 397/2276)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 53.2% (366/524)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓░░░░░░░░░░ 41.1% (1474/2298)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 53.4% (415/568)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 87.0% (2291/2479)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.1% ( 660/2456)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.7% (2491/2560)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.1% (1413/2481)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.1% (2529/2566)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.9% (2460/2571)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.9% (2543/2570)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.2% (2654/2665)
+λ node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.9% (2606/2620)
+Web Bundled 36334ms node_modules/expo-router/entry.js (2665 modules)
+λ Bundled 37070ms node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js (2630 modules)
+Web platform detected. Using RevenueCat in Browser Mode.
+"shadow*" style props are deprecated. Use "boxShadow".
+"textShadow*" style props are deprecated. Use "textShadow".
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 89ms node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js (1 module)
+Web platform detected. Using RevenueCat in Browser Mode.
+"shadow*" style props are deprecated. Use "boxShadow".
+"textShadow*" style props are deprecated. Use "textShadow".
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 631ms node_modules/expo-router/entry.js (1 module)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 45.6% (339/513)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 48.9% (1116/2393)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 93.8% (2454/2538)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.7% (2577/2621)
+Web Bundled 14926ms node_modules/expo-router/entry.js (2669 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 66ms node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js (1 module)
+Web platform detected. Using RevenueCat in Browser Mode.
+"shadow*" style props are deprecated. Use "boxShadow".
+"textShadow*" style props are deprecated. Use "textShadow".
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 1094ms node_modules/expo-router/entry.js (1 module)
+Web Bundled 227ms node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+λ Bundled 54ms node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js (1 module)
+Web platform detected. Using RevenueCat in Browser Mode.
+"shadow*" style props are deprecated. Use "boxShadow".
+"textShadow*" style props are deprecated. Use "textShadow".
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 693ms node_modules/expo-router/entry.js (1 module)
+Web Bundled 278ms node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+λ Bundled 61ms node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js (1 module)
+Web platform detected. Using RevenueCat in Browser Mode.
+"shadow*" style props are deprecated. Use "boxShadow".
+"textShadow*" style props are deprecated. Use "textShadow".
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 581ms node_modules/expo-router/entry.js (1 module)
+Web Bundled 83ms node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
