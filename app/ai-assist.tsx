@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { usePet } from '@/store/PetContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { analyzeSymptoms } from '@/services/ai';
 
 export default function AIAssist() {
   const [symptom, setSymptom] = useState('');
@@ -12,6 +13,7 @@ export default function AIAssist() {
   const router = useRouter();
   const { pet } = usePet();
   const petName = pet?.name || 'Buddy';
+  const petInfo = `${pet?.breed || 'Inconnu'}, ${pet?.age || 'Inconnu'}, ${pet?.weight || 'Inconnu'}`;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -23,17 +25,23 @@ export default function AIAssist() {
     }).start();
   }, [analyzing]);
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!symptom) return;
     setAnalyzing(true);
-    setTimeout(() => {
-      setAnalyzing(false);
+    setResult(null);
+    try {
+      const response = await analyzeSymptoms(petName, petInfo, symptom);
+      setResult(response);
+    } catch (error) {
+      console.error(error);
       setResult({
-        severity: 'Modérée',
-        advice: `D'après les symptômes décrits pour ${petName}, il pourrait s'agir d'une légère déshydratation ou d'une infection mineure. Surveillez-le de près pendant 24h.`,
-        warning: 'En cas de vomissements, consultez immédiatement un vétérinaire.'
+        severity: 'Inconnu',
+        advice: "Une erreur est survenue lors de l'analyse.",
+        warning: 'Veuillez réessayer plus tard.'
       });
-    }, 2000);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
