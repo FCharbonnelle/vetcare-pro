@@ -1,8 +1,24 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated } from 'react-native';
 import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const HistoryItem = memo(({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
+  <TouchableOpacity style={styles.historyItem}>
+    <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
+      <Icon color={color} size={20} />
+    </View>
+    <View style={{ flex: 1, marginLeft: 16 }}>
+      <Text style={styles.itemTitle}>{title}</Text>
+      <Text style={styles.itemType}>{type}</Text>
+    </View>
+    <View style={{ alignItems: 'flex-end' }}>
+      <Text style={styles.itemDate}>{date}</Text>
+      <Text style={styles.itemStatus}>Terminé</Text>
+    </View>
+  </TouchableOpacity>
+));
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -15,22 +31,6 @@ export default function HistoryScreen() {
       useNativeDriver: true,
     }).start();
   }, []);
-
-  const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
-    <TouchableOpacity style={styles.historyItem}>
-      <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
-        <Icon color={color} size={20} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.itemTitle}>{title}</Text>
-        <Text style={styles.itemType}>{type}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={styles.itemDate}>{date}</Text>
-        <Text style={styles.itemStatus}>Terminé</Text>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>

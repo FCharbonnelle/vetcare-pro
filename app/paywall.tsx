@@ -1,8 +1,17 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated } from 'react-native';
 import { Check, X, Sparkles, Heart, Shield, Zap, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const Feature = memo(({ text }: { text: string }) => (
+  <View style={styles.featureRow}>
+    <View style={styles.checkBg}>
+       <Check color="#FFFFFF" size={14} strokeWidth={4} />
+    </View>
+    <Text style={styles.featureText}>{text}</Text>
+  </View>
+));
 
 export default function Paywall() {
   const router = useRouter();
@@ -15,15 +24,6 @@ export default function Paywall() {
       useNativeDriver: true,
     }).start();
   }, []);
-
-  const Feature = ({ text }: { text: string }) => (
-    <View style={styles.featureRow}>
-      <View style={styles.checkBg}>
-         <Check color="#FFFFFF" size={14} strokeWidth={4} />
-      </View>
-      <Text style={styles.featureText}>{text}</Text>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>

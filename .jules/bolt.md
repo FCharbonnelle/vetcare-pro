@@ -1,0 +1,3 @@
+## 2025-05-15 - [Component Extraction & Prop Stability]
+**Learning:** In React Native (and React in general), defining components inside another component's render function is a major performance bottleneck as they are re-created on every render, losing their state and preventing reconciliation. Furthermore, `React.memo` is completely ineffective if the parent passes inline functions or objects as props, as these change every render.
+**Action:** Always extract sub-components to the top level. Use `React.memo` for these components and pair it with `useCallback` (or `useMemo` for objects) in the parent to ensure prop stability, allowing `memo` to actually skip re-renders.
