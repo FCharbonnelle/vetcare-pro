@@ -3,8 +3,21 @@ import { User, Bell, Shield, HelpCircle, LogOut, ChevronRight, Star, Share2, Tra
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
 import { usePet } from '@/store/PetContext';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const MenuItem = memo(({ icon: Icon, title, subtitle, color = "#A855F7", onPress }: any) => (
+  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <View style={[styles.menuIconBg, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
+      <Icon color={color} size={22} />
+    </View>
+    <View style={{ flex: 1, marginLeft: 16 }}>
+      <Text style={styles.menuTitle}>{title}</Text>
+      {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+    </View>
+    <ChevronRight color="rgba(255,255,255,0.2)" size={20} />
+  </TouchableOpacity>
+));
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -22,23 +35,13 @@ export default function SettingsScreen() {
     }).start();
   }, []);
 
-  const handleClearCache = async () => {
+  const handleClearCache = useCallback(async () => {
     await resetPet();
     router.push('/onboarding' as any);
-  };
+  }, [resetPet, router]);
 
-  const MenuItem = ({ icon: Icon, title, subtitle, color = "#A855F7", onPress }: any) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <View style={[styles.menuIconBg, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
-        <Icon color={color} size={22} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.menuTitle}>{title}</Text>
-        {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
-      </View>
-      <ChevronRight color="rgba(255,255,255,0.2)" size={20} />
-    </TouchableOpacity>
-  );
+  const navigateToPaywall = useCallback(() => router.push('/paywall'), [router]);
+  const navigateToOnboarding = useCallback(() => router.push('/onboarding' as any), [router]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -63,7 +66,7 @@ export default function SettingsScreen() {
         </View>
 
         <TouchableOpacity 
-          onPress={() => router.push('/paywall')}
+          onPress={navigateToPaywall}
           style={styles.upsellCard}
         >
           <LinearGradient
@@ -98,7 +101,7 @@ export default function SettingsScreen() {
           <MenuItem icon={Trash2} title="Effacer les données" subtitle="Réinitialisation complète" color="#EF4444" onPress={handleClearCache} />
         </View>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={() => router.push('/onboarding' as any)}>
+        <TouchableOpacity style={styles.logoutBtn} onPress={navigateToOnboarding}>
           <LogOut color="#EF4444" size={20} />
           <Text style={styles.logoutText}>Déconnexion</Text>
         </TouchableOpacity>

@@ -8,14 +8,27 @@ import { AuthProvider } from '@/store/AuthContext';
 import { PetProvider } from '@/store/PetContext';
 import { Home, Heart, Calendar, MapPin, User, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { memo, useCallback } from 'react';
 
 SplashScreen.preventAutoHideAsync();
+
+const NavItem = memo(({ icon: Icon, label, path, isDesktop, isActive, router }: any) => (
+  <TouchableOpacity
+    onPress={() => router.push(path as any)}
+    style={[
+      isDesktop ? styles.desktopNavItem : styles.mobileNavItem,
+    ]}
+  >
+    <Icon color={isActive ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive ? '#A855F7' : 'transparent'} />
+    <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive && styles.navLabelActive]}>{label}</Text>
+  </TouchableOpacity>
+));
 
 function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
   const router = useRouter();
   const segments = useSegments();
   
-  const isActive = (path: string) => {
+  const isActive = useCallback((path: string) => {
      const s = segments[0];
      if (path === 'dashboard' && s === 'dashboard') return true;
      if (path === 'history' && s === 'history') return true;
@@ -23,19 +36,9 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
      if (path === 'map' && s === 'map') return true;
      if (path === 'settings' && s === 'settings') return true;
      return false;
-  };
+  }, [segments]);
 
-  const NavItem = ({ icon: Icon, label, path }: any) => (
-    <TouchableOpacity 
-      onPress={() => router.push(path as any)}
-      style={[
-        isDesktop ? styles.desktopNavItem : styles.mobileNavItem, 
-      ]}
-    >
-      <Icon color={isActive(path) ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive(path) ? '#A855F7' : 'transparent'} />
-      <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive(path) && styles.navLabelActive]}>{label}</Text>
-    </TouchableOpacity>
-  );
+  const navigateToPaywall = useCallback(() => router.push('/paywall'), [router]);
 
   if (isDesktop) {
     return (
@@ -45,15 +48,15 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
            <Text style={styles.brandText}>VetCare Pro</Text>
         </View>
         <View style={styles.navLinks}>
-           <NavItem icon={Home} label="Accueil" path="dashboard" />
-           <NavItem icon={Heart} label="Santé" path="history" />
-           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" />
-           <NavItem icon={MapPin} label="Carte" path="map" />
-           <NavItem icon={User} label="Profil" path="settings" />
+           <NavItem icon={Home} label="Accueil" path="dashboard" isDesktop={isDesktop} isActive={isActive('dashboard')} router={router} />
+           <NavItem icon={Heart} label="Santé" path="history" isDesktop={isDesktop} isActive={isActive('history')} router={router} />
+           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" isDesktop={isDesktop} isActive={isActive('appointments')} router={router} />
+           <NavItem icon={MapPin} label="Carte" path="map" isDesktop={isDesktop} isActive={isActive('map')} router={router} />
+           <NavItem icon={User} label="Profil" path="settings" isDesktop={isDesktop} isActive={isActive('settings')} router={router} />
         </View>
         <View style={styles.topRight}>
            <TouchableOpacity style={styles.notifBtn}><Bell color="white" size={20} /></TouchableOpacity>
-           <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8} onPress={() => router.push('/paywall')}>
+           <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8} onPress={navigateToPaywall}>
               <Text style={styles.upgradeText}>Passer Pro</Text>
            </TouchableOpacity>
         </View>
@@ -63,11 +66,11 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
 
   return (
     <View style={styles.bottomNav}>
-       <NavItem icon={Home} label="Accueil" path="dashboard" />
-       <NavItem icon={Heart} label="Santé" path="history" />
-       <NavItem icon={Calendar} label="Agenda" path="appointments" />
-       <NavItem icon={MapPin} label="Carte" path="map" />
-       <NavItem icon={User} label="Profil" path="settings" />
+       <NavItem icon={Home} label="Accueil" path="dashboard" isDesktop={isDesktop} isActive={isActive('dashboard')} router={router} />
+       <NavItem icon={Heart} label="Santé" path="history" isDesktop={isDesktop} isActive={isActive('history')} router={router} />
+       <NavItem icon={Calendar} label="Agenda" path="appointments" isDesktop={isDesktop} isActive={isActive('appointments')} router={router} />
+       <NavItem icon={MapPin} label="Carte" path="map" isDesktop={isDesktop} isActive={isActive('map')} router={router} />
+       <NavItem icon={User} label="Profil" path="settings" isDesktop={isDesktop} isActive={isActive('settings')} router={router} />
     </View>
   );
 }

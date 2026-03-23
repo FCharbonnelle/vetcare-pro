@@ -1,10 +1,26 @@
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Alert, Platform, Modal } from 'react-native';
 import { Camera, Save, ChevronLeft, Heart, Sparkles, Dog, Scale, Clock, X, Upload, ImageIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { usePet } from '@/store/PetContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
+
+const InputField = memo(({ icon: Icon, label, value, onChangeText, placeholder }: any) => (
+  <View style={styles.inputGroup}>
+    <Text style={styles.label}>{label}</Text>
+    <View style={styles.inputWrapper}>
+      <Icon color="#A855F7" size={18} style={{ marginRight: 14 }} />
+      <TextInput
+        style={styles.input}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor="rgba(255,255,255,0.2)"
+      />
+    </View>
+  </View>
+));
 
 // Avatar presets by animal type
 const DOG_AVATARS = [
@@ -90,22 +106,6 @@ export default function PetProfile() {
   };
 
   const avatars = animalType === 'chien' ? DOG_AVATARS : CAT_AVATARS;
-
-  const InputField = ({ icon: Icon, label, value, onChangeText, placeholder }: any) => (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputWrapper}>
-        <Icon color="#A855F7" size={18} style={{ marginRight: 14 }} />
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="rgba(255,255,255,0.2)"
-        />
-      </View>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
