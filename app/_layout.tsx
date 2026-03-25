@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, memo, useCallback, useMemo } from 'react';
 import { useColorScheme, View, StyleSheet, useWindowDimensions, TouchableOpacity, Text, SafeAreaView, Platform } from 'react-native';
 import { AuthProvider } from '@/store/AuthContext';
 import { PetProvider } from '@/store/PetContext';
@@ -11,31 +11,46 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 SplashScreen.preventAutoHideAsync();
 
+interface NavItemProps {
+  icon: any;
+  label: string;
+  isDesktop: boolean;
+  isActive: boolean;
+  onPress: () => void;
+}
+
+const NavItem = memo(({ icon: Icon, label, isDesktop, isActive, onPress }: NavItemProps) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[
+      isDesktop ? styles.desktopNavItem : styles.mobileNavItem,
+    ]}
+  >
+    <Icon color={isActive ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive ? '#A855F7' : 'transparent'} />
+    <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive && styles.navLabelActive]}>{label}</Text>
+  </TouchableOpacity>
+));
+
 function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
   const router = useRouter();
   const segments = useSegments();
-  
-  const isActive = (path: string) => {
-     const s = segments[0];
-     if (path === 'dashboard' && s === 'dashboard') return true;
-     if (path === 'history' && s === 'history') return true;
-     if (path === 'appointments' && s === 'appointments') return true;
-     if (path === 'map' && s === 'map') return true;
-     if (path === 'settings' && s === 'settings') return true;
-     return false;
-  };
 
-  const NavItem = ({ icon: Icon, label, path }: any) => (
-    <TouchableOpacity 
-      onPress={() => router.push(path as any)}
-      style={[
-        isDesktop ? styles.desktopNavItem : styles.mobileNavItem, 
-      ]}
-    >
-      <Icon color={isActive(path) ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive(path) ? '#A855F7' : 'transparent'} />
-      <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive(path) && styles.navLabelActive]}>{label}</Text>
-    </TouchableOpacity>
-  );
+  const navigateToDashboard = useCallback(() => router.push('dashboard' as any), [router]);
+  const navigateToHistory = useCallback(() => router.push('history' as any), [router]);
+  const navigateToAppointments = useCallback(() => router.push('appointments' as any), [router]);
+  const navigateToMap = useCallback(() => router.push('map' as any), [router]);
+  const navigateToSettings = useCallback(() => router.push('settings' as any), [router]);
+  const navigateToPaywall = useCallback(() => router.push('/paywall'), [router]);
+
+  const activeSegment = segments[0];
+
+  const activeStates = useMemo(() => ({
+    dashboard: activeSegment === 'dashboard',
+    history: activeSegment === 'history',
+    appointments: activeSegment === 'appointments',
+    map: activeSegment === 'map',
+    settings: activeSegment === 'settings',
+  }), [activeSegment]);
 
   if (isDesktop) {
     return (
@@ -45,15 +60,15 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
            <Text style={styles.brandText}>VetCare Pro</Text>
         </View>
         <View style={styles.navLinks}>
-           <NavItem icon={Home} label="Accueil" path="dashboard" />
-           <NavItem icon={Heart} label="Santé" path="history" />
-           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" />
-           <NavItem icon={MapPin} label="Carte" path="map" />
-           <NavItem icon={User} label="Profil" path="settings" />
+           <NavItem icon={Home} label="Accueil" isDesktop={isDesktop} isActive={activeStates.dashboard} onPress={navigateToDashboard} />
+           <NavItem icon={Heart} label="Santé" isDesktop={isDesktop} isActive={activeStates.history} onPress={navigateToHistory} />
+           <NavItem icon={Calendar} label="Rendez-vous" isDesktop={isDesktop} isActive={activeStates.appointments} onPress={navigateToAppointments} />
+           <NavItem icon={MapPin} label="Carte" isDesktop={isDesktop} isActive={activeStates.map} onPress={navigateToMap} />
+           <NavItem icon={User} label="Profil" isDesktop={isDesktop} isActive={activeStates.settings} onPress={navigateToSettings} />
         </View>
         <View style={styles.topRight}>
            <TouchableOpacity style={styles.notifBtn}><Bell color="white" size={20} /></TouchableOpacity>
-           <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8} onPress={() => router.push('/paywall')}>
+           <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8} onPress={navigateToPaywall}>
               <Text style={styles.upgradeText}>Passer Pro</Text>
            </TouchableOpacity>
         </View>
@@ -63,11 +78,11 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
 
   return (
     <View style={styles.bottomNav}>
-       <NavItem icon={Home} label="Accueil" path="dashboard" />
-       <NavItem icon={Heart} label="Santé" path="history" />
-       <NavItem icon={Calendar} label="Agenda" path="appointments" />
-       <NavItem icon={MapPin} label="Carte" path="map" />
-       <NavItem icon={User} label="Profil" path="settings" />
+       <NavItem icon={Home} label="Accueil" isDesktop={isDesktop} isActive={activeStates.dashboard} onPress={navigateToDashboard} />
+       <NavItem icon={Heart} label="Santé" isDesktop={isDesktop} isActive={activeStates.history} onPress={navigateToHistory} />
+       <NavItem icon={Calendar} label="Agenda" isDesktop={isDesktop} isActive={activeStates.appointments} onPress={navigateToAppointments} />
+       <NavItem icon={MapPin} label="Carte" isDesktop={isDesktop} isActive={activeStates.map} onPress={navigateToMap} />
+       <NavItem icon={User} label="Profil" isDesktop={isDesktop} isActive={activeStates.settings} onPress={navigateToSettings} />
     </View>
   );
 }
