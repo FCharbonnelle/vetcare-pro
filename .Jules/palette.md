@@ -1,0 +1,3 @@
+## 2025-05-22 - [Onboarding Accessibility & Mobile UX]
+**Learning:** In a French-localized application like VetCare Pro, accessibility labels must be consistent with the UI language. Interactive elements such as selection cards and primary action buttons require explicit ARIA roles and labels for screen readers. Mobile forms must also handle keyboard visibility using `KeyboardAvoidingView` to maintain button accessibility.
+**Action:** Always include `accessibilityRole`, `accessibilityLabel` (localized), and `accessibilityState` for custom interactive components. Wrap mobile forms in `KeyboardAvoidingView` with platform-specific behavior.
