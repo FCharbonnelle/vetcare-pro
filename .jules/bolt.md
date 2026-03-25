@@ -1,0 +1,3 @@
+## 2025-05-15 - [Context & Component Memoization]
+**Learning:** Defining components inside other components (inner components) causes them to unmount and remount on every parent render, killing performance and breaking animations. Root context providers without memoized values trigger full app re-renders. AsyncStorage updates should never happen inside a React state updater (`setState(prev => ...)`).
+**Action:** Always extract sub-components to the top level. Wrap context values in `useMemo`. Use `useRef` to track current state for stable callbacks if needed, and keep side effects outside of the render/updater cycle.

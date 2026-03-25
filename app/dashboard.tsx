@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions } from 'react-native';
 import { Bell, MapPin, Heart, Clock, Scale, Dog, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -19,7 +19,7 @@ const CHART_DATA = [
   { month: 'Apr', value: 34.0 },
 ];
 
-function WeightLineChart() {
+const WeightLineChart = memo(() => {
   const chartW = Math.min(SCREEN_W - 48, 600); 
   const chartH = 140;
   const padL = 40; const padR = 20; const padT = 30; const padB = 30; 
@@ -115,7 +115,7 @@ function WeightLineChart() {
       </SvgText>
     </Svg>
   );
-}
+});
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -236,7 +236,7 @@ export default function Dashboard() {
   );
 }
 
-function VetCard({ name, rating, dist, img }: {name:string, rating:string, dist:string, img:string}) {
+const VetCard = memo(({ name, rating, dist, img }: {name:string, rating:string, dist:string, img:string}) => {
   const router = useRouter();
   return (
     <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
@@ -258,7 +258,7 @@ function VetCard({ name, rating, dist, img }: {name:string, rating:string, dist:
       </LinearGradient>
     </TouchableOpacity>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#150330' },
