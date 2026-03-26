@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image, KeyboardAvoidingView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
@@ -36,6 +36,9 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={`Sélectionner ${label}`}
+      accessibilityState={{ selected: isSelected }}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -51,77 +54,84 @@ export default function Onboarding() {
         style={StyleSheet.absoluteFill}
       />
       
-      <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
-        
-        <View style={styles.progressBar}>
-           {[1, 2, 3].map(s => (
-              <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
-           ))}
-        </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
 
-        <View style={styles.hero}>
-           <View style={styles.logoBg}><Heart color="white" fill="white" size={32} /></View>
-           <Text style={styles.brand}>VetCare <Text style={{ fontWeight: '400' }}>Pro</Text></Text>
-        </View>
-
-        {step === 1 && (
-          <View style={styles.stepContent}>
-            <Text style={styles.title}>Comment s'appelle{'\n'}votre animal ?</Text>
-            <Text style={styles.subtitle}>Nous allons créer un profil personnalisé pour lui.</Text>
-            <View style={styles.inputArea}>
-               <TextInput
-                 style={styles.input}
-                 placeholder="Ex: Shadow, Rex, Bella..."
-                 placeholderTextColor="rgba(255,255,255,0.2)"
-                 value={name}
-                 onChangeText={setName}
-                 autoFocus
-               />
-            </View>
+          <View style={styles.progressBar}>
+             {[1, 2, 3].map(s => (
+                <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
+             ))}
           </View>
-        )}
 
-        {step === 2 && (
-          <View style={styles.stepContent}>
-            <Text style={styles.title}>Quel type d'animal{'\n'}avez-vous ?</Text>
-            <Text style={styles.subtitle}>Choisissez la catégorie qui lui correspond le mieux.</Text>
-            <View style={styles.typeGrid}>
-              <TypeCard icon={Dog} label="Chien" isSelected={type === 'Chien'} onPress={() => setType('Chien')} />
-              <TypeCard icon={Cat} label="Chat" isSelected={type === 'Chat'} onPress={() => setType('Chat')} />
-              <TypeCard icon={Plus} label="Autre" isSelected={type === 'Autre'} onPress={() => setType('Autre')} />
-            </View>
+          <View style={styles.hero}>
+             <View style={styles.logoBg}><Heart color="white" fill="white" size={32} /></View>
+             <Text style={styles.brand}>VetCare <Text style={{ fontWeight: '400' }}>Pro</Text></Text>
           </View>
-        )}
 
-        {step === 3 && (
-          <View style={styles.stepContent}>
-            <Text style={styles.title}>Quel âge a{'\n'}{name} ?</Text>
-            <Text style={styles.subtitle}>Cela nous aide à adapter ses routines de santé.</Text>
-            <View style={styles.inputArea}>
-               <TextInput
-                 style={styles.input}
-                 placeholder="Ex: 3 ans, 5 mois..."
-                 placeholderTextColor="rgba(255,255,255,0.2)"
-                 value={age}
-                 onChangeText={setAge}
-                 autoFocus
-               />
+          {step === 1 && (
+            <View style={styles.stepContent}>
+              <Text style={styles.title}>Comment s'appelle{'\n'}votre animal ?</Text>
+              <Text style={styles.subtitle}>Nous allons créer un profil personnalisé pour lui.</Text>
+              <View style={styles.inputArea}>
+                 <TextInput
+                   style={styles.input}
+                   placeholder="Ex: Shadow, Rex, Bella..."
+                   placeholderTextColor="rgba(255,255,255,0.2)"
+                   value={name}
+                   onChangeText={setName}
+                   autoFocus
+                 />
+              </View>
             </View>
+          )}
+
+          {step === 2 && (
+            <View style={styles.stepContent}>
+              <Text style={styles.title}>Quel type d'animal{'\n'}avez-vous ?</Text>
+              <Text style={styles.subtitle}>Choisissez la catégorie qui lui correspond le mieux.</Text>
+              <View style={styles.typeGrid}>
+                <TypeCard icon={Dog} label="Chien" isSelected={type === 'Chien'} onPress={() => setType('Chien')} />
+                <TypeCard icon={Cat} label="Chat" isSelected={type === 'Chat'} onPress={() => setType('Chat')} />
+                <TypeCard icon={Plus} label="Autre" isSelected={type === 'Autre'} onPress={() => setType('Autre')} />
+              </View>
+            </View>
+          )}
+
+          {step === 3 && (
+            <View style={styles.stepContent}>
+              <Text style={styles.title}>Quel âge a{'\n'}{name} ?</Text>
+              <Text style={styles.subtitle}>Cela nous aide à adapter ses routines de santé.</Text>
+              <View style={styles.inputArea}>
+                 <TextInput
+                   style={styles.input}
+                   placeholder="Ex: 3 ans, 5 mois..."
+                   placeholderTextColor="rgba(255,255,255,0.2)"
+                   value={age}
+                   onChangeText={setAge}
+                   autoFocus
+                 />
+              </View>
+            </View>
+          )}
+
+          <View style={styles.footer}>
+             <TouchableOpacity
+               style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]}
+               onPress={handleNext}
+               disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
+               accessibilityRole="button"
+               accessibilityLabel={step === 3 ? "C'est parti !" : "Suivant"}
+             >
+                <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
+                <ChevronRight color="black" size={24} />
+             </TouchableOpacity>
           </View>
-        )}
 
-        <View style={styles.footer}>
-           <TouchableOpacity 
-             style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]} 
-             onPress={handleNext}
-             disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
-           >
-              <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
-              <ChevronRight color="black" size={24} />
-           </TouchableOpacity>
-        </View>
-
-      </Animated.View>
+        </Animated.View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
