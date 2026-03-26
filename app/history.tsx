@@ -1,8 +1,40 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated } from 'react-native';
 import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo, ComponentType } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+
+interface HistoryItemProps {
+  icon: ComponentType<any>;
+  title: string;
+  date: string;
+  type: string;
+  color?: string;
+}
+
+/**
+ * Performance optimized HistoryItem.
+ * Memoized to prevent redundant re-renders during screen transitions and animations.
+ * Extracted to top-level to avoid unmount/remount cycles on parent re-renders.
+ */
+const HistoryItem = memo(({ icon: Icon, title, date, type, color = "#A855F7" }: HistoryItemProps) => (
+  <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
+    <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
+      <Icon color={color} size={20} />
+    </View>
+    <View style={{ flex: 1, marginLeft: 16 }}>
+      <Text style={styles.itemTitle}>{title}</Text>
+      <Text style={styles.itemType}>{type}</Text>
+    </View>
+    <View style={{ alignItems: 'flex-end' }}>
+      <Text style={styles.itemDate}>{date}</Text>
+      <View style={styles.statusBadge}>
+         <View style={styles.statusDot} />
+         <Text style={styles.itemStatus}>Terminé</Text>
+      </View>
+    </View>
+  </TouchableOpacity>
+));
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -15,25 +47,6 @@ export default function HistoryScreen() {
       Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 8, useNativeDriver: true })
     ]).start();
   }, []);
-
-  const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
-    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
-      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
-        <Icon color={color} size={20} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.itemTitle}>{title}</Text>
-        <Text style={styles.itemType}>{type}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={styles.itemDate}>{date}</Text>
-        <View style={styles.statusBadge}>
-           <View style={styles.statusDot} />
-           <Text style={styles.itemStatus}>Terminé</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
