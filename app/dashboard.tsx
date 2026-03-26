@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions } from 'react-native';
-import { Bell, MapPin, Heart, Clock, Scale, Dog, Star } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions, Platform } from 'react-native';
+import { Bell, MapPin, Heart, Clock, Scale, Dog, Star, Zap, Activity } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
 import { usePet } from '@/store/PetContext';
@@ -12,17 +12,17 @@ const { width: SCREEN_W } = Dimensions.get('window');
 const CHART_DATA = [
   { month: 'Oct', value: 32.5 },
   { month: 'Nov', value: 33.1 },
-  { month: 'Dec', value: 33.8 },
+  { month: 'Déc', value: 33.8 },
   { month: 'Jan', value: 34.2 },
-  { month: 'Feb', value: 34.0 },
+  { month: 'Fév', value: 34.0 },
   { month: 'Mar', value: 33.9 },
-  { month: 'Apr', value: 34.0 },
+  { month: 'Avr', value: 34.0 },
 ];
 
 function WeightLineChart() {
   const chartW = Math.min(SCREEN_W - 48, 600); 
-  const chartH = 140;
-  const padL = 40; const padR = 20; const padT = 30; const padB = 30; 
+  const chartH = 160;
+  const padL = 40; const padR = 20; const padT = 30; const padB = 40; 
   const W = chartW - padL - padR;
   const H = chartH - padT - padB;
 
@@ -57,26 +57,26 @@ function WeightLineChart() {
           <Stop offset="1" stopColor="#B638F6" stopOpacity="0.0" />
         </SvgGradient>
         <SvgGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-          <Stop offset="0" stopColor="#6E23DD" />
-          <Stop offset="1" stopColor="#EA3EE0" />
+          <Stop offset="0" stopColor="#A855F7" />
+          <Stop offset="1" stopColor="#EC4899" />
         </SvgGradient>
       </Defs>
 
       {/* Grid lines */}
       {[0.25, 0.5, 0.75].map((t, i) => (
-        <Line key={i} x1={padL} y1={padT + H * t} x2={padL + W} y2={padT + H * t} stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="3,3" />
+        <Line key={i} x1={padL} y1={padT + H * t} x2={padL + W} y2={padT + H * t} stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="3,3" />
       ))}
 
       <Path d={areaPath} fill="url(#areaGrad)" />
-      <Path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Peak Label Pill right above the peak point */}
+      {/* Peak Label Pill */}
       {(() => {
         const px = toX(peakIdx); const py = toY(vals[peakIdx]);
         return (
           <React.Fragment key="peak">
-            <Rect x={px - 22} y={py - 24} width={44} height={18} rx={9} fill="#8231E0" />
-            <SvgText x={px} y={py - 12} textAnchor="middle" fill="white" fontSize="9" fontWeight="900">
+            <Rect x={px - 25} y={py - 28} width={50} height={20} rx={10} fill="#A855F7" />
+            <SvgText x={px} y={py - 14} textAnchor="middle" fill="white" fontSize="10" fontWeight="900">
               +1.5kg
             </SvgText>
           </React.Fragment>
@@ -88,30 +88,22 @@ function WeightLineChart() {
         const cx = toX(i); const cy = toY(d.value);
         return (
           <React.Fragment key={i}>
-            <Circle cx={cx} cy={cy} r={4} fill="#27094F" stroke="#EA3EE0" strokeWidth={2} />
-            <Circle cx={cx} cy={cy} r={2.5} fill="#fff" />
-            <SvgText x={cx} y={cy - 10} textAnchor="middle" fill="#fff" fontSize="9" fontWeight="800">
-              {d.value.toFixed(1)}
-            </SvgText>
+            <Circle cx={cx} cy={cy} r={5} fill="#150330" stroke="#EC4899" strokeWidth={2.5} />
+            <Circle cx={cx} cy={cy} r={2} fill="#fff" />
           </React.Fragment>
         );
       })}
 
       {/* X axis labels */}
       {CHART_DATA.map((d, i) => (
-        <SvgText key={`xl${i}`} x={toX(i)} y={chartH - 12} textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="10" fontWeight="600">
+        <SvgText key={`xl${i}`} x={toX(i)} y={chartH - 15} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="10" fontWeight="800">
           {d.month}
         </SvgText>
       ))}
 
-      {/* Y axis rotated label */}
-      <SvgText x={-(chartH / 2) + 5} y={15} transform="rotate(-90)" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="10" fontWeight="600">
-        Weight (kg)
-      </SvgText>
-      
-      {/* X axis subtitle */}
-      <SvgText x={padL + W / 2} y={chartH - 0} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="600">
-        Months
+      {/* Labels */}
+      <SvgText x={10} y={chartH / 2} transform={`rotate(-90, 10, ${chartH / 2})`} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="10" fontWeight="900" letterSpacing="1">
+        POIDS (KG)
       </SvgText>
     </Svg>
   );
@@ -120,102 +112,97 @@ function WeightLineChart() {
 export default function Dashboard() {
   const { user } = useAuth();
   const { pet } = usePet();
-  const fullName = user?.user_metadata?.full_name?.split(' ')[0] || 'Sarah';
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
-  }, [fadeAnim]);
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 8, useNativeDriver: true })
+    ]).start();
+  }, []);
 
-  const currentPet = pet || { name: 'Buddy', breed: 'Golden Retriever', age: '3 yrs', weight: '34 kg', photo: null };
-  // Mock image for Buddy if no pet uploaded vs golden retriever
+  const currentPet = pet || { name: 'Buddy', breed: 'Golden Retriever', age: '3 ans', weight: '34 kg', photo: null };
   const buddyImg = currentPet.photo || 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Golden_Retriever_transparent.png';
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Exact Match Background Gradient: deep violet to blackish indigo */}
-      <LinearGradient colors={['#3F1174', '#150330', '#0B011A']} start={{ x: 0, y: 0 }} end={{ x: 0.8, y: 1 }} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={['#170B3B', '#0E0824', '#000']} style={StyleSheet.absoluteFill} />
       
-      {/* Large Glowing Orbs for the "aura" effect found in the mockup */}
+      {/* Animated Glowing Orbs */}
       <View style={styles.glowTopRight} />
       <View style={styles.glowMidLeft} />
       <View style={styles.glowBottomRight} />
 
-      <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { opacity: fadeAnim }]}>
+      <Animated.ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={[styles.scroll, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
+      >
         
-        {/* HEADER: Nav-like top bar matching mockup */}
+        {/* HEADER */}
         <View style={styles.header}>
           <View style={styles.brandRow}>
-            {/* The Heart-Paw substitute */}
-            <View style={styles.brandIcon}>
-              <Heart color="#C084FC" fill="#C084FC" size={24} />
-              <Dog color="#3F1174" size={12} style={{position: 'absolute', top: 6, left: 6}} />
+            <View style={styles.logoBg}>
+              <Heart color="white" fill="white" size={20} />
             </View>
             <Text style={styles.brandText}>VetCare <Text style={{fontWeight: '400'}}>Pro</Text></Text>
           </View>
           
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.bellBtn}>
+            <TouchableOpacity style={styles.actionBtn}>
               <Bell color="#fff" size={20} />
               <View style={styles.bellDot} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/settings' as any)}>
-              <Image source={{uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'}} style={styles.avatar} />
+            <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
+              <Image source={{uri: user?.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'}} style={styles.avatar} />
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* WELCOME TEXT */}
-        <Text style={styles.welcomeText}>Welcome back, {fullName}!</Text>
+        {/* WELCOME */}
+        <View style={styles.welcomeSection}>
+           <Text style={styles.welcomeSub}>TABLEAU DE BORD</Text>
+           <Text style={styles.welcomeText}>Bonjour, {firstName} ! 👋</Text>
+        </View>
 
-        {/* ── HERO PET CARD (BUDDY) ── */}
+        {/* ── HERO PET CARD ── */}
         <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={() => router.push('/pet-profile' as any)}>
-          <LinearGradient colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.04)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.heroGlass}>
+          <LinearGradient colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.heroGlass}>
             
-            {/* Left side: Golden Retriever taking up the height, slightly overflowing */}
             <View style={styles.heroLeft}>
-              <Image 
-                source={{uri: buddyImg}} 
-                style={styles.heroImage} 
-                resizeMode="contain" 
-              />
-              <Text style={styles.heroName}>{currentPet.name}</Text>
+              <Image source={{uri: buddyImg}} style={styles.heroImage} resizeMode="contain" />
+              <View style={styles.heroNameBadge}>
+                 <Text style={styles.heroName}>{currentPet.name}</Text>
+                 <View style={styles.onlineDot} />
+              </View>
             </View>
 
-            {/* Right side: 3 Stats Pills stacked vertically */}
             <View style={styles.heroRight}>
-              <View style={styles.statPill}>
-                <View style={styles.statIcon}><Clock color="#fff" size={12} /></View>
-                <View>
-                  <Text style={styles.statLabel}>Age</Text>
-                  <Text style={styles.statValue}>{currentPet.age}</Text>
-                </View>
-              </View>
-              <View style={styles.statPill}>
-                <View style={styles.statIcon}><Scale color="#fff" size={12} /></View>
-                <View>
-                  <Text style={styles.statLabel}>Weight</Text>
-                  <Text style={styles.statValue}>{currentPet.weight}</Text>
-                </View>
-              </View>
-              <View style={styles.statPill}>
-                <View style={styles.statIcon}><Dog color="#fff" size={12} /></View>
-                <View>
-                  <Text style={styles.statLabel}>Type</Text>
-                  <Text style={styles.statValue}>{currentPet.breed}</Text>
-                </View>
-              </View>
+              <StatPill icon={Clock} label="Âge" value={currentPet.age} />
+              <StatPill icon={Scale} label="Poids" value={currentPet.weight} />
+              <StatPill icon={Dog} label="Race" value={currentPet.breed.split(' ')[0]} />
             </View>
             
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* ── HEALTH WEIGHT TRACKER ── */}
+        {/* ── QUICK ACTIONS ── */}
+        <View style={styles.quickActions}>
+           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={() => router.push('/ai-assist' as any)} />
+           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={() => router.push('/history' as any)} />
+           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={() => router.push('/map' as any)} />
+        </View>
+
+        {/* ── WEIGHT TRACKER ── */}
         <View style={styles.glassCard}>
-          <LinearGradient colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.03)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.glassInner}>
-            <Text style={styles.cardTitle}>Health Weight Tracker</Text>
+          <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.glassInner}>
+            <View style={styles.cardHeader}>
+               <Text style={styles.cardTitle}>Suivi du poids 📈</Text>
+               <TouchableOpacity><Text style={styles.seeAll}>Plus</Text></TouchableOpacity>
+            </View>
             <View style={styles.chartContainer}>
               <WeightLineChart />
             </View>
@@ -223,36 +210,59 @@ export default function Dashboard() {
         </View>
 
         {/* ── LOCAL VETERINARIANS ── */}
-        <Text style={styles.sectionTitle}>Local Veterinarians</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-          <VetCard name="Happy Paws Clinic" rating="4.9" dist="1.2 mi" img="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop" />
-          <VetCard name="City Vet Hospital" rating="4.7" dist="2.5 mi" img="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop" />
-          <VetCard name="Pet Wellness Center" rating="4.8" dist="0.8 mi" img="https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" />
+        <View style={styles.sectionHeader}>
+           <Text style={styles.sectionTitle}>Vétérinaires à proximité</Text>
+           <TouchableOpacity onPress={() => router.push('/map' as any)}><Text style={styles.seeAll}>Voir tout</Text></TouchableOpacity>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft: 24, paddingRight: 8, paddingBottom: 20 }}>
+          <VetCard name="Clinique de l'Espoir" rating="4.9" dist="1.2 km" img="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop" />
+          <VetCard name="Urgences Vétos 24/7" rating="4.7" dist="2.5 km" img="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop" />
+          <VetCard name="Centre du Bien-être" rating="4.8" dist="0.8 km" img="https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" />
         </ScrollView>
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 120 }} />
       </Animated.ScrollView>
     </SafeAreaView>
   );
 }
 
-function VetCard({ name, rating, dist, img }: {name:string, rating:string, dist:string, img:string}) {
+function StatPill({ icon: Icon, label, value }: any) {
+  return (
+    <View style={styles.statPill}>
+      <View style={styles.statIcon}><Icon color="#A855F7" size={14} /></View>
+      <View>
+        <Text style={styles.statLabel}>{label}</Text>
+        <Text style={styles.statValue}>{value}</Text>
+      </View>
+    </View>
+  );
+}
+
+function QuickAction({ icon: Icon, label, color, onPress }: any) {
+  return (
+    <TouchableOpacity style={styles.qaBtn} onPress={onPress}>
+       <View style={[styles.qaIcon, { backgroundColor: `${color}20`, borderColor: `${color}40` }]}>
+          <Icon color={color} size={22} />
+       </View>
+       <Text style={styles.qaLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function VetCard({ name, rating, dist, img }: any) {
   const router = useRouter();
   return (
     <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
-      <LinearGradient colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.03)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.vetCardGlass}>
-        <View style={styles.vetImgWrap}>
-          <Image source={{ uri: img }} style={styles.vetImg} />
-        </View>
-        <Text style={styles.vetName} numberOfLines={2}>{name}</Text>
-        <View style={styles.vetMetaRow}>
-          <View style={styles.vetMetaItem}>
-            <Star color="#F59E0B" size={10} fill="#F59E0B" />
-            <Text style={styles.vetRating}>{rating}</Text>
-          </View>
-          <View style={styles.vetMetaItem}>
-             <MapPin color="rgba(255,255,255,0.6)" size={10} />
-             <Text style={styles.vetDist}>{dist}</Text>
+      <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.vetCardGlass}>
+        <Image source={{ uri: img }} style={styles.vetImg} />
+        <View style={styles.vetContent}>
+          <Text style={styles.vetName} numberOfLines={1}>{name}</Text>
+          <View style={styles.vetMetaRow}>
+            <View style={styles.vetMetaItem}>
+              <Star color="#F59E0B" size={10} fill="#F59E0B" />
+              <Text style={styles.vetRating}>{rating}</Text>
+            </View>
+            <Text style={styles.vetDist}>{dist}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -261,53 +271,62 @@ function VetCard({ name, rating, dist, img }: {name:string, rating:string, dist:
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#150330' },
-  scroll: { padding: 24, paddingTop: 50 },
+  container: { flex: 1, backgroundColor: '#000' },
+  scroll: { paddingTop: 20 },
   
-  // Ambient Aura Glowing Effects
-  glowTopRight: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: '#8B1874', top: -100, right: -150, opacity: 0.35, filter: 'blur(60px)' },
-  glowMidLeft: { position: 'absolute', width: 350, height: 350, borderRadius: 175, backgroundColor: '#6C24B5', top: 250, left: -150, opacity: 0.25, filter: 'blur(70px)' },
-  glowBottomRight: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: '#B638F6', bottom: 50, right: -100, opacity: 0.2, filter: 'blur(60px)' },
+  glowTopRight: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(139, 24, 116, 0.15)', top: -100, right: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
+  glowMidLeft: { position: 'absolute', width: 350, height: 350, borderRadius: 175, backgroundColor: 'rgba(108, 36, 181, 0.1)', top: 250, left: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
+  glowBottomRight: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(168, 85, 247, 0.1)', bottom: 50, right: -100, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
 
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, marginBottom: 32, paddingTop: Platform.OS === 'android' ? 40 : 10 },
   brandRow: { flexDirection: 'row', alignItems: 'center' },
-  brandIcon: { width: 32, height: 32, justifyContent: 'center', alignItems: 'center' },
-  brandText: { color: 'white', fontSize: 18, fontWeight: '800', marginLeft: 4, letterSpacing: -0.5 },
+  logoBg: { backgroundColor: '#A855F7', padding: 8, borderRadius: 12, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 10 },
+  brandText: { color: 'white', fontSize: 20, fontWeight: '900', marginLeft: 12, letterSpacing: -0.5 },
   headerActions: { flexDirection: 'row', alignItems: 'center' },
-  bellBtn: { padding: 8, marginRight: 8, position: 'relative' },
-  bellDot: { position: 'absolute', top: 8, right: 10, width: 8, height: 8, backgroundColor: '#EF4444', borderRadius: 4, borderWidth: 1.5, borderColor: '#2A0A4A' },
-  avatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1.5, borderColor: '#fff' },
+  actionBtn: { backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 14, marginRight: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  avatarBtn: { borderRadius: 14, overflow: 'hidden', borderWidth: 1.5, borderColor: '#A855F7' },
+  avatar: { width: 36, height: 36 },
+  bellDot: { position: 'absolute', top: 10, right: 10, width: 8, height: 8, backgroundColor: '#EF4444', borderRadius: 4, borderWidth: 1.5, borderColor: '#150330' },
   
-  welcomeText: { color: '#fff', fontSize: 26, fontWeight: '800', marginBottom: 28, letterSpacing: -0.5 },
+  welcomeSection: { paddingHorizontal: 24, marginBottom: 24 },
+  welcomeSub: { color: '#A855F7', fontSize: 12, fontWeight: '900', letterSpacing: 2, marginBottom: 8 },
+  welcomeText: { color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
   
-  // Hero Card "Buddy"
-  heroCard: { width: '100%', height: 200, borderRadius: 32, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20 },
-  heroGlass: { flex: 1, flexDirection: 'row', paddingRight: 20 },
-  heroLeft: { flex: 1.2, justifyContent: 'flex-end', alignItems: 'center', position: 'relative' },
-  heroImage: { width: '120%', height: '110%', position: 'absolute', bottom: -10, left: -10 },
-  heroName: { color: '#fff', fontSize: 28, fontWeight: '900', position: 'absolute', bottom: 20, left: 24, textShadowColor: 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 },
-  heroRight: { flex: 0.8, justifyContent: 'center', gap: 10 },
-  statPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-  statIcon: { backgroundColor: 'transparent', marginRight: 8 },
-  statLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '600', textTransform: 'uppercase' },
-  statValue: { color: '#fff', fontSize: 12, fontWeight: '800' },
+  heroCard: { marginHorizontal: 24, height: 210, borderRadius: 40, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 15 }, shadowOpacity: 0.15, shadowRadius: 30 },
+  heroGlass: { flex: 1, flexDirection: 'row', padding: 20 },
+  heroLeft: { flex: 1.2, justifyContent: 'flex-end', position: 'relative' },
+  heroImage: { width: '130%', height: '120%', position: 'absolute', bottom: -10, left: -25 },
+  heroNameBadge: { position: 'absolute', bottom: 0, left: 10, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  heroName: { color: '#fff', fontSize: 18, fontWeight: '900' },
+  onlineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981', marginLeft: 8 },
+  heroRight: { flex: 0.8, justifyContent: 'center', gap: 12 },
+  statPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  statIcon: { marginRight: 10 },
+  statLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
+  statValue: { color: '#fff', fontSize: 13, fontWeight: '900', marginTop: 1 },
 
-  // Glass Card Generic (Tracker)
-  glassCard: { width: '100%', borderRadius: 28, overflow: 'hidden', marginBottom: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20 },
+  quickActions: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, marginBottom: 32 },
+  qaBtn: { alignItems: 'center', flex: 1 },
+  qaIcon: { width: 60, height: 60, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center', marginBottom: 10, borderWidth: 1 },
+  qaLabel: { color: '#fff', fontSize: 14, fontWeight: '800' },
+
+  glassCard: { marginHorizontal: 24, borderRadius: 36, overflow: 'hidden', marginBottom: 32, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   glassInner: { padding: 24 },
-  cardTitle: { color: '#fff', fontSize: 19, fontWeight: '800', marginBottom: 20 },
-  chartContainer: { alignItems: 'center', marginLeft: -12 }, // offset padding for Y axis label
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  cardTitle: { color: '#fff', fontSize: 20, fontWeight: '900' },
+  seeAll: { color: '#A855F7', fontSize: 13, fontWeight: '800' },
+  chartContainer: { alignItems: 'center', marginLeft: -10 },
 
-  sectionTitle: { color: '#fff', fontSize: 19, fontWeight: '800', marginBottom: 16 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, marginBottom: 16 },
+  sectionTitle: { color: '#fff', fontSize: 20, fontWeight: '900' },
 
-  // Vet Card exactly matching mockup
-  vetCardWrap: { width: 140, height: 160, marginRight: 16, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.2, shadowRadius: 10 },
-  vetCardGlass: { flex: 1, padding: 12 },
-  vetImgWrap: { width: '100%', height: 75, borderRadius: 16, overflow: 'hidden', marginBottom: 12 },
-  vetImg: { width: '100%', height: '100%' },
-  vetName: { color: '#fff', fontSize: 13, fontWeight: '800', marginVertical: 6, lineHeight: 16 },
-  vetMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
+  vetCardWrap: { width: 160, marginRight: 16, borderRadius: 28, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  vetCardGlass: { flex: 1 },
+  vetImg: { width: '100%', height: 100 },
+  vetContent: { padding: 12 },
+  vetName: { color: '#fff', fontSize: 14, fontWeight: '900', marginBottom: 6 },
+  vetMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   vetMetaItem: { flexDirection: 'row', alignItems: 'center' },
-  vetRating: { color: '#F59E0B', fontSize: 10, fontWeight: '800', marginLeft: 4 },
-  vetDist: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '600', marginLeft: 4 },
+  vetRating: { color: '#F59E0B', fontSize: 11, fontWeight: '900', marginLeft: 4 },
+  vetDist: { color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: '800' },
 });

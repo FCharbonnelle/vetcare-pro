@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Modal, TextInput, Platform } from 'react-native';
-import { Calendar, Plus, Clock, MapPin, ChevronRight, Stethoscope, Syringe, Scissors, Pill, X, Check } from 'lucide-react-native';
+import { Calendar as CalendarIcon, Plus, Clock, MapPin, ChevronRight, Stethoscope, Syringe, Scissors, Pill, X, Check, CalendarDays } from 'lucide-react-native';
 import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -33,6 +33,7 @@ function getFirstDayOfWeek(year: number, month: number) {
 export default function AppointmentsScreen() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
   const [appointments, setAppointments] = useState(INITIAL_APPTS);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -45,7 +46,10 @@ export default function AppointmentsScreen() {
   const [newType, setNewType] = useState('consultation');
 
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 8, useNativeDriver: true })
+    ]).start();
   }, []);
 
   const year = currentDate.getFullYear();
@@ -103,8 +107,8 @@ export default function AppointmentsScreen() {
   const ApptCard = ({ item }: { item: typeof INITIAL_APPTS[0] }) => {
     const t = getType(item.type);
     return (
-      <TouchableOpacity style={styles.apptCard}>
-        <View style={[styles.apptIcon, { backgroundColor: `${t.color}20`, borderColor: `${t.color}40` }]}>
+      <TouchableOpacity style={styles.apptCard} activeOpacity={0.8}>
+        <View style={[styles.apptIcon, { backgroundColor: `${t.color}15`, borderColor: `${t.color}30` }]}>
           <t.icon color={t.color} size={22} />
         </View>
         <View style={{ flex: 1, marginLeft: 16 }}>
@@ -117,7 +121,10 @@ export default function AppointmentsScreen() {
             <Text style={styles.timeText}>{item.time}</Text>
           </View>
           {item.done && (
-            <View style={styles.doneBadge}><Text style={styles.doneText}>✓ Fait</Text></View>
+            <View style={styles.doneBadge}>
+               <Check color="#10B981" size={10} strokeWidth={3} />
+               <Text style={styles.doneText}>Fait</Text>
+            </View>
           )}
         </View>
       </TouchableOpacity>
@@ -130,11 +137,16 @@ export default function AppointmentsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#1A0A3E', '#0E0824', '#000']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-      {/* Purple glow orbs */}
-      <View style={styles.orb1} /><View style={styles.orb2} />
+      <LinearGradient colors={['#170B3B', '#0E0824', '#000']} style={StyleSheet.absoluteFill} />
+      
+      {/* Glow Orbs matched with Dashboard */}
+      <View style={styles.glowTopRight} />
+      <View style={styles.glowBottomLeft} />
 
-      <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { opacity: fadeAnim }]}>
+      <Animated.ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={[styles.scroll, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
+      >
         
         <View style={styles.header}>
           <View>
@@ -146,53 +158,61 @@ export default function AppointmentsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Calendar */}
+        {/* Calendar Card - High Polish */}
         <View style={styles.calendarCard}>
-          <View style={styles.calNav}>
-            <TouchableOpacity onPress={prevMonth} style={styles.navArrow}><Text style={styles.navArrowText}>‹</Text></TouchableOpacity>
-            <Text style={styles.calMonth}>{MONTHS[month]} {year}</Text>
-            <TouchableOpacity onPress={nextMonth} style={styles.navArrow}><Text style={styles.navArrowText}>›</Text></TouchableOpacity>
-          </View>
+          <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.calendarInner}>
+            <View style={styles.calNav}>
+              <TouchableOpacity onPress={prevMonth} style={styles.navArrow}><Text style={styles.navArrowText}>‹</Text></TouchableOpacity>
+              <Text style={styles.calMonth}>{MONTHS[month]} {year}</Text>
+              <TouchableOpacity onPress={nextMonth} style={styles.navArrow}><Text style={styles.navArrowText}>›</Text></TouchableOpacity>
+            </View>
 
-          <View style={styles.daysHeader}>
-            {DAYS_SHORT.map(d => <Text key={d} style={styles.dayLabel}>{d}</Text>)}
-          </View>
+            <View style={styles.daysHeader}>
+              {DAYS_SHORT.map(d => <Text key={d} style={styles.dayLabel}>{d}</Text>)}
+            </View>
 
-          <View style={styles.daysGrid}>
-            {Array(firstDay).fill(null).map((_, i) => <View key={`e${i}`} style={styles.dayCell} />)}
-            {Array(daysInMonth).fill(null).map((_, i) => {
-              const day = i + 1;
-              const isToday = day === today && month === todayMonth && year === todayYear;
-              const isSelected = day === selectedDay;
-              const hasAppt = apptDays.has(day);
-              return (
-                <TouchableOpacity
-                  key={day}
-                  style={[styles.dayCell, isSelected && styles.dayCellSelected, isToday && !isSelected && styles.dayCellToday]}
-                  onPress={() => setSelectedDay(day === selectedDay ? null : day)}
-                >
-                  <Text style={[styles.dayNumber, isSelected && styles.dayNumberSelected, isToday && !isSelected && styles.dayNumberToday]}>
-                    {day}
-                  </Text>
-                  {hasAppt && <View style={[styles.apptDot, { backgroundColor: isSelected ? 'white' : '#A855F7' }]} />}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+            <View style={styles.daysGrid}>
+              {Array(firstDay).fill(null).map((_, i) => <View key={`e${i}`} style={styles.dayCell} />)}
+              {Array(daysInMonth).fill(null).map((_, i) => {
+                const day = i + 1;
+                const isToday = day === today && month === todayMonth && year === todayYear;
+                const isSelected = day === selectedDay;
+                const hasAppt = apptDays.has(day);
+                return (
+                  <TouchableOpacity
+                    key={day}
+                    activeOpacity={0.7}
+                    style={[styles.dayCell, isSelected && styles.dayCellSelected, isToday && !isSelected && styles.dayCellToday]}
+                    onPress={() => setSelectedDay(day === selectedDay ? null : day)}
+                  >
+                    <Text style={[styles.dayNumber, isSelected && styles.dayNumberSelected, isToday && !isSelected && styles.dayNumberToday]}>
+                      {day}
+                    </Text>
+                    {hasAppt && <View style={[styles.apptDot, { backgroundColor: isSelected ? 'white' : '#A855F7' }]} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </LinearGradient>
         </View>
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
-            {selectedDay ? `Rendez-vous du ${selectedDay} ${MONTHS[month]}` : 'Prochains rendez-vous'}
+            {selectedDay ? `Le ${selectedDay} ${MONTHS[month]}` : 'Prochains rendez-vous'}
           </Text>
+          <View style={styles.indicatorBadge}>
+             <Text style={styles.indicatorText}>{selectedAppts.length} EVENT{selectedAppts.length > 1 ? 'S' : ''}</Text>
+          </View>
         </View>
 
         {selectedAppts.length === 0 ? (
           <View style={styles.emptyState}>
-            <Calendar color="rgba(168,85,247,0.4)" size={48} />
-            <Text style={styles.emptyText}>Aucun rendez-vous{selectedDay ? ' ce jour' : ''}</Text>
+            <View style={styles.emptyIconBg}>
+               <CalendarDays color="rgba(168,85,247,0.4)" size={40} />
+            </View>
+            <Text style={styles.emptyText}>Aucun événement{selectedDay ? ' ce jour' : ''}</Text>
             <TouchableOpacity style={styles.emptyBtn} onPress={() => setModalVisible(true)}>
-              <Text style={styles.emptyBtnText}>+ Planifier un rendez-vous</Text>
+              <Text style={styles.emptyBtnText}>+ Ajouter</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -202,49 +222,57 @@ export default function AppointmentsScreen() {
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
 
-      {/* FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+      {/* FAB - Premium style */}
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.9}>
         <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.fabGradient}>
           <Plus color="white" size={28} />
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* Add Appointment Modal */}
-      <Modal visible={modalVisible} transparent animationType="slide">
+      <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-          <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 40 }]} />
+            <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 44 }]} />
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Nouveau Rendez-vous</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}><X color="white" size={24} /></TouchableOpacity>
+              <Text style={styles.modalTitle}>Ajouter un rappel</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}><X color="white" size={24} /></TouchableOpacity>
             </View>
 
-            <Text style={styles.modalLabel}>TITRE</Text>
-            <TextInput style={styles.modalInput} placeholder="Ex: Vaccination annuelle" placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalLabel}>TITRE</Text>
+              <TextInput style={styles.modalInput} placeholder="Ex: Vaccination" placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
 
-            <Text style={styles.modalLabel}>VÉTÉRINAIRE / LIEU</Text>
-            <TextInput style={styles.modalInput} placeholder="Dr. Martin / Clinique Happy Paws" placeholderTextColor="rgba(255,255,255,0.2)" value={newVet} onChangeText={setNewVet} />
+              <Text style={styles.modalLabel}>LIEU / VÉTÉRINAIRE</Text>
+              <TextInput style={styles.modalInput} placeholder="Ex: Clinique Happy Paws" placeholderTextColor="rgba(255,255,255,0.2)" value={newVet} onChangeText={setNewVet} />
 
-            <Text style={styles.modalLabel}>HEURE</Text>
-            <TextInput style={styles.modalInput} placeholder="09:00" placeholderTextColor="rgba(255,255,255,0.2)" value={newTime} onChangeText={setNewTime} />
+              <View style={styles.modalRow}>
+                 <View style={{flex:1, marginRight: 10}}>
+                    <Text style={styles.modalLabel}>HEURE</Text>
+                    <TextInput style={styles.modalInput} placeholder="09:00" placeholderTextColor="rgba(255,255,255,0.2)" value={newTime} onChangeText={setNewTime} />
+                 </View>
+              </View>
 
-            <Text style={styles.modalLabel}>TYPE</Text>
-            <View style={styles.typeGrid}>
-              {TYPE_OPTIONS.map(t => (
-                <TouchableOpacity
-                  key={t.key}
-                  style={[styles.typeChip, newType === t.key && { backgroundColor: `${t.color}30`, borderColor: t.color }]}
-                  onPress={() => setNewType(t.key)}
-                >
-                  <t.icon color={newType === t.key ? t.color : '#94A3B8'} size={16} />
-                  <Text style={[styles.typeChipText, newType === t.key && { color: t.color }]}>{t.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+              <Text style={styles.modalLabel}>TYPE D'ACTIVITÉ</Text>
+              <View style={styles.typeGrid}>
+                {TYPE_OPTIONS.map(t => (
+                  <TouchableOpacity
+                    key={t.key}
+                    style={[styles.typeChip, newType === t.key && { backgroundColor: `${t.color}25`, borderColor: t.color }]}
+                    onPress={() => setNewType(t.key)}
+                  >
+                    <t.icon color={newType === t.key ? t.color : 'rgba(255,255,255,0.4)'} size={16} />
+                    <Text style={[styles.typeChipText, newType === t.key && { color: t.color }]}>{t.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
 
-            <TouchableOpacity style={styles.modalSaveBtn} onPress={handleAddAppt}>
-              <Text style={styles.modalSaveText}>Enregistrer</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleAddAppt}>
+                <LinearGradient colors={['#A855F7', '#7C3AED']} start={{x:0, y:0}} end={{x:1, y:0}} style={styles.modalSaveGrad}>
+                  <Text style={styles.modalSaveText}>Confirmer</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <View style={{height: 40}} />
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -255,52 +283,67 @@ export default function AppointmentsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   scroll: { padding: 24, paddingTop: 60 },
-  orb1: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(168,85,247,0.12)', top: -60, right: -80, zIndex: 0 },
-  orb2: { position: 'absolute', width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(124,58,237,0.08)', bottom: 100, left: -50, zIndex: 0 },
+  
+  glowTopRight: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(139, 24, 116, 0.15)', top: -100, right: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
+  glowBottomLeft: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(108, 36, 181, 0.1)', bottom: 50, left: -100, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
+
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 },
-  headerSub: { color: 'rgba(168,85,247,0.7)', fontSize: 12, fontWeight: '900', letterSpacing: 2 },
+  headerSub: { color: '#A855F7', fontSize: 12, fontWeight: '900', letterSpacing: 2 },
   headerTitle: { color: '#fff', fontSize: 34, fontWeight: '900', marginTop: 4 },
-  addHeaderBtn: { backgroundColor: '#A855F7', padding: 16, borderRadius: 20, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16 },
-  calendarCard: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 40, padding: 24, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 32, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 20 },
+  addHeaderBtn: { backgroundColor: 'rgba(255,255,255,0.05)', padding: 14, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  
+  calendarCard: { borderRadius: 40, overflow: 'hidden', marginBottom: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.1)', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 25 },
+  calendarInner: { padding: 24 },
   calNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  navArrow: { width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' },
+  navArrow: { width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
   navArrowText: { color: 'white', fontSize: 24, fontWeight: '900', lineHeight: 28 },
   calMonth: { color: '#fff', fontSize: 20, fontWeight: '900' },
-  daysHeader: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 8 },
-  dayLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 12, fontWeight: '800', width: 36, textAlign: 'center' },
+  daysHeader: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 },
+  dayLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 11, fontWeight: '900', width: 36, textAlign: 'center', letterSpacing: 0.5 },
   daysGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  dayCell: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 8, borderRadius: 14, marginBottom: 4 },
-  dayCellSelected: { backgroundColor: '#A855F7' },
-  dayCellToday: { backgroundColor: 'rgba(168,85,247,0.2)' },
-  dayNumber: { color: 'rgba(255,255,255,0.7)', fontSize: 15, fontWeight: '700' },
+  dayCell: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 10, borderRadius: 16, marginBottom: 4 },
+  dayCellSelected: { backgroundColor: '#A855F7', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 10 },
+  dayCellToday: { backgroundColor: 'rgba(168,85,247,0.15)', borderWidth: 1, borderColor: 'rgba(168,85,247,0.3)' },
+  dayNumber: { color: 'rgba(255,255,255,0.5)', fontSize: 15, fontWeight: '800' },
   dayNumberSelected: { color: '#fff', fontWeight: '900' },
   dayNumberToday: { color: '#A855F7', fontWeight: '900' },
-  apptDot: { width: 5, height: 5, borderRadius: 2.5, marginTop: 3 },
-  sectionHeader: { marginBottom: 16 },
+  apptDot: { width: 5, height: 5, borderRadius: 2.5, marginTop: 4 },
+
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   sectionTitle: { color: '#fff', fontSize: 18, fontWeight: '900' },
-  apptCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.04)', padding: 20, borderRadius: 32, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
-  apptIcon: { padding: 14, borderRadius: 20, borderWidth: 1 },
-  apptTitle: { color: '#fff', fontSize: 16, fontWeight: '800' },
-  apptSub: { color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: '600', marginTop: 3 },
-  timeTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(168,85,247,0.15)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
-  timeText: { color: '#A855F7', fontSize: 12, fontWeight: '800', marginLeft: 5 },
-  doneBadge: { marginTop: 6, backgroundColor: 'rgba(16,185,129,0.15)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
-  doneText: { color: '#10B981', fontSize: 11, fontWeight: '800' },
-  emptyState: { alignItems: 'center', padding: 40 },
-  emptyText: { color: 'rgba(255,255,255,0.3)', fontSize: 17, fontWeight: '700', marginTop: 16, marginBottom: 24 },
-  emptyBtn: { backgroundColor: 'rgba(168,85,247,0.2)', paddingHorizontal: 28, paddingVertical: 16, borderRadius: 20, borderWidth: 1, borderColor: '#A855F7' },
-  emptyBtnText: { color: '#A855F7', fontWeight: '900', fontSize: 15 },
-  fab: { position: 'absolute', bottom: 32, right: 32, borderRadius: 32, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.4, shadowRadius: 20 },
-  fabGradient: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
-  modalContent: { borderRadius: 40, padding: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.1)', overflow: 'hidden' },
+  indicatorBadge: { backgroundColor: 'rgba(168,85,247,0.1)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(168,85,247,0.2)' },
+  indicatorText: { color: '#A855F7', fontSize: 10, fontWeight: '900', letterSpacing: 1 },
+
+  apptCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.04)', padding: 20, borderRadius: 32, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  apptIcon: { padding: 14, borderRadius: 22, borderWidth: 1 },
+  apptTitle: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  apptSub: { color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: '600', marginTop: 4 },
+  timeTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(168,85,247,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(168,85,247,0.1)' },
+  timeText: { color: '#A855F7', fontSize: 12, fontWeight: '900', marginLeft: 6 },
+  doneBadge: { flexDirection: 'row', alignItems: 'center', marginTop: 8, backgroundColor: 'rgba(16,185,129,0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
+  doneText: { color: '#10B981', fontSize: 10, fontWeight: '900', marginLeft: 4, textTransform: 'uppercase' },
+
+  emptyState: { alignItems: 'center', padding: 48, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  emptyIconBg: { backgroundColor: 'rgba(168,85,247,0.1)', padding: 20, borderRadius: 24, marginBottom: 20 },
+  emptyText: { color: 'rgba(255,255,255,0.3)', fontSize: 16, fontWeight: '800', marginBottom: 24 },
+  emptyBtn: { backgroundColor: 'white', paddingHorizontal: 28, paddingVertical: 16, borderRadius: 20, shadowColor: '#FFF', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10 },
+  emptyBtnText: { color: 'black', fontWeight: '900', fontSize: 15 },
+
+  fab: { position: 'absolute', bottom: 32, right: 32, borderRadius: 32, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.4, shadowRadius: 20, elevation: 12 },
+  fabGradient: { width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
+  modalContent: { borderRadius: 44, padding: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)', maxHeight: '90%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 },
-  modalTitle: { color: '#fff', fontSize: 22, fontWeight: '900' },
-  modalLabel: { color: 'rgba(168,85,247,0.8)', fontSize: 11, fontWeight: '900', letterSpacing: 1.5, marginBottom: 10 },
-  modalInput: { backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: 16, fontWeight: '700', padding: 18, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 20 },
-  typeGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 24 },
-  typeChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, marginRight: 10, marginBottom: 10 },
-  typeChipText: { color: '#94A3B8', fontSize: 13, fontWeight: '800', marginLeft: 8 },
-  modalSaveBtn: { backgroundColor: '#A855F7', paddingVertical: 20, borderRadius: 24, alignItems: 'center', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16 },
+  modalTitle: { color: '#fff', fontSize: 24, fontWeight: '900' },
+  closeBtn: { backgroundColor: 'rgba(255,255,255,0.06)', padding: 10, borderRadius: 14 },
+  modalLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: '900', letterSpacing: 1.5, marginBottom: 10, marginLeft: 4 },
+  modalInput: { backgroundColor: 'rgba(255,255,255,0.04)', color: '#fff', fontSize: 16, fontWeight: '700', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 24 },
+  modalRow: { flexDirection: 'row' },
+  typeGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 32 },
+  typeChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 20, marginRight: 10, marginBottom: 12 },
+  typeChipText: { color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: '800', marginLeft: 10 },
+  modalSaveBtn: { borderRadius: 28, overflow: 'hidden', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20 },
+  modalSaveGrad: { paddingVertical: 22, alignItems: 'center' },
   modalSaveText: { color: '#fff', fontSize: 18, fontWeight: '900' },
 });
