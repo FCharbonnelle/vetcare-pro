@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image, KeyboardAvoidingView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
@@ -36,6 +36,9 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isSelected }}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -51,9 +54,10 @@ export default function Onboarding() {
         style={StyleSheet.absoluteFill}
       />
       
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
+        <View style={styles.progressBar} accessibilityRole="progressbar" accessibilityLabel="Progression de l'onboarding" accessibilityValue={{ min: 1, max: 3, now: step }}>
            {[1, 2, 3].map(s => (
               <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
            ))}
@@ -122,6 +126,7 @@ export default function Onboarding() {
         </View>
 
       </Animated.View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
