@@ -1,6 +1,6 @@
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Modal, TextInput, Platform } from 'react-native';
 import { Calendar as CalendarIcon, Plus, Clock, MapPin, ChevronRight, Stethoscope, Syringe, Scissors, Pill, X, Check, CalendarDays } from 'lucide-react-native';
-import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 
@@ -22,6 +22,34 @@ const INITIAL_APPTS = [
   { id: '5', title: 'Bilan de Santé Annuel', date: '2026-04-10', time: '15:00', type: 'consultation', vet: 'Dr. Martin', done: false },
 ];
 
+const getType = (key: string) => TYPE_OPTIONS.find(t => t.key === key) ?? TYPE_OPTIONS[0];
+
+const ApptCard = React.memo(({ item }: { item: typeof INITIAL_APPTS[0] }) => {
+  const t = getType(item.type);
+  return (
+    <TouchableOpacity style={styles.apptCard} activeOpacity={0.8}>
+      <View style={[styles.apptIcon, { backgroundColor: `${t.color}15`, borderColor: `${t.color}30` }]}>
+        <t.icon color={t.color} size={22} />
+      </View>
+      <View style={{ flex: 1, marginLeft: 16 }}>
+        <Text style={styles.apptTitle}>{item.title}</Text>
+        <Text style={styles.apptSub}>{item.vet}</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <View style={styles.timeTag}>
+          <Clock color="#A855F7" size={12} />
+          <Text style={styles.timeText}>{item.time}</Text>
+        </View>
+        {item.done && (
+          <View style={styles.doneBadge}>
+             <Check color="#10B981" size={10} strokeWidth={3} />
+             <Text style={styles.doneText}>Fait</Text>
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+});
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
 }
@@ -57,16 +85,18 @@ export default function AppointmentsScreen() {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfWeek(year, month);
 
-  const apptDays = new Set(
+  // Memoize calendar appointment indicators to avoid recalculation on every state change (like modal input)
+  const apptDays = useMemo(() => new Set(
     appointments
       .filter(a => {
         const d = new Date(a.date);
         return d.getFullYear() === year && d.getMonth() === month;
       })
       .map(a => new Date(a.date).getDate())
-  );
+  ), [appointments, year, month]);
 
-  const selectedAppts = selectedDay
+  // Memoize filtered appointments list
+  const selectedAppts = useMemo(() => selectedDay
     ? appointments.filter(a => {
         const d = new Date(a.date);
         return d.getFullYear() === year && d.getMonth() === month && d.getDate() === selectedDay;
@@ -74,7 +104,7 @@ export default function AppointmentsScreen() {
     : appointments.filter(a => {
         const d = new Date(a.date);
         return d >= new Date(new Date().setHours(0, 0, 0, 0));
-      }).slice(0, 5);
+      }).slice(0, 5), [appointments, year, month, selectedDay]);
 
   const prevMonth = () => {
     const d = new Date(currentDate);
@@ -100,35 +130,6 @@ export default function AppointmentsScreen() {
     ]);
     setNewTitle(''); setNewVet(''); setNewTime('09:00'); setNewType('consultation');
     setModalVisible(false);
-  };
-
-  const getType = (key: string) => TYPE_OPTIONS.find(t => t.key === key) ?? TYPE_OPTIONS[0];
-
-  const ApptCard = ({ item }: { item: typeof INITIAL_APPTS[0] }) => {
-    const t = getType(item.type);
-    return (
-      <TouchableOpacity style={styles.apptCard} activeOpacity={0.8}>
-        <View style={[styles.apptIcon, { backgroundColor: `${t.color}15`, borderColor: `${t.color}30` }]}>
-          <t.icon color={t.color} size={22} />
-        </View>
-        <View style={{ flex: 1, marginLeft: 16 }}>
-          <Text style={styles.apptTitle}>{item.title}</Text>
-          <Text style={styles.apptSub}>{item.vet}</Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <View style={styles.timeTag}>
-            <Clock color="#A855F7" size={12} />
-            <Text style={styles.timeText}>{item.time}</Text>
-          </View>
-          {item.done && (
-            <View style={styles.doneBadge}>
-               <Check color="#10B981" size={10} strokeWidth={3} />
-               <Text style={styles.doneText}>Fait</Text>
-            </View>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
   };
 
   const today = new Date().getDate();
