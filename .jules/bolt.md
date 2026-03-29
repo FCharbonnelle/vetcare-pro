@@ -1,0 +1,3 @@
+## 2025-05-22 - Component Memoization and Calculation Caching in Appointments
+**Learning:** In screens where a modal with multiple text inputs (like adding a new appointment) is used, every keystroke triggers a re-render of the parent component. Without memoization, expensive filtering/mapping and list item components are re-processed on every character typed, leading to "input lag" as the list grows.
+**Action:** Extract list items to top-level components wrapped in `React.memo` and use `useMemo` for data transformations (filtering, set creation) to ensure stable references and skip redundant work during unrelated state updates (like form input).
