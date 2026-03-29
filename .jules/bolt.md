@@ -1,0 +1,3 @@
+## 2025-05-15 - [Context Memoization & Functional Updates]
+**Learning:** React Context providers without memoized values cause all consuming components to re-render whenever the provider's parent re-renders or any piece of the context state changes. Additionally, using `pet` as a dependency in `savePet` causes the function reference to change on every state update, further triggering re-renders in components using that function.
+**Action:** Always memoize context values with `useMemo` and use functional updates (`setPet(prev => ...)`) combined with `useCallback` to maintain stable function references and prevent unnecessary re-renders across the app tree.
