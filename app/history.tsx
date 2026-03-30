@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated } from 'react-native';
-import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Modal, TextInput } from 'react-native';
+import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function HistoryScreen() {
@@ -9,12 +9,38 @@ export default function HistoryScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
+  const [records, setRecords] = useState([
+    { id: '1', icon: Syringe, title: "Vaccination Annuelle", date: "12 Oct, 2025", type: "Préventif", color: "#A855F7" },
+    { id: '2', icon: Stethoscope, title: "Contrôle Général", date: "28 Sep, 2025", type: "Clinique", color: "#10B981" },
+    { id: '3', icon: Scissors, title: "Toilettage Complet", date: "15 Sep, 2025", type: "Hygiène", color: "#F59E0B" },
+    { id: '4', icon: Calendar, title: "Consultation Vétérinaire", date: "30 Aoû, 2025", type: "Clinique", color: "#3B82F6" },
+  ]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newType, setNewType] = useState('');
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 8, useNativeDriver: true })
     ]).start();
   }, []);
+
+  const handleAddRecord = () => {
+    if (!newTitle) return;
+    const newRecord = {
+      id: Date.now().toString(),
+      icon: Activity,
+      title: newTitle,
+      date: "Aujourd'hui",
+      type: newType || "Général",
+      color: "#A855F7"
+    };
+    setRecords([newRecord, ...records]);
+    setNewTitle('');
+    setNewType('');
+    setModalVisible(false);
+  };
 
   const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
     <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
@@ -77,30 +103,53 @@ export default function HistoryScreen() {
           </LinearGradient>
         </View>
 
-        <View style={styles.sectionHeader}>
-           <Text style={styles.sectionTitle}>Activités récentes</Text>
-           <TouchableOpacity style={styles.addBtnContainer}>
-              <Plus color="#A855F7" size={20} />
-              <Text style={styles.addBtnText}>Nouveau</Text>
-           </TouchableOpacity>
-        </View>
+         <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Activités récentes</Text>
+            <TouchableOpacity style={styles.addBtnContainer} onPress={() => setModalVisible(true)}>
+               <Plus color="#A855F7" size={20} />
+               <Text style={styles.addBtnText}>Nouveau</Text>
+            </TouchableOpacity>
+         </View>
 
         <View style={styles.listContainer}>
-          <HistoryItem icon={Syringe} title="Vaccination Annuelle" date="12 Oct, 2025" type="Préventif" color="#A855F7" />
-          <HistoryItem icon={Stethoscope} title="Contrôle Général" date="28 Sep, 2025" type="Clinique" color="#10B981" />
-          <HistoryItem icon={Scissors} title="Toilettage Complet" date="15 Sep, 2025" type="Hygiène" color="#F59E0B" />
-          <HistoryItem icon={Calendar} title="Consultation Vétérinaire" date="30 Aoû, 2025" type="Clinique" color="#3B82F6" />
+          {records.map(item => (
+            <HistoryItem key={item.id} icon={item.icon} title={item.title} date={item.date} type={item.type} color={item.color} />
+          ))}
         </View>
 
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
 
       {/* FAB - Premium style */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.9}>
+      <TouchableOpacity style={styles.fab} activeOpacity={0.9} onPress={() => setModalVisible(true)}>
         <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.fabGradient}>
           <Plus color="white" size={28} />
         </LinearGradient>
       </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 44 }]} />
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Nouvel Historique</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}><X color="white" size={24} /></TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalLabel}>TITRE DE LA VISITE</Text>
+              <TextInput style={styles.modalInput} placeholder="Ex: Rappel Vaccin" placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
+              <Text style={styles.modalLabel}>TYPE D'ACTIVITÉ</Text>
+              <TextInput style={styles.modalInput} placeholder="Ex: Clinique, Hygiène..." placeholderTextColor="rgba(255,255,255,0.2)" value={newType} onChangeText={setNewType} />
+              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleAddRecord}>
+                <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.modalSaveGrad}>
+                  <Text style={styles.modalSaveText}>Enregistrer</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <View style={{height: 40}} />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -143,4 +192,14 @@ const styles = StyleSheet.create({
   
   fab: { position: 'absolute', bottom: 32, right: 32, borderRadius: 32, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.4, shadowRadius: 20, elevation: 12 },
   fabGradient: { width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
+  modalContent: { borderRadius: 44, padding: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)', maxHeight: '80%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 },
+  modalTitle: { color: '#fff', fontSize: 24, fontWeight: '900' },
+  closeBtn: { backgroundColor: 'rgba(255,255,255,0.06)', padding: 10, borderRadius: 14 },
+  modalLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: '900', letterSpacing: 1.5, marginBottom: 10, marginLeft: 4 },
+  modalInput: { backgroundColor: 'rgba(255,255,255,0.04)', color: '#fff', fontSize: 16, fontWeight: '700', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 24 },
+  modalSaveBtn: { borderRadius: 28, overflow: 'hidden', marginTop: 10 },
+  modalSaveGrad: { paddingVertical: 22, alignItems: 'center' },
+  modalSaveText: { color: '#fff', fontSize: 18, fontWeight: '900' },
 });

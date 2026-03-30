@@ -28,7 +28,7 @@ export default function SettingsScreen() {
   };
 
   const MenuItem = ({ icon: Icon, title, subtitle, color = "#A855F7", onPress }: any) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <TouchableOpacity style={styles.menuItem} onPress={onPress || (() => Alert.alert(title, "Cette fonctionnalité sera disponible dans une prochaine mise à jour."))}>
       <View style={[styles.menuIconBg, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
         <Icon color={color} size={22} />
       </View>

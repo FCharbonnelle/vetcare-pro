@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useColorScheme, View, StyleSheet, useWindowDimensions, TouchableOpacity, Text, SafeAreaView, Platform } from 'react-native';
 import { AuthProvider } from '@/store/AuthContext';
 import { PetProvider } from '@/store/PetContext';
+import { AppointmentProvider } from '@/store/AppointmentContext';
 import { Home, Heart, Calendar, MapPin, User, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -94,7 +95,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <PetProvider>
-        <RootLayoutNav />
+        <AppointmentProvider>
+          <RootLayoutNav />
+        </AppointmentProvider>
       </PetProvider>
     </AuthProvider>
   );

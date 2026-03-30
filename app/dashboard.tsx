@@ -1,11 +1,16 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions, Platform, Modal, FlatList } from 'react-native';
 import { Bell, MapPin, Heart, Clock, Scale, Dog, Star, Zap, Activity } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
 import { usePet } from '@/store/PetContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Defs, LinearGradient as SvgGradient, Stop, Line, Text as SvgText, Rect } from 'react-native-svg';
+import { StatPill } from '@/components/StatPill';
+import { QuickAction } from '@/components/QuickAction';
+import { VetCard } from '@/components/VetCard';
+import { NotifItem } from '@/components/NotifItem';
+
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -19,35 +24,44 @@ const CHART_DATA = [
   { month: 'Avr', value: 34.0 },
 ];
 
+const VET_DATA = [
+  { id: '1', name: "Clinique de l'Espoir", rating: "4.9", dist: "1.2 km", img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop" },
+  { id: '2', name: "Urgences Vétos 24/7", rating: "4.7", dist: "2.5 km", img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop" },
+  { id: '3', name: "Centre du Bien-être", rating: "4.8", dist: "0.8 km", img: "https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" },
+];
+
 function WeightLineChart() {
-  const chartW = Math.min(SCREEN_W - 48, 600); 
-  const chartH = 160;
-  const padL = 40; const padR = 20; const padT = 30; const padB = 40; 
-  const W = chartW - padL - padR;
-  const H = chartH - padT - padB;
+  const { chartW, chartH, linePath, areaPath, peakIdx, vals, toX, toY, padL, padT, H, W } = React.useMemo(() => {
+    const chartW = Math.min(SCREEN_W - 48, 600); 
+    const chartH = 160;
+    const padL = 40; const padR = 20; const padT = 30; const padB = 40; 
+    const W = chartW - padL - padR;
+    const H = chartH - padT - padB;
 
-  const vals = CHART_DATA.map(d => d.value);
-  const minV = Math.floor(Math.min(...vals)) - 0.5;
-  const maxV = Math.ceil(Math.max(...vals)) + 0.5;
+    const vals = CHART_DATA.map(d => d.value);
+    const minV = Math.floor(Math.min(...vals)) - 0.5;
+    const maxV = Math.ceil(Math.max(...vals)) + 0.5;
 
-  const toX = (i: number) => padL + (i / (CHART_DATA.length - 1)) * W;
-  const toY = (v: number) => padT + H - ((v - minV) / (maxV - minV)) * H;
+    const toX = (i: number) => padL + (i / (CHART_DATA.length - 1)) * W;
+    const toY = (v: number) => padT + H - ((v - minV) / (maxV - minV)) * H;
 
-  const getSmilePath = () => {
-    let d = `M ${toX(0).toFixed(1)} ${toY(CHART_DATA[0].value).toFixed(1)} `;
-    for (let i = 1; i < CHART_DATA.length; i++) {
-        const p0 = CHART_DATA[i - 1];
-        const p1 = CHART_DATA[i];
-        const cx = (toX(i - 1) + toX(i)) / 2;
-        d += `C ${cx.toFixed(1)} ${toY(p0.value).toFixed(1)}, ${cx.toFixed(1)} ${toY(p1.value).toFixed(1)}, ${toX(i).toFixed(1)} ${toY(p1.value).toFixed(1)} `;
+    const getSmilePath = () => {
+      let d = `M ${toX(0).toFixed(1)} ${toY(CHART_DATA[0].value).toFixed(1)} `;
+      for (let i = 1; i < CHART_DATA.length; i++) {
+          const p0 = CHART_DATA[i - 1];
+          const p1 = CHART_DATA[i];
+          const cx = (toX(i - 1) + toX(i)) / 2;
+          d += `C ${cx.toFixed(1)} ${toY(p0.value).toFixed(1)}, ${cx.toFixed(1)} ${toY(p1.value).toFixed(1)}, ${toX(i).toFixed(1)} ${toY(p1.value).toFixed(1)} `;
+      }
+      return d;
     }
-    return d;
-  }
-  
-  const linePath = getSmilePath();
-  const areaPath = linePath + ` L ${toX(CHART_DATA.length - 1).toFixed(1)} ${(padT + H).toFixed(1)} L ${toX(0).toFixed(1)} ${(padT + H).toFixed(1)} Z`;
+    
+    const linePath = getSmilePath();
+    const areaPath = linePath + ` L ${toX(CHART_DATA.length - 1).toFixed(1)} ${(padT + H).toFixed(1)} L ${toX(0).toFixed(1)} ${(padT + H).toFixed(1)} Z`;
+    const peakIdx = CHART_DATA.findIndex(d => d.value === Math.max(...vals));
 
-  const peakIdx = CHART_DATA.findIndex(d => d.value === Math.max(...vals));
+    return { chartW, chartH, linePath, areaPath, peakIdx, vals, toX, toY, padL, padT, H, W };
+  }, [SCREEN_W]);
 
   return (
     <Svg width={chartW} height={chartH}>
@@ -114,6 +128,7 @@ export default function Dashboard() {
   const { pet } = usePet();
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
+  const [notifModalVisible, setNotifModalVisible] = React.useState(false);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -152,7 +167,7 @@ export default function Dashboard() {
           </View>
           
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity style={styles.actionBtn} onPress={() => setNotifModalVisible(true)}>
               <Bell color="#fff" size={20} />
               <View style={styles.bellDot} />
             </TouchableOpacity>
@@ -201,7 +216,7 @@ export default function Dashboard() {
           <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.glassInner}>
             <View style={styles.cardHeader}>
                <Text style={styles.cardTitle}>Suivi du poids 📈</Text>
-               <TouchableOpacity><Text style={styles.seeAll}>Plus</Text></TouchableOpacity>
+               <TouchableOpacity onPress={() => router.push('/history' as any)}><Text style={styles.seeAll}>Plus</Text></TouchableOpacity>
             </View>
             <View style={styles.chartContainer}>
               <WeightLineChart />
@@ -214,59 +229,38 @@ export default function Dashboard() {
            <Text style={styles.sectionTitle}>Vétérinaires à proximité</Text>
            <TouchableOpacity onPress={() => router.push('/map' as any)}><Text style={styles.seeAll}>Voir tout</Text></TouchableOpacity>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft: 24, paddingRight: 8, paddingBottom: 20 }}>
-          <VetCard name="Clinique de l'Espoir" rating="4.9" dist="1.2 km" img="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop" />
-          <VetCard name="Urgences Vétos 24/7" rating="4.7" dist="2.5 km" img="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop" />
-          <VetCard name="Centre du Bien-être" rating="4.8" dist="0.8 km" img="https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" />
-        </ScrollView>
+        
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingLeft: 24, paddingRight: 8, paddingBottom: 20 }}
+          data={VET_DATA}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }: { item: typeof VET_DATA[0] }) => (
+            <VetCard name={item.name} rating={item.rating} dist={item.dist} img={item.img} />
+          )}
+        />
 
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
-    </SafeAreaView>
-  );
-}
-
-function StatPill({ icon: Icon, label, value }: any) {
-  return (
-    <View style={styles.statPill}>
-      <View style={styles.statIcon}><Icon color="#A855F7" size={14} /></View>
-      <View>
-        <Text style={styles.statLabel}>{label}</Text>
-        <Text style={styles.statValue}>{value}</Text>
-      </View>
-    </View>
-  );
-}
-
-function QuickAction({ icon: Icon, label, color, onPress }: any) {
-  return (
-    <TouchableOpacity style={styles.qaBtn} onPress={onPress}>
-       <View style={[styles.qaIcon, { backgroundColor: `${color}20`, borderColor: `${color}40` }]}>
-          <Icon color={color} size={22} />
-       </View>
-       <Text style={styles.qaLabel}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-function VetCard({ name, rating, dist, img }: any) {
-  const router = useRouter();
-  return (
-    <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
-      <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.vetCardGlass}>
-        <Image source={{ uri: img }} style={styles.vetImg} />
-        <View style={styles.vetContent}>
-          <Text style={styles.vetName} numberOfLines={1}>{name}</Text>
-          <View style={styles.vetMetaRow}>
-            <View style={styles.vetMetaItem}>
-              <Star color="#F59E0B" size={10} fill="#F59E0B" />
-              <Text style={styles.vetRating}>{rating}</Text>
+      <Modal visible={notifModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} onPress={() => setNotifModalVisible(false)} />
+          <View style={styles.notifContent}>
+            <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 40 }]} />
+            <View style={styles.modalHeader}>
+               <Text style={styles.modalTitle}>Notifications</Text>
+               <TouchableOpacity onPress={() => setNotifModalVisible(false)}><Text style={{color: '#A855F7', fontWeight: '800'}}>Fermer</Text></TouchableOpacity>
             </View>
-            <Text style={styles.vetDist}>{dist}</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+               <NotifItem icon={Bell} title="Rappel: Vaccin demain" time="Il y a 2h" color="#A855F7" />
+               <NotifItem icon={Activity} title="Poids en hausse !" time="Hier" color="#10B981" />
+               <NotifItem icon={Zap} title="Conseil IA disponible" time="2 jours" color="#3B82F6" />
+            </ScrollView>
           </View>
         </View>
-      </LinearGradient>
-    </TouchableOpacity>
+      </Modal>
+    </SafeAreaView>
   );
 }
 
@@ -329,4 +323,12 @@ const styles = StyleSheet.create({
   vetMetaItem: { flexDirection: 'row', alignItems: 'center' },
   vetRating: { color: '#F59E0B', fontSize: 11, fontWeight: '900', marginLeft: 4 },
   vetDist: { color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: '800' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', padding: 24 },
+  notifContent: { height: 400, borderRadius: 40, padding: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  modalTitle: { color: '#fff', fontSize: 24, fontWeight: '900' },
+  notifItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  notifIcon: { padding: 10, borderRadius: 14, borderWidth: 1 },
+  notifTitle: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  notifTime: { color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: '600', marginTop: 2 },
 });

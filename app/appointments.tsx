@@ -1,20 +1,13 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Modal, TextInput, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Modal, TextInput, Platform, FlatList } from 'react-native';
 import { Calendar as CalendarIcon, Plus, Clock, MapPin, ChevronRight, Stethoscope, Syringe, Scissors, Pill, X, Check, CalendarDays } from 'lucide-react-native';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { Appointment, TYPE_OPTIONS, MONTHS, DAYS_SHORT } from '@/constants/AppConstants';
+import { ApptCard } from '@/components/ApptCard';
+import { useAppointment } from '@/store/AppointmentContext';
 
-const MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-const DAYS_SHORT = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-
-const TYPE_OPTIONS = [
-  { key: 'vaccination', label: 'Vaccination', icon: Syringe, color: '#A855F7' },
-  { key: 'consultation', label: 'Consultation', icon: Stethoscope, color: '#10B981' },
-  { key: 'toilettage', label: 'Toilettage', icon: Scissors, color: '#F59E0B' },
-  { key: 'medicament', label: 'Médicament', icon: Pill, color: '#3B82F6' },
-];
-
-const INITIAL_APPTS = [
+const INITIAL_APPTS: Appointment[] = [
   { id: '1', title: 'Vaccination Annuelle', date: '2025-10-12', time: '10:00', type: 'vaccination', vet: 'Dr. Martin', done: true },
   { id: '2', title: 'Contrôle Général', date: '2025-11-05', time: '14:30', type: 'consultation', vet: 'Dr. Dupont', done: true },
   { id: '3', title: 'Toilettage Complet', date: '2025-12-15', time: '11:00', type: 'toilettage', vet: 'Salon Pet', done: false },
@@ -32,9 +25,11 @@ function getFirstDayOfWeek(year: number, month: number) {
 
 export default function AppointmentsScreen() {
   const router = useRouter();
+  const { appointments, addAppointment, updateAppointment, deleteAppointment, loading } = useAppointment();
+  
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
-  const [appointments, setAppointments] = useState(INITIAL_APPTS);
+  
   const [modalVisible, setModalVisible] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
@@ -66,15 +61,21 @@ export default function AppointmentsScreen() {
       .map(a => new Date(a.date).getDate())
   );
 
-  const selectedAppts = selectedDay
-    ? appointments.filter(a => {
+  const selectedAppts = useState(() => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    return appointments.filter(a => new Date(a.date) >= todayStart).slice(0, 5);
+  })[0];
+
+  const filteredAppts = useMemo(() => {
+    if (selectedDay) {
+      return appointments.filter(a => {
         const d = new Date(a.date);
         return d.getFullYear() === year && d.getMonth() === month && d.getDate() === selectedDay;
-      })
-    : appointments.filter(a => {
-        const d = new Date(a.date);
-        return d >= new Date(new Date().setHours(0, 0, 0, 0));
-      }).slice(0, 5);
+      });
+    }
+    return selectedAppts;
+  }, [appointments, selectedDay, year, month, selectedAppts]);
 
   const prevMonth = () => {
     const d = new Date(currentDate);
@@ -89,47 +90,44 @@ export default function AppointmentsScreen() {
     setSelectedDay(null);
   };
 
-  const handleAddAppt = () => {
+  const handleAddAppt = async () => {
     if (!newTitle) return;
     const dateStr = selectedDay
       ? `${year}-${String(month + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`
       : new Date().toISOString().split('T')[0];
-    setAppointments(prev => [
-      ...prev,
-      { id: Date.now().toString(), title: newTitle, date: dateStr, time: newTime, type: newType, vet: newVet, done: false },
-    ]);
+      
+    await addAppointment({
+      id: Date.now().toString(),
+      title: newTitle,
+      date: dateStr,
+      time: newTime,
+      type: newType,
+      vet: newVet,
+      done: false
+    });
+
     setNewTitle(''); setNewVet(''); setNewTime('09:00'); setNewType('consultation');
     setModalVisible(false);
   };
 
-  const getType = (key: string) => TYPE_OPTIONS.find(t => t.key === key) ?? TYPE_OPTIONS[0];
-
-  const ApptCard = ({ item }: { item: typeof INITIAL_APPTS[0] }) => {
-    const t = getType(item.type);
-    return (
-      <TouchableOpacity style={styles.apptCard} activeOpacity={0.8}>
-        <View style={[styles.apptIcon, { backgroundColor: `${t.color}15`, borderColor: `${t.color}30` }]}>
-          <t.icon color={t.color} size={22} />
-        </View>
-        <View style={{ flex: 1, marginLeft: 16 }}>
-          <Text style={styles.apptTitle}>{item.title}</Text>
-          <Text style={styles.apptSub}>{item.vet}</Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <View style={styles.timeTag}>
-            <Clock color="#A855F7" size={12} />
-            <Text style={styles.timeText}>{item.time}</Text>
-          </View>
-          {item.done && (
-            <View style={styles.doneBadge}>
-               <Check color="#10B981" size={10} strokeWidth={3} />
-               <Text style={styles.doneText}>Fait</Text>
+        {filteredAppts.length === 0 ? (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyIconBg}>
+               <CalendarDays color="rgba(168,85,247,0.4)" size={40} />
             </View>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  };
+            <Text style={styles.emptyText}>Aucun événement{selectedDay ? ' ce jour' : ''}</Text>
+            <TouchableOpacity style={styles.emptyBtn} onPress={() => setModalVisible(true)}>
+               <Text style={styles.emptyBtnText}>+ Ajouter</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredAppts}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false} // Since we are inside a ScrollView
+            renderItem={({ item }: { item: Appointment }) => <ApptCard item={item} />}
+          />
+        )}
 
   const today = new Date().getDate();
   const todayMonth = new Date().getMonth();
