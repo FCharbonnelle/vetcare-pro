@@ -1,0 +1,3 @@
+## 2025-10-27 - Optimized appointments list rendering
+**Learning:** Defining sub-components inside a parent's render function (e.g., `ApptCard` inside `AppointmentsScreen`) causes them to be recreated on every render, triggering full unmount/remount cycles. This is particularly problematic in screens with frequent state updates, such as those with text inputs in modals.
+**Action:** Always extract sub-components to the top level and wrap them in `React.memo` to ensure stable references and prevent unnecessary re-renders. Use `useMemo` for derived data that requires expensive array operations (filtering/mapping) to avoid redundant computations on every keystroke.
