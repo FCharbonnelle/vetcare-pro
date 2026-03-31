@@ -117,7 +117,6 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={DarkTheme}>
       <View style={styles.root}>
-        {/* Global Dark Background mirroring the image's bokeh purple/black */}
         <LinearGradient
           colors={['#170B3B', '#0E0824', '#000000']}
           start={{ x: 0, y: 0 }}

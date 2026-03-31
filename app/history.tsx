@@ -1,8 +1,9 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Modal, TextInput } from 'react-native';
-import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X } from 'lucide-react-native';
+import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X, Clock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -18,13 +19,45 @@ export default function HistoryScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState('');
+  
+  const [tempDate, setTempDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  const [newDate, setNewDate] = useState('');
+  const [newTime, setNewTime] = useState('');
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 8, useNativeDriver: true })
     ]).start();
+
+    formatDateTime(tempDate);
   }, []);
+
+  const formatDateTime = (date: Date) => {
+    const d = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    const t = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    setNewDate(d);
+    setNewTime(t);
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setTempDate(selectedDate);
+      formatDateTime(selectedDate);
+    }
+  };
+
+  const handleTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(false);
+    if (selectedTime) {
+      setTempDate(selectedTime);
+      formatDateTime(selectedTime);
+    }
+  };
 
   const handleAddRecord = () => {
     if (!newTitle) return;
@@ -32,7 +65,7 @@ export default function HistoryScreen() {
       id: Date.now().toString(),
       icon: Activity,
       title: newTitle,
-      date: "Aujourd'hui",
+      date: `${newDate} à ${newTime}`,
       type: newType || "Général",
       color: "#A855F7"
     };
@@ -65,7 +98,6 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.container}>
       <LinearGradient colors={['#170B3B', '#0E0824', '#000']} style={StyleSheet.absoluteFill} />
       
-      {/* Premium Glow Orbs */}
       <View style={styles.glowTopLeft} />
       <View style={styles.glowMidRight} />
 
@@ -84,7 +116,6 @@ export default function HistoryScreen() {
            </TouchableOpacity>
         </View>
 
-        {/* Summary Card - High Polish */}
         <View style={styles.summaryCard}>
           <LinearGradient colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.02)']} style={styles.summaryInner}>
              <View style={styles.summaryRow}>
@@ -120,7 +151,6 @@ export default function HistoryScreen() {
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
 
-      {/* FAB - Premium style */}
       <TouchableOpacity style={styles.fab} activeOpacity={0.9} onPress={() => setModalVisible(true)}>
         <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.fabGradient}>
           <Plus color="white" size={28} />
@@ -138,11 +168,51 @@ export default function HistoryScreen() {
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={styles.modalLabel}>TITRE DE LA VISITE</Text>
               <TextInput style={styles.modalInput} placeholder="Ex: Rappel Vaccin" placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
+              
               <Text style={styles.modalLabel}>TYPE D'ACTIVITÉ</Text>
               <TextInput style={styles.modalInput} placeholder="Ex: Clinique, Hygiène..." placeholderTextColor="rgba(255,255,255,0.2)" value={newType} onChangeText={setNewType} />
+              
+              <View style={styles.modalSplitRow}>
+                <View style={{ flex: 1, marginRight: 12 }}>
+                  <Text style={styles.modalLabel}>DATE</Text>
+                  <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowDatePicker(true)}>
+                     <View style={styles.pickerInner}>
+                       <Calendar color="#A855F7" size={16} />
+                       <Text style={styles.pickerValue}>{newDate}</Text>
+                     </View>
+                  </TouchableOpacity>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.modalLabel}>HEURE</Text>
+                  <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowTimePicker(true)}>
+                     <View style={styles.pickerInner}>
+                       <Clock color="#A855F7" size={16} />
+                       <Text style={styles.pickerValue}>{newTime}</Text>
+                     </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {showDatePicker && (
+                <DateTimePicker 
+                  value={tempDate} 
+                  mode="date" 
+                  display="default" 
+                  onChange={handleDateChange} 
+                />
+              )}
+              {showTimePicker && (
+                <DateTimePicker 
+                  value={tempDate} 
+                  mode="time" 
+                  display="default" 
+                  onChange={handleTimeChange} 
+                />
+              )}
+
               <TouchableOpacity style={styles.modalSaveBtn} onPress={handleAddRecord}>
                 <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.modalSaveGrad}>
-                  <Text style={styles.modalSaveText}>Enregistrer</Text>
+                  <Text style={styles.modalSaveText}>Enregistrer l'activité</Text>
                 </LinearGradient>
               </TouchableOpacity>
               <View style={{height: 40}} />
@@ -157,16 +227,13 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   scroll: { paddingBottom: 40 },
-  
   glowTopLeft: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(139, 24, 116, 0.12)', top: -150, left: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
   glowMidRight: { position: 'absolute', width: 350, height: 350, borderRadius: 175, backgroundColor: 'rgba(108, 36, 181, 0.08)', top: 300, right: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
-
   header: { padding: 24, paddingTop: 60, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerSub: { color: '#A855F7', fontSize: 12, fontWeight: '900', letterSpacing: 2 },
   headerTitle: { color: '#FFFFFF', fontSize: 34, fontWeight: '900', marginTop: 4 },
   filterBtn: { backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  
-  summaryCard: { marginHorizontal: 24, borderRadius: 40, overflow: 'hidden', marginBottom: 24, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.1)', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 25 },
+  summaryCard: { marginHorizontal: 24, borderRadius: 40, overflow: 'hidden', marginBottom: 24, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.1)' },
   summaryInner: { padding: 32 },
   summaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   summaryItem: { alignItems: 'center' },
@@ -174,12 +241,10 @@ const styles = StyleSheet.create({
   summaryValue: { color: '#FFFFFF', fontSize: 26, fontWeight: '900' },
   summaryLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: '800', marginTop: 6, textTransform: 'uppercase', letterSpacing: 1 },
   summaryDivider: { width: 1, height: 50, backgroundColor: 'rgba(255,255,255,0.1)', marginHorizontal: 48 },
-  
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, marginBottom: 24, marginTop: 12 },
   sectionTitle: { fontSize: 20, fontWeight: '900', color: '#FFFFFF' },
   addBtnContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(168, 85, 247, 0.1)', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(168, 85, 247, 0.2)' },
   addBtnText: { color: '#A855F7', fontWeight: '900', fontSize: 13, marginLeft: 8 },
-  
   listContainer: { paddingHorizontal: 24 },
   historyItem: { flexDirection: 'row', alignItems: 'center', padding: 20, marginBottom: 16, borderRadius: 36, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.03)' },
   iconContainer: { padding: 14, borderRadius: 22, borderWidth: 1 },
@@ -189,7 +254,6 @@ const styles = StyleSheet.create({
   statusBadge: { flexDirection: 'row', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(16,185,129,0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
   statusDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#10B981', marginRight: 6 },
   itemStatus: { fontSize: 10, fontWeight: '900', color: '#10B981', textTransform: 'uppercase' },
-  
   fab: { position: 'absolute', bottom: 32, right: 32, borderRadius: 32, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.4, shadowRadius: 20, elevation: 12 },
   fabGradient: { width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
@@ -199,6 +263,10 @@ const styles = StyleSheet.create({
   closeBtn: { backgroundColor: 'rgba(255,255,255,0.06)', padding: 10, borderRadius: 14 },
   modalLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: '900', letterSpacing: 1.5, marginBottom: 10, marginLeft: 4 },
   modalInput: { backgroundColor: 'rgba(255,255,255,0.04)', color: '#fff', fontSize: 16, fontWeight: '700', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 24 },
+  modalSplitRow: { flexDirection: 'row', alignItems: 'center' },
+  pickerTrigger: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 24, overflow: 'hidden' },
+  pickerInner: { flexDirection: 'row', alignItems: 'center', padding: 20 },
+  pickerValue: { color: '#fff', fontSize: 15, fontWeight: '700', marginLeft: 12 },
   modalSaveBtn: { borderRadius: 28, overflow: 'hidden', marginTop: 10 },
   modalSaveGrad: { paddingVertical: 22, alignItems: 'center' },
   modalSaveText: { color: '#fff', fontSize: 18, fontWeight: '900' },

@@ -152,29 +152,23 @@ export default function Dashboard() {
       <View style={styles.glowMidLeft} />
       <View style={styles.glowBottomRight} />
 
-      <Animated.ScrollView 
-        showsVerticalScrollIndicator={false} 
-        contentContainerStyle={[styles.scroll, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
-      >
+      <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         
-        {/* HEADER */}
+        {/* HEADER BAR */}
         <View style={styles.header}>
-          <View style={styles.brandRow}>
-            <View style={styles.logoBg}>
-              <Heart color="white" fill="white" size={20} />
-            </View>
-            <Text style={styles.brandText}>VetCare <Text style={{fontWeight: '400'}}>Pro</Text></Text>
-          </View>
-          
-          <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => setNotifModalVisible(true)}>
-              <Bell color="#fff" size={20} />
-              <View style={styles.bellDot} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
-              <Image source={{uri: user?.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'}} style={styles.avatar} />
-            </TouchableOpacity>
-          </View>
+           <View style={styles.headerLeft}>
+             <View style={styles.statusDot} />
+             <Text style={styles.healthStatus}>SANTÉ : OPTIMALE</Text>
+           </View>
+           
+           <TouchableOpacity onPress={() => setNotifModalVisible(true)} style={styles.notifBtn}>
+             <Bell color="white" size={24} />
+             <View style={styles.badge} />
+           </TouchableOpacity>
+           
+           <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
+             <Image source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} style={styles.avatar} />
+           </TouchableOpacity>
         </View>
 
         {/* WELCOME */}
@@ -185,150 +179,134 @@ export default function Dashboard() {
 
         {/* ── HERO PET CARD ── */}
         <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={() => router.push('/pet-profile' as any)}>
-          <LinearGradient colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.heroGlass}>
-            
-            <View style={styles.heroLeft}>
-              <Image source={{uri: buddyImg}} style={styles.heroImage} resizeMode="contain" />
-              <View style={styles.heroNameBadge}>
-                 <Text style={styles.heroName}>{currentPet.name}</Text>
-                 <View style={styles.onlineDot} />
+           <LinearGradient colors={['rgba(168,85,247,0.25)', 'rgba(124,58,237,0.05)']} style={styles.heroGrad}>
+              <View style={styles.heroContent}>
+                 <View style={styles.heroText}>
+                    <Text style={styles.petName}>{currentPet.name}</Text>
+                    <Text style={styles.petBreed}>{currentPet.breed}</Text>
+                    <View style={styles.tagPro}>
+                      <Star color="#F59E0B" size={12} fill="#F59E0B" />
+                      <Text style={styles.tagProText}>SUIVI PREMIUM</Text>
+                    </View>
+                 </View>
+                 <Image source={{ uri: buddyImg }} style={styles.buddyImg} />
               </View>
-            </View>
-
-            <View style={styles.heroRight}>
-              <StatPill icon={Clock} label="Âge" value={currentPet.age} />
-              <StatPill icon={Scale} label="Poids" value={currentPet.weight} />
-              <StatPill icon={Dog} label="Race" value={currentPet.breed.split(' ')[0]} />
-            </View>
-            
-          </LinearGradient>
+              
+              <View style={styles.heroStats}>
+                <StatPill icon={Clock} label="Âge" value={currentPet.age} />
+                <StatPill icon={Scale} label="Poids" value={currentPet.weight} />
+                <StatPill icon={Heart} label="Pouls" value="72 bpm" />
+              </View>
+           </LinearGradient>
         </TouchableOpacity>
 
         {/* ── QUICK ACTIONS ── */}
-        <View style={styles.quickActions}>
+        <View style={styles.actionsGrid}>
            <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={() => router.push('/ai-assist' as any)} />
            <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={() => router.push('/history' as any)} />
            <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={() => router.push('/map' as any)} />
         </View>
 
-        {/* ── WEIGHT TRACKER ── */}
-        <View style={styles.glassCard}>
-          <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.glassInner}>
-            <View style={styles.cardHeader}>
-               <Text style={styles.cardTitle}>Suivi du poids 📈</Text>
-               <TouchableOpacity onPress={() => router.push('/history' as any)}><Text style={styles.seeAll}>Plus</Text></TouchableOpacity>
-            </View>
-            <View style={styles.chartContainer}>
-              <WeightLineChart />
-            </View>
-          </LinearGradient>
+        {/* ── WEIGHT CHART ── */}
+        <View style={styles.sectionHeader}>
+           <Text style={styles.sectionTitle}>Courbe de Poids</Text>
+           <TouchableOpacity><Text style={styles.seeAll}>Détails</Text></TouchableOpacity>
+        </View>
+        <View style={styles.chartCard}>
+           <WeightLineChart />
         </View>
 
-        {/* ── LOCAL VETERINARIANS ── */}
+        {/* ── VET LIST ── */}
         <View style={styles.sectionHeader}>
-           <Text style={styles.sectionTitle}>Vétérinaires à proximité</Text>
-           <TouchableOpacity onPress={() => router.push('/map' as any)}><Text style={styles.seeAll}>Voir tout</Text></TouchableOpacity>
+           <Text style={styles.sectionTitle}>Vétérinaires Proches</Text>
+           <TouchableOpacity onPress={() => router.push('/map' as any)}><Text style={styles.seeAll}>Voir Carte</Text></TouchableOpacity>
         </View>
-        
         <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingLeft: 24, paddingRight: 8, paddingBottom: 20 }}
           data={VET_DATA}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }: { item: typeof VET_DATA[0] }) => (
-            <VetCard name={item.name} rating={item.rating} dist={item.dist} img={item.img} />
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          renderItem={({ item }) => (
+            <VetCard {...item} />
           )}
         />
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: 100 }} />
       </Animated.ScrollView>
+
+      {/* NOTIFICATIONS MODAL */}
       <Modal visible={notifModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <TouchableOpacity style={StyleSheet.absoluteFill} onPress={() => setNotifModalVisible(false)} />
-          <View style={styles.notifContent}>
-            <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 40 }]} />
-            <View style={styles.modalHeader}>
-               <Text style={styles.modalTitle}>Notifications</Text>
-               <TouchableOpacity onPress={() => setNotifModalVisible(false)}><Text style={{color: '#A855F7', fontWeight: '800'}}>Fermer</Text></TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-               <NotifItem icon={Bell} title="Rappel: Vaccin demain" time="Il y a 2h" color="#A855F7" />
-               <NotifItem icon={Activity} title="Poids en hausse !" time="Hier" color="#10B981" />
-               <NotifItem icon={Zap} title="Conseil IA disponible" time="2 jours" color="#3B82F6" />
-            </ScrollView>
-          </View>
+           <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                 <Text style={styles.modalTitle}>Notifications</Text>
+                 <TouchableOpacity onPress={() => setNotifModalVisible(false)}>
+                    <Text style={[styles.seeAll, { fontSize: 16 }]}>Fermer</Text>
+                 </TouchableOpacity>
+              </View>
+              <ScrollView>
+                 <NotifItem 
+                   icon={Bell}
+                   title="Vaccin Rappel" 
+                   time="2h" 
+                   color="#A855F7" 
+                 />
+                 <NotifItem 
+                   icon={Activity}
+                   title="Poids Stable" 
+                   time="5h" 
+                   color="#10B981" 
+                 />
+                 <NotifItem 
+                   icon={MapPin}
+                   title="Nouveau Vétérinaire" 
+                   time="1j" 
+                   color="#3B82F6" 
+                 />
+              </ScrollView>
+           </View>
         </View>
       </Modal>
+
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
-  scroll: { paddingTop: 20 },
-  
-  glowTopRight: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(139, 24, 116, 0.15)', top: -100, right: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
-  glowMidLeft: { position: 'absolute', width: 350, height: 350, borderRadius: 175, backgroundColor: 'rgba(108, 36, 181, 0.1)', top: 250, left: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
-  glowBottomRight: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(168, 85, 247, 0.1)', bottom: 50, right: -100, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
-
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, marginBottom: 32, paddingTop: Platform.OS === 'android' ? 40 : 10 },
-  brandRow: { flexDirection: 'row', alignItems: 'center' },
-  logoBg: { backgroundColor: '#A855F7', padding: 8, borderRadius: 12, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 10 },
-  brandText: { color: 'white', fontSize: 20, fontWeight: '900', marginLeft: 12, letterSpacing: -0.5 },
-  headerActions: { flexDirection: 'row', alignItems: 'center' },
-  actionBtn: { backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 14, marginRight: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  avatarBtn: { borderRadius: 14, overflow: 'hidden', borderWidth: 1.5, borderColor: '#A855F7' },
-  avatar: { width: 36, height: 36 },
-  bellDot: { position: 'absolute', top: 10, right: 10, width: 8, height: 8, backgroundColor: '#EF4444', borderRadius: 4, borderWidth: 1.5, borderColor: '#150330' },
-  
-  welcomeSection: { paddingHorizontal: 24, marginBottom: 24 },
-  welcomeSub: { color: '#A855F7', fontSize: 12, fontWeight: '900', letterSpacing: 2, marginBottom: 8 },
-  welcomeText: { color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
-  
-  heroCard: { marginHorizontal: 24, height: 210, borderRadius: 40, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 15 }, shadowOpacity: 0.15, shadowRadius: 30 },
-  heroGlass: { flex: 1, flexDirection: 'row', padding: 20 },
-  heroLeft: { flex: 1.2, justifyContent: 'flex-end', position: 'relative' },
-  heroImage: { width: '130%', height: '120%', position: 'absolute', bottom: -10, left: -25 },
-  heroNameBadge: { position: 'absolute', bottom: 0, left: 10, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  heroName: { color: '#fff', fontSize: 18, fontWeight: '900' },
-  onlineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981', marginLeft: 8 },
-  heroRight: { flex: 0.8, justifyContent: 'center', gap: 12 },
-  statPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  statIcon: { marginRight: 10 },
-  statLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
-  statValue: { color: '#fff', fontSize: 13, fontWeight: '900', marginTop: 1 },
-
-  quickActions: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, marginBottom: 32 },
-  qaBtn: { alignItems: 'center', flex: 1 },
-  qaIcon: { width: 60, height: 60, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center', marginBottom: 10, borderWidth: 1 },
-  qaLabel: { color: '#fff', fontSize: 14, fontWeight: '800' },
-
-  glassCard: { marginHorizontal: 24, borderRadius: 36, overflow: 'hidden', marginBottom: 32, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  glassInner: { padding: 24 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  cardTitle: { color: '#fff', fontSize: 20, fontWeight: '900' },
-  seeAll: { color: '#A855F7', fontSize: 13, fontWeight: '800' },
-  chartContainer: { alignItems: 'center', marginLeft: -10 },
-
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, marginBottom: 16 },
-  sectionTitle: { color: '#fff', fontSize: 20, fontWeight: '900' },
-
-  vetCardWrap: { width: 160, marginRight: 16, borderRadius: 28, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  vetCardGlass: { flex: 1 },
-  vetImg: { width: '100%', height: 100 },
-  vetContent: { padding: 12 },
-  vetName: { color: '#fff', fontSize: 14, fontWeight: '900', marginBottom: 6 },
-  vetMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  vetMetaItem: { flexDirection: 'row', alignItems: 'center' },
-  vetRating: { color: '#F59E0B', fontSize: 11, fontWeight: '900', marginLeft: 4 },
-  vetDist: { color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: '800' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', padding: 24 },
-  notifContent: { height: 400, borderRadius: 40, padding: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)' },
+  scroll: { padding: 24, paddingTop: 40 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.06)', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  statusDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981', marginRight: 10, shadowColor: '#10B981', shadowRadius: 10, shadowOpacity: 0.8 },
+  healthStatus: { color: '#FFFFFF', fontSize: 10, fontWeight: '900', letterSpacing: 1.2 },
+  notifBtn: { backgroundColor: 'rgba(255,255,255,0.06)', padding: 12, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  badge: { position: 'absolute', top: 10, right: 10, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#0E0824' },
+  avatarBtn: { marginLeft: 12 },
+  avatar: { width: 50, height: 50, borderRadius: 18, borderWidth: 2, borderColor: '#A855F7' },
+  welcomeSection: { marginBottom: 32 },
+  welcomeSub: { fontSize: 13, fontWeight: '900', color: '#A855F7', letterSpacing: 2, marginBottom: 8 },
+  welcomeText: { fontSize: 32, fontWeight: '900', color: '#FFFFFF', letterSpacing: -0.5 },
+  heroCard: { borderRadius: 44, marginBottom: 32, overflow: 'hidden', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.1)' },
+  heroGrad: { padding: 32 },
+  heroContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  heroText: { flex: 1 },
+  heroStats: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 32, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 24, padding: 16 },
+  petName: { fontSize: 34, fontWeight: '900', color: '#FFFFFF', marginBottom: 6 },
+  petBreed: { fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.5)', marginBottom: 16 },
+  tagPro: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(245,158,11,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, alignSelf: 'flex-start' },
+  tagProText: { color: '#F59E0B', fontSize: 9, fontWeight: '900', marginLeft: 6, letterSpacing: 1 },
+  buddyImg: { width: 130, height: 130, resizeMode: 'contain' },
+  actionsGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 40 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  sectionTitle: { fontSize: 18, fontWeight: '900', color: '#FFFFFF' },
+  seeAll: { color: '#A855F7', fontWeight: '800', fontSize: 14 },
+  chartCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 32, padding: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', marginBottom: 40, alignItems: 'center' },
+  glowTopRight: { position: 'absolute', top: -50, right: -50, width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(168,85,247,0.1)', filter: 'blur(80px)' },
+  glowMidLeft: { position: 'absolute', top: 400, left: -80, width: 250, height: 250, borderRadius: 125, backgroundColor: 'rgba(124,58,237,0.08)', filter: 'blur(70px)' },
+  glowBottomRight: { position: 'absolute', bottom: 100, right: -50, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(236,72,153,0.06)', filter: 'blur(60px)' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', padding: 24 },
+  modalContent: { backgroundColor: '#1A1033', borderRadius: 40, padding: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
   modalTitle: { color: '#fff', fontSize: 24, fontWeight: '900' },
-  notifItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  notifIcon: { padding: 10, borderRadius: 14, borderWidth: 1 },
-  notifTitle: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  notifTime: { color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: '600', marginTop: 2 },
 });
