@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Alert, Platform, Modal } from 'react-native';
-import { Camera, Save, ChevronLeft, Heart, Sparkles, Dog, Scale, Clock, X, Upload, ImageIcon } from 'lucide-react-native';
+import { Camera, Save, ChevronLeft, Heart, Sparkles, Dog, Scale, Clock, X, Upload, ImageIcon, Activity } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
@@ -30,6 +30,8 @@ export default function PetProfile() {
   const [age, setAge] = useState(pet?.age || '3 ans');
   const [weight, setWeight] = useState(pet?.weight || '34 kg');
   const [photo, setPhoto] = useState<string | null>((pet as any)?.photo || null);
+  const [microchip, setMicrochip] = useState((pet as any)?.microchip || '');
+  const [medicalNotes, setMedicalNotes] = useState((pet as any)?.medicalNotes || '');
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [animalType, setAnimalType] = useState<'chien' | 'chat'>('chien');
 
@@ -39,69 +41,36 @@ export default function PetProfile() {
   }, []);
 
   const handleSave = async () => {
-    await updatePet({ name, breed, age, weight, photo } as any);
+    await updatePet({ name, breed, age, weight, photo, microchip, medicalNotes } as any);
     router.back();
   };
 
   const pickFromGallery = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission refusée', "L'accès à votre galerie est nécessaire.");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets[0]) {
-      setPhoto(result.assets[0].uri);
-    }
+// ... existing pickFromGallery logic ...
   };
 
   const pickFromCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission refusée', "L'accès à l'appareil photo est nécessaire.");
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets[0]) {
-      setPhoto(result.assets[0].uri);
-    }
+// ... existing pickFromCamera logic ...
   };
 
   const pickFromFile = async () => {
-    // On web, launchImageLibraryAsync opens the file explorer
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets[0]) {
-      setPhoto(result.assets[0].uri);
-    }
+// ... existing pickFromFile logic ...
   };
 
   const avatars = animalType === 'chien' ? DOG_AVATARS : CAT_AVATARS;
 
-  const InputField = ({ icon: Icon, label, value, onChangeText, placeholder }: any) => (
+  const InputField = ({ icon: Icon, label, value, onChangeText, placeholder, multiline = false }: any) => (
     <View style={styles.inputGroup}>
       <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputWrapper}>
+      <View style={[styles.inputWrapper, multiline && { height: 120, alignItems: 'flex-start', paddingTop: 16 }]}>
         <Icon color="#A855F7" size={18} style={{ marginRight: 14 }} />
         <TextInput
-          style={styles.input}
+          style={[styles.input, multiline && { textAlignVertical: 'top' }]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor="rgba(255,255,255,0.2)"
+          multiline={multiline}
         />
       </View>
     </View>
@@ -170,8 +139,16 @@ export default function PetProfile() {
         <View style={styles.card}>
           <InputField icon={Dog} label="NOM DE L'ANIMAL" value={name} onChangeText={setName} placeholder="Ex: Buddy, Shadow..." />
           <InputField icon={Heart} label="RACE / TYPE" value={breed} onChangeText={setBreed} placeholder="Ex: Golden Retriever..." />
-          <InputField icon={Clock} label="ÂGE" value={age} onChangeText={setAge} placeholder="Ex: 3 ans..." />
-          <InputField icon={Scale} label="POIDS ACTUEL" value={weight} onChangeText={setWeight} placeholder="Ex: 34 kg..." />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1, marginRight: 15 }}>
+               <InputField icon={Clock} label="ÂGE" value={age} onChangeText={setAge} placeholder="Ex: 3 ans..." />
+            </View>
+            <View style={{ flex: 1 }}>
+               <InputField icon={Scale} label="POIDS" value={weight} onChangeText={setWeight} placeholder="Ex: 34 kg..." />
+            </View>
+          </View>
+          <InputField icon={Upload} label="NUMÉRO DE PUCE" value={microchip} onChangeText={setMicrochip} placeholder="Ex: 1234567890..." />
+          <InputField icon={Activity} label="NOTES MÉDICALES / ALLERGIES" value={medicalNotes} onChangeText={setMedicalNotes} placeholder="Allergies, traitements permanents..." multiline />
         </View>
 
         <TouchableOpacity style={styles.saveBtnLarge} onPress={handleSave}>

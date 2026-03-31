@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Alert, Animated, Share, Modal, Switch } from 'react-native';
-import { User, Bell, Shield, HelpCircle, LogOut, ChevronRight, Star, Share2, Trash2 } from 'lucide-react-native';
+import { User, Bell, Shield, HelpCircle, LogOut, ChevronRight, Star, Share2, Trash2, Dog } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
 import { usePet } from '@/store/PetContext';
@@ -71,7 +71,7 @@ export default function SettingsScreen() {
 
         <TouchableOpacity 
           activeOpacity={0.9} 
-          onPress={() => router.push('/pet-profile' as any)}
+          onPress={() => router.push('/user-profile' as any)}
           style={styles.profileHeader}
         >
           <Image 
@@ -111,6 +111,7 @@ export default function SettingsScreen() {
 
         <Text style={styles.sectionTitle}>Préférences App</Text>
         <View style={styles.menuGroup}>
+          <MenuItem icon={Dog} title="Profil de l'animal" subtitle="Identité, Santé & Notes" color="#A855F7" onPress={() => router.push('/pet-profile' as any)} />
           <MenuItem icon={Bell} title="Rappels" subtitle="Vaccins, Toilettage, Médocs" onPress={() => router.push('/appointments' as any)} />
           <MenuItem icon={Shield} title="Confidentialité" subtitle="Contrôle des données" color="#10B981" onPress={() => openSubSetting('privacy')} />
         </View>
