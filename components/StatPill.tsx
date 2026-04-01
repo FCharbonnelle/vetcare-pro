@@ -24,24 +24,32 @@ const styles = StyleSheet.create({
   statPill: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    backgroundColor: 'rgba(255,255,255,0.04)', 
-    paddingHorizontal: 12, 
-    paddingVertical: 10, 
-    borderRadius: 20, 
+    backgroundColor: 'rgba(21, 15, 43, 0.4)', 
+    paddingHorizontal: 16, 
+    paddingVertical: 12, 
+    borderRadius: 24, 
     borderWidth: 1, 
-    borderColor: 'rgba(255,255,255,0.06)' 
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    flex: 1,
+    marginHorizontal: 4
   },
-  statIcon: { marginRight: 10 },
+  statIcon: { 
+    marginRight: 12,
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    padding: 8,
+    borderRadius: 12
+  },
   statLabel: { 
-    color: 'rgba(255,255,255,0.4)', 
-    fontSize: 10, 
-    fontWeight: '800', 
-    textTransform: 'uppercase' 
+    color: 'rgba(231, 222, 255, 0.5)', 
+    fontSize: 9, 
+    fontWeight: '700', 
+    textTransform: 'uppercase',
+    letterSpacing: 0.8
   },
   statValue: { 
-    color: '#fff', 
-    fontSize: 13, 
+    color: '#FFFFFF', 
+    fontSize: 14, 
     fontWeight: '900', 
-    marginTop: 1 
+    marginTop: 2 
   },
 });

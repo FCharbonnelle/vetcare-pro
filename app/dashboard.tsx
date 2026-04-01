@@ -145,7 +145,7 @@ export default function Dashboard() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#170B3B', '#0E0824', '#000']} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={['#150F2B', '#0F0925', '#000']} style={StyleSheet.absoluteFill} />
       
       {/* Animated Glowing Orbs */}
       <View style={styles.glowTopRight} />
@@ -274,39 +274,187 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  scroll: { padding: 24, paddingTop: 40 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.06)', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
-  statusDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981', marginRight: 10, shadowColor: '#10B981', shadowRadius: 10, shadowOpacity: 0.8 },
-  healthStatus: { color: '#FFFFFF', fontSize: 10, fontWeight: '900', letterSpacing: 1.2 },
-  notifBtn: { backgroundColor: 'rgba(255,255,255,0.06)', padding: 12, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
-  badge: { position: 'absolute', top: 10, right: 10, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#0E0824' },
-  avatarBtn: { marginLeft: 12 },
-  avatar: { width: 50, height: 50, borderRadius: 18, borderWidth: 2, borderColor: '#A855F7' },
-  welcomeSection: { marginBottom: 32 },
-  welcomeSub: { fontSize: 13, fontWeight: '900', color: '#A855F7', letterSpacing: 2, marginBottom: 8 },
-  welcomeText: { fontSize: 32, fontWeight: '900', color: '#FFFFFF', letterSpacing: -0.5 },
-  heroCard: { borderRadius: 44, marginBottom: 32, overflow: 'hidden', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.1)' },
-  heroGrad: { padding: 32 },
+  container: { flex: 1, backgroundColor: '#0F0925' },
+  scroll: { padding: 24, paddingTop: SCREEN_W > 1024 ? 30 : 60 },
+  header: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    marginBottom: 44 
+  },
+  headerLeft: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(21, 15, 43, 0.4)', 
+    paddingHorizontal: 16, 
+    paddingVertical: 12, 
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4
+  },
+  statusDot: { 
+    width: 6, 
+    height: 6, 
+    borderRadius: 3, 
+    backgroundColor: '#10B981', 
+    marginRight: 10, 
+    shadowColor: '#10B981', 
+    shadowRadius: 10, 
+    shadowOpacity: 1 
+  },
+  healthStatus: { color: 'rgba(231, 222, 255, 0.8)', fontSize: 9, fontWeight: '900', letterSpacing: 1.5 },
+  notifBtn: { 
+    backgroundColor: 'rgba(21, 15, 43, 0.4)', 
+    padding: 14, 
+    borderRadius: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4
+  },
+  badge: { 
+    position: 'absolute', 
+    top: 12, 
+    right: 12, 
+    width: 8, 
+    height: 8, 
+    borderRadius: 4, 
+    backgroundColor: '#EF4444', 
+    borderWidth: 1.5, 
+    borderColor: '#150F2B' 
+  },
+  avatarBtn: { marginLeft: 16 },
+  avatar: { 
+    width: 54, 
+    height: 54, 
+    borderRadius: 18, 
+    borderWidth: 2, 
+    borderColor: 'rgba(168, 85, 247, 0.3)' 
+  },
+  welcomeSection: { marginBottom: 40 },
+  welcomeSub: { 
+    fontSize: 12, 
+    fontWeight: '900', 
+    color: '#A855F7', 
+    letterSpacing: 2, 
+    marginBottom: 10,
+    textTransform: 'uppercase'
+  },
+  welcomeText: { 
+    fontSize: 36, 
+    fontWeight: '900', 
+    color: '#E7DEFF', 
+    letterSpacing: -1 
+  },
+  heroCard: { 
+    borderRadius: 48, 
+    marginBottom: 40, 
+    overflow: 'hidden',
+    shadowColor: '#A855F7',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.2,
+    shadowRadius: 40,
+    elevation: 15
+  },
+  heroGrad: { padding: 40 },
   heroContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   heroText: { flex: 1 },
-  heroStats: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 32, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 24, padding: 16 },
-  petName: { fontSize: 34, fontWeight: '900', color: '#FFFFFF', marginBottom: 6 },
-  petBreed: { fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.5)', marginBottom: 16 },
-  tagPro: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(245,158,11,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, alignSelf: 'flex-start' },
-  tagProText: { color: '#F59E0B', fontSize: 9, fontWeight: '900', marginLeft: 6, letterSpacing: 1 },
-  buddyImg: { width: 130, height: 130, resizeMode: 'contain' },
-  actionsGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 40 },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: '900', color: '#FFFFFF' },
-  seeAll: { color: '#A855F7', fontWeight: '800', fontSize: 14 },
-  chartCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 32, padding: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', marginBottom: 40, alignItems: 'center' },
-  glowTopRight: { position: 'absolute', top: -50, right: -50, width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(168,85,247,0.1)', filter: 'blur(80px)' },
-  glowMidLeft: { position: 'absolute', top: 400, left: -80, width: 250, height: 250, borderRadius: 125, backgroundColor: 'rgba(124,58,237,0.08)', filter: 'blur(70px)' },
-  glowBottomRight: { position: 'absolute', bottom: 100, right: -50, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(236,72,153,0.06)', filter: 'blur(60px)' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', padding: 24 },
-  modalContent: { backgroundColor: '#1A1033', borderRadius: 40, padding: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-  modalTitle: { color: '#fff', fontSize: 24, fontWeight: '900' },
+  heroStats: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginTop: 40, 
+    backgroundColor: 'rgba(21, 15, 43, 0.5)', 
+    borderRadius: 32, 
+    padding: 8
+  },
+  petName: { fontSize: 38, fontWeight: '900', color: '#FFFFFF', marginBottom: 8, letterSpacing: -1 },
+  petBreed: { fontSize: 18, fontWeight: '700', color: 'rgba(231, 222, 255, 0.4)', marginBottom: 20 },
+  tagPro: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(245,158,11,0.1)', 
+    paddingHorizontal: 12, 
+    paddingVertical: 8, 
+    borderRadius: 14, 
+    alignSelf: 'flex-start' 
+  },
+  tagProText: { color: '#F59E0B', fontSize: 10, fontWeight: '900', marginLeft: 8, letterSpacing: 1 },
+  buddyImg: { width: 140, height: 140, resizeMode: 'contain' },
+  actionsGrid: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 48,
+    gap: 16
+  },
+  sectionHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: 24 
+  },
+  sectionTitle: { fontSize: 22, fontWeight: '900', color: '#E7DEFF', letterSpacing: -0.5 },
+  seeAll: { color: '#A855F7', fontWeight: '800', fontSize: 15 },
+  chartCard: { 
+    backgroundColor: 'rgba(21, 15, 43, 0.4)', 
+    borderRadius: 40, 
+    padding: 24, 
+    marginBottom: 48, 
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 8
+  },
+  glowTopRight: { 
+    position: 'absolute', 
+    top: -100, 
+    right: -100, 
+    width: SCREEN_W * 1.5, 
+    height: SCREEN_W * 1.5, 
+    borderRadius: SCREEN_W * 0.75, 
+    backgroundColor: 'rgba(168, 85, 247, 0.08)', 
+    filter: 'blur(100px)',
+    zIndex: -1
+  },
+  glowMidLeft: { 
+    position: 'absolute', 
+    top: 500, 
+    left: -200, 
+    width: 500, 
+    height: 500, 
+    borderRadius: 250, 
+    backgroundColor: 'rgba(124, 58, 237, 0.05)', 
+    filter: 'blur(120px)',
+    zIndex: -1
+  },
+  glowBottomRight: { 
+    position: 'absolute', 
+    bottom: -100, 
+    right: -100, 
+    width: 400, 
+    height: 400, 
+    borderRadius: 200, 
+    backgroundColor: 'rgba(236, 72, 153, 0.04)', 
+    filter: 'blur(100px)',
+    zIndex: -1
+  },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 9, 37, 0.9)', justifyContent: 'center', padding: 24 },
+  modalContent: { 
+    backgroundColor: '#150F2B', 
+    borderRadius: 48, 
+    padding: 24, 
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 30 },
+    shadowOpacity: 0.4,
+    shadowRadius: 60,
+    elevation: 30
+  },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 },
+  modalTitle: { color: '#E7DEFF', fontSize: 26, fontWeight: '900', letterSpacing: -0.5 },
 });

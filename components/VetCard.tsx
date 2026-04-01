@@ -34,19 +34,23 @@ export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => 
 
 const styles = StyleSheet.create({
   vetCardWrap: { 
-    width: 160, 
-    marginRight: 16, 
-    borderRadius: 28, 
+    width: 200, 
+    marginRight: 20, 
+    borderRadius: 36, 
     overflow: 'hidden', 
-    borderWidth: 1, 
-    borderColor: 'rgba(255,255,255,0.1)' 
+    backgroundColor: 'rgba(21, 15, 43, 0.4)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 8
   },
-  vetCardGlass: { flex: 1 },
-  vetImg: { width: '100%', height: 100 },
-  vetContent: { padding: 12 },
-  vetName: { color: '#fff', fontSize: 14, fontWeight: '900', marginBottom: 6 },
+  vetCardGlass: { flex: 1, padding: 8 },
+  vetImg: { width: '100%', height: 120, borderRadius: 28 },
+  vetContent: { padding: 16, paddingTop: 12 },
+  vetName: { color: '#E7DEFF', fontSize: 16, fontWeight: '900', marginBottom: 8, letterSpacing: -0.2 },
   vetMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  vetMetaItem: { flexDirection: 'row', alignItems: 'center' },
+  vetMetaItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
   vetRating: { color: '#F59E0B', fontSize: 11, fontWeight: '900', marginLeft: 4 },
-  vetDist: { color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: '800' },
+  vetDist: { color: 'rgba(231, 222, 255, 0.4)', fontSize: 12, fontWeight: '700' },
 });

@@ -55,7 +55,14 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
         <View style={styles.topRight}>
            <TouchableOpacity style={styles.notifBtn}><Bell color="white" size={20} /></TouchableOpacity>
            <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8} onPress={() => router.push('/paywall')}>
-              <Text style={styles.upgradeText}>Passer Pro</Text>
+              <LinearGradient
+                colors={['#A855F7', '#7C3AED']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.upgradeGradient}
+              >
+                <Text style={styles.upgradeText}>Passer Pro</Text>
+              </LinearGradient>
            </TouchableOpacity>
         </View>
       </View>
@@ -148,62 +155,97 @@ function RootLayoutNav() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0E0824' },
+  root: { flex: 1, backgroundColor: '#0F0925' },
   flex: { flex: 1 },
   topNav: { 
-    height: 80, 
-    backgroundColor: 'rgba(255,255,255,0.02)', 
-    borderBottomWidth: 1, 
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    height: 90, 
+    backgroundColor: 'rgba(21, 15, 43, 0.7)', 
+    borderBottomWidth: 0, 
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 80,
-    zIndex: 100
+    paddingHorizontal: 60,
+    zIndex: 100,
+    // Glassmorphism effect
+    ...Platform.select({
+      web: { backdropFilter: 'blur(20px)' },
+    })
   },
   brand: { flexDirection: 'row', alignItems: 'center' },
-  logoBg: { backgroundColor: '#A855F7', padding: 8, borderRadius: 12 },
-  brandText: { fontSize: 24, fontWeight: '900', color: '#FFFFFF', marginLeft: 16, letterSpacing: -0.5 },
+  logoBg: { 
+    backgroundColor: '#A855F7', 
+    padding: 10, 
+    borderRadius: 16,
+    shadowColor: '#A855F7',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8
+  },
+  brandText: { 
+    fontSize: 26, 
+    fontWeight: '900', 
+    color: '#E7DEFF', 
+    marginLeft: 16, 
+    letterSpacing: -0.8 
+  },
   navLinks: { flexDirection: 'row', alignItems: 'center' },
-  desktopNavItem: { alignItems: 'center', paddingHorizontal: 24 },
-  navLabel: { fontSize: 13, fontWeight: '800', color: '#94A3B8', marginTop: 4 },
+  desktopNavItem: { alignItems: 'center', paddingHorizontal: 20 },
+  navLabel: { fontSize: 13, fontWeight: '700', color: '#94A3B8', marginTop: 6, letterSpacing: 0.2 },
   navLabelActive: { color: '#A855F7' },
   topRight: { flexDirection: 'row', alignItems: 'center' },
-  notifBtn: { marginRight: 24, backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 16 },
-  upgradeBtn: { backgroundColor: '#A855F7', paddingHorizontal: 28, paddingVertical: 14, borderRadius: 20 },
-  upgradeText: { color: '#FFFFFF', fontWeight: '900', fontSize: 14 },
+  notifBtn: { 
+    marginRight: 20, 
+    backgroundColor: 'rgba(255,255,255,0.04)', 
+    padding: 14, 
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)'
+  },
+  upgradeBtn: { 
+    overflow: 'hidden',
+    borderRadius: 22,
+  },
+  upgradeGradient: {
+    paddingHorizontal: 30, 
+    paddingVertical: 15, 
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  upgradeText: { color: '#FFFFFF', fontWeight: '900', fontSize: 14, letterSpacing: 0.5 },
   
   containerDesktop: { 
-    maxWidth: 1200, 
-    width: '100%',
+    maxWidth: 1300, 
+    width: '95%',
     alignSelf: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    marginTop: 40,
-    marginBottom: 40,
-    borderRadius: 60,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(21, 15, 43, 0.4)',
+    marginTop: 30,
+    marginBottom: 30,
+    borderRadius: 48,
+    borderWidth: 0,
     overflow: 'hidden',
-    shadowColor: '#A855F7',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.2,
-    shadowRadius: 60,
-    elevation: 20
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 30 },
+    shadowOpacity: 0.3,
+    shadowRadius: 50,
+    elevation: 25
   },
   
   bottomNav: { 
-    height: 100, 
-    backgroundColor: 'rgba(0,0,0,0.85)', 
-    borderTopWidth: 1, 
-    borderTopColor: 'rgba(255,255,255,0.1)',
+    height: 95, 
+    backgroundColor: 'rgba(15, 9, 37, 0.9)', 
+    borderTopWidth: 0, 
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingBottom: 20,
-    paddingHorizontal: 10,
+    paddingBottom: 25,
+    paddingHorizontal: 15,
     borderTopLeftRadius: 40,
-    borderTopRightRadius: 40
+    borderTopRightRadius: 40,
+    ...Platform.select({
+      web: { backdropFilter: 'blur(30px)' },
+    })
   },
   mobileNavItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
-  mobileNavLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '800', marginTop: 6, textTransform: 'capitalize' }
+  mobileNavLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '700', marginTop: 8, textTransform: 'uppercase', letterSpacing: 0.5 }
 });
