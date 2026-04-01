@@ -1,0 +1,3 @@
+## 2026-04-01 - Enhance accessibility with ARIA labels and roles
+**Learning:** Adding `accessibilityRole="button"` and `accessibilityLabel` to interactive elements (like icon-only buttons or custom cards) significantly improves the experience for screen reader users by providing context and clearly defining the element's purpose. Localizing these labels in French ensures a consistent and accessible experience for the application's primary audience.
+**Action:** Always include accessibility props in custom interactive components to ensure they are properly identified and described by assistive technologies.
