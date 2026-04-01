@@ -14,7 +14,12 @@ interface VetCardProps {
 export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => {
   const router = useRouter();
   return (
-    <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
+    <TouchableOpacity
+      style={styles.vetCardWrap}
+      onPress={() => router.push('/map' as any)}
+      accessibilityRole="button"
+      accessibilityLabel={`Vétérinaire : ${name}, Note : ${rating}, Distance : ${dist}`}
+    >
       <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.vetCardGlass}>
         <Image source={{ uri: img }} style={styles.vetImg} />
         <View style={styles.vetContent}>

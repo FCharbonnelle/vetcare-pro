@@ -11,7 +11,12 @@ interface QuickActionProps {
 
 export const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, color, onPress }) => {
   return (
-    <TouchableOpacity style={styles.qaBtn} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.qaBtn}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
        <View style={[styles.qaIcon, { backgroundColor: `${color}20`, borderColor: `${color}40` }]}>
           <Icon color={color} size={22} />
        </View>
