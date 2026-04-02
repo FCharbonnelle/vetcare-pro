@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LucideIcon } from 'lucide-react-native';
 
@@ -9,7 +9,7 @@ interface QuickActionProps {
   onPress: () => void;
 }
 
-export const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, color, onPress }) => {
+export const QuickAction: React.FC<QuickActionProps> = memo(({ icon: Icon, label, color, onPress }) => {
   return (
     <TouchableOpacity style={styles.qaBtn} onPress={onPress}>
        <View style={[styles.qaIcon, { backgroundColor: `${color}20`, borderColor: `${color}40` }]}>
@@ -18,7 +18,7 @@ export const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, col
        <Text style={styles.qaLabel}>{label}</Text>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   qaBtn: { alignItems: 'center', flex: 1 },
