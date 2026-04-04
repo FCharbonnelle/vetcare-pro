@@ -1,0 +1,3 @@
+## 2025-05-15 - [Onboarding Accessibility & UX]
+**Learning:** Mobile onboarding forms must be accessible to both screen readers and keyboard users. Using `KeyboardAvoidingView` is essential to prevent the virtual keyboard from obscuring primary action buttons, ensuring a smooth flow. Adding `accessibilityRole`, `accessibilityLabel`, and `accessibilityState` to custom interactive elements like selection cards is crucial for screen reader support.
+**Action:** Always wrap text-input heavy screens in `KeyboardAvoidingView` and ensure all custom touchable elements have appropriate accessibility attributes.
