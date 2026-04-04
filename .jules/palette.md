@@ -1,0 +1,3 @@
+## 2025-03-28 - Onboarding Accessibility & Mobile UX
+**Learning:** In React Native onboarding flows with multiple steps and inputs, wrapping the entire content in `KeyboardAvoidingView` with platform-specific behaviors (`padding` for iOS, `height` for Android) is crucial for ensuring the primary action button remains accessible when the virtual keyboard is active. Additionally, using `accessibilityRole="progressbar"` and `accessibilityValue` on custom progress indicators significantly improves the experience for screen reader users.
+**Action:** Always wrap multi-step forms in `KeyboardAvoidingView` and provide clear ARIA labels/roles for all custom interactive elements and progress trackers.
