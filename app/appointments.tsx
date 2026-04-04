@@ -3,10 +3,10 @@ import { Calendar as CalendarIcon, Plus, Clock, MapPin, ChevronRight, Stethoscop
 import { useRef, useEffect, useState, useMemo } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Appointment, TYPE_OPTIONS, MONTHS, DAYS_SHORT } from '@/constants/AppConstants';
+import { Appointment, MONTHS, DAYS_SHORT } from '@/constants/AppConstants';
 import { ApptCard } from '@/components/ApptCard';
+import { AddApptModal } from '@/components/AddApptModal';
 import { useAppointment } from '@/store/AppointmentContext';
-import DateTimePicker from '@react-native-community/datetimepicker';
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -27,17 +27,6 @@ export default function AppointmentsScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
-  // New appt form
-  const [newTitle, setNewTitle] = useState('');
-  const [newDateStr, setNewDateStr] = useState(new Date().toISOString().split('T')[0]);
-  const [newTime, setNewTime] = useState('09:00');
-  const [newVet, setNewVet] = useState('');
-  const [newType, setNewType] = useState('consultation');
-  
-  const [tempDate, setTempDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const daysInMonth = getDaysInMonth(year, month);
@@ -49,31 +38,6 @@ export default function AppointmentsScreen() {
       Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 8, useNativeDriver: true })
     ]).start();
   }, []);
-
-  // Update form date when selectedDay changes
-  useEffect(() => {
-    if (selectedDay) {
-       const d = new Date(year, month, selectedDay);
-       setTempDate(d);
-       setNewDateStr(d.toISOString().split('T')[0]);
-    }
-  }, [selectedDay, month, year]);
-
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setTempDate(selectedDate);
-      setNewDateStr(selectedDate.toISOString().split('T')[0]);
-    }
-  };
-
-  const handleTimeChange = (event: any, selectedTime?: Date) => {
-    setShowTimePicker(false);
-    if (selectedTime) {
-      setTempDate(selectedTime);
-      setNewTime(selectedTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace('h', ':'));
-    }
-  };
 
   const apptDays = new Set(
     appointments
@@ -113,20 +77,12 @@ export default function AppointmentsScreen() {
     setSelectedDay(null);
   };
 
-  const handleAddAppt = async () => {
-    if (!newTitle) return;
-    
+  const handleAddAppt = async (apptData: { title: string, date: string, time: string, type: string, vet: string }) => {
     await addAppointment({
       id: Date.now().toString(),
-      title: newTitle,
-      date: newDateStr,
-      time: newTime,
-      type: newType,
-      vet: newVet,
+      ...apptData,
       done: false
     });
-
-    setNewTitle(''); setNewVet(''); setNewTime('09:00'); setNewType('consultation');
     setModalVisible(false);
   };
 
@@ -225,74 +181,14 @@ export default function AppointmentsScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 44 }]} />
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ajouter un rappel</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}><X color="white" size={24} /></TouchableOpacity>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalLabel}>TITRE</Text>
-              <TextInput style={styles.modalInput} placeholder="Ex: Vaccination" placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
-
-              <View style={styles.modalRow}>
-                 <View style={{flex: 1.5, marginRight: 12 }}>
-                    <Text style={styles.modalLabel}>DATE</Text>
-                    <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowDatePicker(true)}>
-                       <View style={styles.pickerInner}>
-                          <CalendarIcon color="#A855F7" size={16} />
-                          <Text style={styles.pickerValue}>{newDateStr}</Text>
-                       </View>
-                    </TouchableOpacity>
-                 </View>
-                 <View style={{flex: 1}}>
-                    <Text style={styles.modalLabel}>HEURE</Text>
-                    <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowTimePicker(true)}>
-                       <View style={styles.pickerInner}>
-                          <Clock color="#A855F7" size={16} />
-                          <Text style={styles.pickerValue}>{newTime}</Text>
-                       </View>
-                    </TouchableOpacity>
-                 </View>
-              </View>
-
-              {showDatePicker && (
-                <DateTimePicker value={tempDate} mode="date" onChange={handleDateChange} />
-              )}
-              {showTimePicker && (
-                <DateTimePicker value={tempDate} mode="time" onChange={handleTimeChange} />
-              )}
-
-              <Text style={styles.modalLabel}>LIEU / VÉTÉRINAIRE</Text>
-              <TextInput style={styles.modalInput} placeholder="Ex: Clinique Happy Paws" placeholderTextColor="rgba(255,255,255,0.2)" value={newVet} onChangeText={setNewVet} />
-
-              <Text style={styles.modalLabel}>TYPE D'ACTIVITÉ</Text>
-              <View style={styles.typeGrid}>
-                {TYPE_OPTIONS.map(t => (
-                   <TouchableOpacity
-                     key={t.key}
-                     style={[styles.typeChip, newType === t.key && { backgroundColor: `${t.color}25`, borderColor: t.color }]}
-                     onPress={() => setNewType(t.key)}
-                   >
-                     <t.icon color={newType === t.key ? t.color : 'rgba(255,255,255,0.4)'} size={16} />
-                     <Text style={[styles.typeChipText, newType === t.key && { color: t.color }]}>{t.label}</Text>
-                   </TouchableOpacity>
-                ))}
-              </View>
-
-              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleAddAppt}>
-                <LinearGradient colors={['#A855F7', '#7C3AED']} start={{x:0, y:0}} end={{x:1, y:0}} style={styles.modalSaveGrad}>
-                  <Text style={styles.modalSaveText}>Confirmer le rappel</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-              <View style={{height: 40}} />
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <AddApptModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onAddAppt={handleAddAppt}
+        initialDate={selectedDay}
+        month={month}
+        year={year}
+      />
     </SafeAreaView>
   );
 }
