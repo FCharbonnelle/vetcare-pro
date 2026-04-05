@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Alert, Platform, Modal } from 'react-native';
-import { Camera, Save, ChevronLeft, Heart, Sparkles, Dog, Scale, Clock, X, Upload, ImageIcon, Activity } from 'lucide-react-native';
+import { Camera, Save, ChevronLeft, Heart, Sparkles, Dog, Scale, Clock, X, Upload, ImageIcon, Activity, LucideIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,6 +21,36 @@ const CAT_AVATARS = [
   { id: 'c3', label: 'Siamois', uri: 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop&crop=face' },
   { id: 'c4', label: 'Maine Coon', uri: 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=300&h=300&fit=crop&crop=face' },
 ];
+
+interface InputFieldProps {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  multiline?: boolean;
+}
+
+/**
+ * InputField is memoized to prevent full-screen re-renders on every keystroke.
+ * This is critical for maintaining a responsive feel during text entry in forms.
+ */
+const InputField = React.memo(({ icon: Icon, label, value, onChangeText, placeholder, multiline = false }: InputFieldProps) => (
+  <View style={styles.inputGroup}>
+    <Text style={styles.label}>{label}</Text>
+    <View style={[styles.inputWrapper, multiline && { height: 120, alignItems: 'flex-start', paddingTop: 16 }]}>
+      <Icon color="#A855F7" size={18} style={{ marginRight: 14 }} />
+      <TextInput
+        style={[styles.input, multiline && { textAlignVertical: 'top' }]}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor="rgba(255,255,255,0.2)"
+        multiline={multiline}
+      />
+    </View>
+  </View>
+));
 
 export default function PetProfile() {
   const router = useRouter();
@@ -58,23 +88,6 @@ export default function PetProfile() {
   };
 
   const avatars = animalType === 'chien' ? DOG_AVATARS : CAT_AVATARS;
-
-  const InputField = ({ icon: Icon, label, value, onChangeText, placeholder, multiline = false }: any) => (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={[styles.inputWrapper, multiline && { height: 120, alignItems: 'flex-start', paddingTop: 16 }]}>
-        <Icon color="#A855F7" size={18} style={{ marginRight: 14 }} />
-        <TextInput
-          style={[styles.input, multiline && { textAlignVertical: 'top' }]}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="rgba(255,255,255,0.2)"
-          multiline={multiline}
-        />
-      </View>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>

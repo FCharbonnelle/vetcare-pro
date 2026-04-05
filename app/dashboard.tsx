@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
 import { usePet } from '@/store/PetContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useCallback } from 'react';
 import Svg, { Path, Circle, Defs, LinearGradient as SvgGradient, Stop, Line, Text as SvgText, Rect } from 'react-native-svg';
 import { StatPill } from '@/components/StatPill';
 import { QuickAction } from '@/components/QuickAction';
@@ -128,6 +129,14 @@ export default function Dashboard() {
   const { pet } = usePet();
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
+
+  // Memoize event handlers to prevent unnecessary re-renders of QuickAction components
+  const handleIAAssist = useCallback(() => router.push('/ai-assist' as any), [router]);
+  const handleHealth = useCallback(() => router.push('/history' as any), [router]);
+  const handleFind = useCallback(() => router.push('/map' as any), [router]);
+
+  // Memoize renderItem to maintain stable references for FlatList performance
+  const renderVetItem = useCallback(({ item }: { item: typeof VET_DATA[0] }) => <VetCard {...item} />, []);
   const [notifModalVisible, setNotifModalVisible] = React.useState(false);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -202,9 +211,9 @@ export default function Dashboard() {
 
         {/* ── QUICK ACTIONS ── */}
         <View style={styles.actionsGrid}>
-           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={() => router.push('/ai-assist' as any)} />
-           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={() => router.push('/history' as any)} />
-           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={() => router.push('/map' as any)} />
+           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={handleIAAssist} />
+           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={handleHealth} />
+           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={handleFind} />
         </View>
 
         {/* ── WEIGHT CHART ── */}
@@ -227,9 +236,7 @@ export default function Dashboard() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <VetCard {...item} />
-          )}
+          renderItem={renderVetItem}
         />
 
         <View style={{ height: 100 }} />
