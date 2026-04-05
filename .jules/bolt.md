@@ -1,0 +1,4 @@
+## 2025-05-15 - Stable Component Definitions and Memoization
+**Learning:** In React Native / Expo projects, defining sub-components (like list items or input fields) inside the render function of another component is a common but severe performance anti-pattern. It causes the component to be unmounted and remounted on every render cycle, losing state and preventing React from effectively using its reconciliation algorithm or `React.memo`. Additionally, large lists and frequently updating forms benefit immensely from `React.memo` paired with `useCallback` for event handlers.
+
+**Action:** Always extract sub-components to the top level of the file or into separate files. Use `React.memo` for reusable UI components and ensure all function props are wrapped in `useCallback` to maintain stable references.
