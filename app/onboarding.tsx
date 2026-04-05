@@ -36,11 +36,14 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isSelected }}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
       </View>
-      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
+      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]} aria-hidden={true}>{label}</Text>
     </TouchableOpacity>
   );
 

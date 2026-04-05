@@ -32,16 +32,19 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
       style={[
         isDesktop ? styles.desktopNavItem : styles.mobileNavItem, 
       ]}
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isActive(path) }}
     >
       <Icon color={isActive(path) ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive(path) ? '#A855F7' : 'transparent'} />
-      <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive(path) && styles.navLabelActive]}>{label}</Text>
+      <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive(path) && styles.navLabelActive]} aria-hidden={true}>{label}</Text>
     </TouchableOpacity>
   );
 
   if (isDesktop) {
     return (
       <View style={styles.topNav}>
-        <View style={styles.brand}>
+        <View style={styles.brand} accessibilityRole="header" accessibilityLabel="VetCare Pro Logo">
            <View style={styles.logoBg}><Heart color="white" size={20} fill="white" /></View>
            <Text style={styles.brandText}>VetCare Pro</Text>
         </View>
@@ -53,8 +56,20 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
            <NavItem icon={User} label="Profil" path="settings" />
         </View>
         <View style={styles.topRight}>
-           <TouchableOpacity style={styles.notifBtn}><Bell color="white" size={20} /></TouchableOpacity>
-           <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8} onPress={() => router.push('/paywall')}>
+           <TouchableOpacity
+              style={styles.notifBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Notifications"
+           >
+              <Bell color="white" size={20} />
+           </TouchableOpacity>
+           <TouchableOpacity
+              style={styles.upgradeBtn}
+              activeOpacity={0.8}
+              onPress={() => router.push('/paywall')}
+              accessibilityRole="button"
+              accessibilityLabel="Passer à la version Pro"
+           >
               <LinearGradient
                 colors={['#A855F7', '#7C3AED']}
                 start={{ x: 0, y: 0 }}
