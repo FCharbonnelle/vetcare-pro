@@ -75,14 +75,16 @@ export default function AppointmentsScreen() {
     }
   };
 
-  const apptDays = new Set(
+  // ⚡ Optimization: Memoize the Set of days with appointments to prevent O(n) array
+  // filtering and mapping on every render (e.g., during modal interaction or typing).
+  const apptDays = useMemo(() => new Set(
     appointments
       .filter(a => {
         const d = new Date(a.date);
         return d.getFullYear() === year && d.getMonth() === month;
       })
       .map(a => new Date(a.date).getDate())
-  );
+  ), [appointments, year, month]);
 
   const selectedAppts = useMemo(() => {
     const todayStart = new Date();

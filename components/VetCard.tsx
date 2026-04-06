@@ -11,7 +11,9 @@ interface VetCardProps {
   img: string;
 }
 
-export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => {
+// ⚡ Optimization: React.memo prevents unnecessary re-renders when this card
+// is part of a list and the parent re-renders for unrelated reasons.
+export const VetCard = React.memo<VetCardProps>(({ name, rating, dist, img }) => {
   const router = useRouter();
   return (
     <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
@@ -30,7 +32,7 @@ export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => 
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   vetCardWrap: { 
