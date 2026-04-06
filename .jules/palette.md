@@ -1,0 +1,3 @@
+## 2026-04-06 - Improving Onboarding Accessibility and Keyboard Flow
+**Learning:** In multi-step forms like `onboarding.tsx`, using `onSubmitEditing` and `returnKeyType` on `TextInput` components significantly improves the user experience by allowing them to progress using the keyboard's "Next" or "Done" keys. Additionally, adding `accessibilityRole="progressbar"` and `accessibilityValue` to custom progress indicators helps screen reader users understand their progress.
+**Action:** Always implement keyboard-driven navigation in forms and ensure progress indicators are semantically correct for screen readers.
