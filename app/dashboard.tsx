@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions, Platform, Modal, FlatList } from 'react-native';
 import { Bell, MapPin, Heart, Clock, Scale, Dog, Star, Zap, Activity } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -129,7 +129,19 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
   const [notifModalVisible, setNotifModalVisible] = React.useState(false);
-  
+
+  const handleAiAssistPress = useCallback(() => {
+    router.push("/ai-assist" as any);
+  }, [router]);
+
+  const handleHistoryPress = useCallback(() => {
+    router.push("/history" as any);
+  }, [router]);
+
+  const handleMapPress = useCallback(() => {
+    router.push("/map" as any);
+  }, [router]);
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -202,9 +214,24 @@ export default function Dashboard() {
 
         {/* ── QUICK ACTIONS ── */}
         <View style={styles.actionsGrid}>
-           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={() => router.push('/ai-assist' as any)} />
-           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={() => router.push('/history' as any)} />
-           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={() => router.push('/map' as any)} />
+          <QuickAction
+            icon={Zap}
+            label="IA Assist"
+            color="#A855F7"
+            onPress={handleAiAssistPress}
+          />
+          <QuickAction
+            icon={Activity}
+            label="Santé"
+            color="#10B981"
+            onPress={handleHistoryPress}
+          />
+          <QuickAction
+            icon={MapPin}
+            label="Trouver"
+            color="#3B82F6"
+            onPress={handleMapPress}
+          />
         </View>
 
         {/* ── WEIGHT CHART ── */}
