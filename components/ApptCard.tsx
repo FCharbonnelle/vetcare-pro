@@ -7,33 +7,38 @@ interface ApptCardProps {
   item: Appointment;
 }
 
-export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
-  const t = TYPE_OPTIONS.find(opt => opt.key === item.type) ?? TYPE_OPTIONS[0];
+export const ApptCard = React.memo<ApptCardProps>(({ item }) => {
+  const t = TYPE_OPTIONS.find((opt) => opt.key === item.type) ?? TYPE_OPTIONS[0];
 
   return (
     <TouchableOpacity style={styles.apptCard} activeOpacity={0.8}>
-      <View style={[styles.apptIcon, { backgroundColor: `${t.color}15`, borderColor: `${t.color}30` }]}>
+      <View
+        style={[
+          styles.apptIcon,
+          { backgroundColor: `${t.color}15`, borderColor: `${t.color}30` },
+        ]}
+      >
         <t.icon color={t.color} size={22} />
       </View>
       <View style={{ flex: 1, marginLeft: 16 }}>
         <Text style={styles.apptTitle}>{item.title}</Text>
         <Text style={styles.apptSub}>{item.vet}</Text>
       </View>
-      <View style={{ alignItems: 'flex-end' }}>
+      <View style={{ alignItems: "flex-end" }}>
         <View style={styles.timeTag}>
           <Clock color="#A855F7" size={12} />
           <Text style={styles.timeText}>{item.time}</Text>
         </View>
         {item.done && (
           <View style={styles.doneBadge}>
-             <Check color="#10B981" size={10} strokeWidth={3} />
-             <Text style={styles.doneText}>Fait</Text>
+            <Check color="#10B981" size={10} strokeWidth={3} />
+            <Text style={styles.doneText}>Fait</Text>
           </View>
         )}
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   apptCard: { 
