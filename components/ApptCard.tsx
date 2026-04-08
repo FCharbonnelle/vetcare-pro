@@ -7,7 +7,11 @@ interface ApptCardProps {
   item: Appointment;
 }
 
-export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
+/**
+ * ⚡ Optimization: Wrapped ApptCard in React.memo to prevent unnecessary re-renders.
+ * Expected impact: Reduces Dashboard re-render overhead when notification modal is toggled.
+ */
+export const ApptCard = React.memo<ApptCardProps>(({ item }) => {
   const t = TYPE_OPTIONS.find(opt => opt.key === item.type) ?? TYPE_OPTIONS[0];
 
   return (
@@ -33,7 +37,7 @@ export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   apptCard: { 
