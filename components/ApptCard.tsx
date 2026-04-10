@@ -7,7 +7,11 @@ interface ApptCardProps {
   item: Appointment;
 }
 
-export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
+/**
+ * ⚡ Optimization: Memoized to prevent redundant re-renders when parent lists
+ * or screens update without changes to this appointment's data.
+ */
+export const ApptCard = React.memo<ApptCardProps>(({ item }) => {
   const t = TYPE_OPTIONS.find(opt => opt.key === item.type) ?? TYPE_OPTIONS[0];
 
   return (
@@ -33,7 +37,7 @@ export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   apptCard: { 
