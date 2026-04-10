@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions, Platform, Modal, FlatList } from 'react-native';
 import { Bell, MapPin, Heart, Clock, Scale, Dog, Star, Zap, Activity } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -30,7 +30,11 @@ const VET_DATA = [
   { id: '3', name: "Centre du Bien-être", rating: "4.8", dist: "0.8 km", img: "https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" },
 ];
 
-function WeightLineChart() {
+/**
+ * ⚡ Optimization: Memoized complex SVG chart to prevent expensive re-renders
+ * when dashboard animations or unrelated states (like modals) trigger.
+ */
+const WeightLineChart = React.memo(() => {
   const { chartW, chartH, linePath, areaPath, peakIdx, vals, toX, toY, padL, padT, H, W } = React.useMemo(() => {
     const chartW = Math.min(SCREEN_W - 48, 600); 
     const chartH = 160;
@@ -121,7 +125,7 @@ function WeightLineChart() {
       </SvgText>
     </Svg>
   );
-}
+});
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -129,6 +133,14 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
   const [notifModalVisible, setNotifModalVisible] = React.useState(false);
+
+  /**
+   * ⚡ Optimization: Stable callbacks for QuickActions to ensure React.memo
+   * on the child components actually prevents re-renders.
+   */
+  const handleAiAssist = useCallback(() => router.push('/ai-assist' as any), [router]);
+  const handleHistory = useCallback(() => router.push('/history' as any), [router]);
+  const handleMap = useCallback(() => router.push('/map' as any), [router]);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -202,9 +214,9 @@ export default function Dashboard() {
 
         {/* ── QUICK ACTIONS ── */}
         <View style={styles.actionsGrid}>
-           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={() => router.push('/ai-assist' as any)} />
-           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={() => router.push('/history' as any)} />
-           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={() => router.push('/map' as any)} />
+           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={handleAiAssist} />
+           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={handleHistory} />
+           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={handleMap} />
         </View>
 
         {/* ── WEIGHT CHART ── */}
