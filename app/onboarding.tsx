@@ -1,9 +1,31 @@
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
-import { ChevronRight, Heart, Sparkles, Dog, Cat, Plus } from 'lucide-react-native';
+import { ChevronRight, Heart, Sparkles, Dog, Cat, Plus, LucideIcon } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+interface TypeCardProps {
+  icon: LucideIcon;
+  label: string;
+  isSelected: boolean;
+  onPress: () => void;
+}
+
+const TypeCard = React.memo(({ icon: Icon, label, isSelected, onPress }: TypeCardProps) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+    accessibilityRole="button"
+    accessibilityState={{ selected: isSelected }}
+    accessibilityLabel={`Sélectionner ${label}`}
+  >
+    <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
+      <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
+    </View>
+    <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
+  </TouchableOpacity>
+));
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -32,18 +54,6 @@ export default function Onboarding() {
     }
   };
 
-  const TypeCard = ({ icon: Icon, label, isSelected, onPress }: any) => (
-    <TouchableOpacity 
-      onPress={onPress}
-      style={[styles.typeCard, isSelected && styles.typeCardSelected]}
-    >
-      <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
-        <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
-      </View>
-      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -53,7 +63,12 @@ export default function Onboarding() {
       
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
+        <View
+          style={styles.progressBar}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 1, max: 3, now: step }}
+          accessibilityLabel={`Étape ${step} sur 3`}
+        >
            {[1, 2, 3].map(s => (
               <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
            ))}
@@ -76,6 +91,8 @@ export default function Onboarding() {
                  value={name}
                  onChangeText={setName}
                  autoFocus
+                 returnKeyType="next"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
@@ -105,6 +122,8 @@ export default function Onboarding() {
                  value={age}
                  onChangeText={setAge}
                  autoFocus
+                 returnKeyType="done"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
@@ -115,6 +134,8 @@ export default function Onboarding() {
              style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]} 
              onPress={handleNext}
              disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
+             accessibilityRole="button"
+             accessibilityHint="Passe à l'étape suivante"
            >
               <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
               <ChevronRight color="black" size={24} />
