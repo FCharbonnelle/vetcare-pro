@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image, KeyboardAvoidingView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
@@ -36,6 +36,10 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={`Sélectionner ${label}`}
+      accessibilityState={{ selected: isSelected }}
+      accessibilityHint={`Définit le type d'animal sur ${label}`}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -51,13 +55,22 @@ export default function Onboarding() {
         style={StyleSheet.absoluteFill}
       />
       
-      <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
-        
-        <View style={styles.progressBar}>
-           {[1, 2, 3].map(s => (
-              <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
-           ))}
-        </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
+
+          <View
+            style={styles.progressBar}
+            accessibilityRole="progressbar"
+            accessibilityValue={{ min: 1, max: 3, now: step }}
+            accessibilityLabel="Progression de l'onboarding"
+          >
+            {[1, 2, 3].map(s => (
+                <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
+            ))}
+          </View>
 
         <View style={styles.hero}>
            <View style={styles.logoBg}><Heart color="white" fill="white" size={32} /></View>
@@ -76,6 +89,8 @@ export default function Onboarding() {
                  value={name}
                  onChangeText={setName}
                  autoFocus
+                 returnKeyType="next"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
@@ -105,6 +120,8 @@ export default function Onboarding() {
                  value={age}
                  onChangeText={setAge}
                  autoFocus
+                 returnKeyType="done"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
@@ -115,13 +132,16 @@ export default function Onboarding() {
              style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]} 
              onPress={handleNext}
              disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
+             accessibilityRole="button"
+             accessibilityLabel={step === 3 ? "Terminer l'onboarding" : "Passer à l'étape suivante"}
            >
               <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
               <ChevronRight color="black" size={24} />
            </TouchableOpacity>
         </View>
 
-      </Animated.View>
+        </Animated.View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
