@@ -1,0 +1,3 @@
+## 2026-04-12 - Dashboard Re-render Bottleneck
+**Learning:** The Dashboard in VetCare Pro is a heavy performance hub. Toggling the notification modal (a simple boolean state change) was triggering full re-renders of the expensive SVG `WeightLineChart` and numerous list items (`StatPill`, `QuickAction`, `VetCard`). This happened because child components lacked memoization and received unstable function references (inline arrow functions for `onPress`).
+**Action:** Always wrap frequently re-rendered Dashboard sub-components in `React.memo` and ensure all event handlers passed to them are stabilized using `useCallback`. This is especially critical for components containing complex SVGs or those rendered in lists.
