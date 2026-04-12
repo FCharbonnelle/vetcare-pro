@@ -1,42 +1,38 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Modal, TextInput, Platform, FlatList } from 'react-native';
-import { Calendar as CalendarIcon, Plus, Clock, MapPin, ChevronRight, Stethoscope, Syringe, Scissors, Pill, X, Check, CalendarDays } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Modal, TextInput, Platform, Alert } from 'react-native';
+import { Calendar as CalendarIcon, Plus, Clock, ChevronRight, X, CalendarDays } from 'lucide-react-native';
 import { useRef, useEffect, useState, useMemo } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Appointment, TYPE_OPTIONS, MONTHS, DAYS_SHORT } from '@/constants/AppConstants';
+import { TYPE_OPTIONS, MONTHS, DAYS_SHORT } from '@/constants/AppConstants';
 import { ApptCard } from '@/components/ApptCard';
 import { useAppointment } from '@/store/AppointmentContext';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Theme } from '@/constants/Theme';
+import { BackgroundRefined } from '@/components/BackgroundRefined';
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
 }
 function getFirstDayOfWeek(year: number, month: number) {
   let d = new Date(year, month, 1).getDay();
-  return d === 0 ? 6 : d - 1; // Monday=0
+  return d === 0 ? 6 : d - 1; // Lundi=0
 }
 
 export default function AppointmentsScreen() {
   const router = useRouter();
-  const { appointments, addAppointment, updateAppointment, deleteAppointment, loading } = useAppointment();
+  const { appointments, addAppointment } = useAppointment();
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
   
   const [modalVisible, setModalVisible] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(new Date().getDate());
 
-  // New appt form
   const [newTitle, setNewTitle] = useState('');
   const [newDateStr, setNewDateStr] = useState(new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState('09:00');
   const [newVet, setNewVet] = useState('');
   const [newType, setNewType] = useState('consultation');
-  
-  const [tempDate, setTempDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -48,32 +44,7 @@ export default function AppointmentsScreen() {
       Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 50, friction: 8, useNativeDriver: true })
     ]).start();
-  }, []);
-
-  // Update form date when selectedDay changes
-  useEffect(() => {
-    if (selectedDay) {
-       const d = new Date(year, month, selectedDay);
-       setTempDate(d);
-       setNewDateStr(d.toISOString().split('T')[0]);
-    }
-  }, [selectedDay, month, year]);
-
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setTempDate(selectedDate);
-      setNewDateStr(selectedDate.toISOString().split('T')[0]);
-    }
-  };
-
-  const handleTimeChange = (event: any, selectedTime?: Date) => {
-    setShowTimePicker(false);
-    if (selectedTime) {
-      setTempDate(selectedTime);
-      setNewTime(selectedTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace('h', ':'));
-    }
-  };
+  }, [fadeAnim, slideAnim]);
 
   const apptDays = new Set(
     appointments
@@ -84,12 +55,6 @@ export default function AppointmentsScreen() {
       .map(a => new Date(a.date).getDate())
   );
 
-  const selectedAppts = useMemo(() => {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    return appointments.filter(a => new Date(a.date) >= todayStart).slice(0, 5);
-  }, [appointments]);
-
   const filteredAppts = useMemo(() => {
     if (selectedDay) {
       return appointments.filter(a => {
@@ -97,8 +62,8 @@ export default function AppointmentsScreen() {
         return d.getFullYear() === year && d.getMonth() === month && d.getDate() === selectedDay;
       });
     }
-    return selectedAppts;
-  }, [appointments, selectedDay, year, month, selectedAppts]);
+    return appointments;
+  }, [appointments, selectedDay, year, month]);
 
   const prevMonth = () => {
     const d = new Date(currentDate);
@@ -114,8 +79,10 @@ export default function AppointmentsScreen() {
   };
 
   const handleAddAppt = async () => {
-    if (!newTitle) return;
-    
+    if (!newTitle) {
+      Alert.alert("Intention manquante", "Chaque rituel doit avoir un but clair.");
+      return;
+    }
     await addAppointment({
       id: Date.now().toString(),
       title: newTitle,
@@ -125,9 +92,9 @@ export default function AppointmentsScreen() {
       vet: newVet,
       done: false
     });
-
-    setNewTitle(''); setNewVet(''); setNewTime('09:00'); setNewType('consultation');
+    Alert.alert("Rituel Scellé", "Le minuteur sacré a été activé dans votre Sanctuaire.");
     setModalVisible(false);
+    setNewTitle('');
   };
 
   const todayNum = new Date().getDate();
@@ -136,81 +103,67 @@ export default function AppointmentsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#170B3B', '#0E0824', '#000']} style={StyleSheet.absoluteFill} />
+      <BackgroundRefined />
       
-      <View style={styles.glowTopRight} />
-      <View style={styles.glowBottomLeft} />
-
       <Animated.ScrollView 
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={[styles.scroll, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
       >
-        
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerSub}>PLANIFICATION</Text>
-            <Text style={styles.headerTitle}>Agenda 📅</Text>
+            <Text style={styles.headerSub}>CALENDRIER SACRÉ</Text>
+            <Text style={styles.headerTitle}>Agendas</Text>
           </View>
-          <TouchableOpacity style={styles.addHeaderBtn} onPress={() => setModalVisible(true)}>
-            <Plus color="white" size={24} />
+          <TouchableOpacity style={styles.addBtnCircle} onPress={() => setModalVisible(true)}>
+            <Plus color="#FFF" size={24} />
           </TouchableOpacity>
         </View>
 
+        {/* CALENDRIER VITRÉ */}
         <View style={styles.calendarCard}>
-          <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.calendarInner}>
-            <View style={styles.calNav}>
-              <TouchableOpacity onPress={prevMonth} style={styles.navArrow}><Text style={styles.navArrowText}>‹</Text></TouchableOpacity>
-              <Text style={styles.calMonth}>{MONTHS[month]} {year}</Text>
-              <TouchableOpacity onPress={nextMonth} style={styles.navArrow}><Text style={styles.navArrowText}>›</Text></TouchableOpacity>
-            </View>
+           <View style={styles.calNav}>
+              <TouchableOpacity onPress={prevMonth} style={styles.navBtn}><Text style={styles.navBtnText}>‹</Text></TouchableOpacity>
+              <Text style={styles.calTitle}>{MONTHS[month]} {year}</Text>
+              <TouchableOpacity onPress={nextMonth} style={styles.navBtn}><Text style={styles.navBtnText}>›</Text></TouchableOpacity>
+           </View>
 
-            <View style={styles.daysHeader}>
+           <View style={styles.daysHeader}>
               {DAYS_SHORT.map(d => <Text key={d} style={styles.dayLabel}>{d}</Text>)}
-            </View>
+           </View>
 
-            <View style={styles.daysGrid}>
+           <View style={styles.daysGrid}>
               {Array(firstDay).fill(null).map((_, i) => <View key={`e${i}`} style={styles.dayCell} />)}
               {Array(daysInMonth).fill(null).map((_, i) => {
                 const dCell = i + 1;
-                const isToday = dCell === todayNum && month === todayMonth && year === todayYear;
                 const isSelected = dCell === selectedDay;
+                const isToday = dCell === todayNum && month === todayMonth && year === todayYear;
                 const hasAppt = apptDays.has(dCell);
                 return (
                   <TouchableOpacity
                     key={dCell}
-                    activeOpacity={0.7}
-                    style={[styles.dayCell, isSelected && styles.dayCellSelected, isToday && !isSelected && styles.dayCellToday]}
-                    onPress={() => setSelectedDay(dCell === selectedDay ? null : dCell)}
+                    onPress={() => setSelectedDay(dCell)}
+                    style={[styles.dayCell, isSelected && styles.dayCellSelected]}
                   >
-                    <Text style={[styles.dayNumber, isSelected && styles.dayNumberSelected, isToday && !isSelected && styles.dayNumberToday]}>
-                      {dCell}
+                    <Text style={[styles.dayNum, isSelected && styles.dayNumActive, isToday && !isSelected && { color: Theme.colors.primary }]}>
+                       {dCell}
                     </Text>
-                    {hasAppt && <View style={[styles.apptDot, { backgroundColor: isSelected ? 'white' : '#A855F7' }]} />}
+                    {hasAppt && <View style={[styles.dot, isSelected ? { backgroundColor: '#000' } : { backgroundColor: Theme.colors.primary }]} />}
                   </TouchableOpacity>
                 );
               })}
-            </View>
-          </LinearGradient>
+           </View>
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>
-            {selectedDay ? `Le ${selectedDay} ${MONTHS[month]}` : 'Prochains rendez-vous'}
-          </Text>
-          <View style={styles.indicatorBadge}>
-             <Text style={styles.indicatorText}>{filteredAppts.length} EVENT{filteredAppts.length > 1 ? 'S' : ''}</Text>
-          </View>
+           <Text style={styles.sectionTitle}>
+             {selectedDay ? `Rituels pour le ${selectedDay} ${MONTHS[month]}` : "Soins à Venir"}
+           </Text>
         </View>
 
         {filteredAppts.length === 0 ? (
-          <View style={styles.emptyState}>
-            <View style={styles.emptyIconBg}>
-               <CalendarDays color="rgba(168,85,247,0.4)" size={40} />
-            </View>
-            <Text style={styles.emptyText}>Aucun événement{selectedDay ? ' ce jour' : ''}</Text>
-            <TouchableOpacity style={styles.emptyBtn} onPress={() => setModalVisible(true)}>
-              <Text style={styles.emptyBtnText}>+ Ajouter</Text>
-            </TouchableOpacity>
+          <View style={styles.emptyContainer}>
+             <CalendarDays color="rgba(255,255,255,0.1)" size={60} />
+             <Text style={styles.emptyText}>Aucun rituel prévu pour ce jour.</Text>
           </View>
         ) : (
           filteredAppts.map(item => <ApptCard key={item.id} item={item} />)
@@ -219,78 +172,57 @@ export default function AppointmentsScreen() {
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
 
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.9}>
-        <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.fabGradient}>
-          <Plus color="white" size={28} />
+      {/* FAB */}
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+        <LinearGradient colors={Theme.colors.gradients.primary as any} style={styles.fabGradient}>
+           <Plus color="#FFF" size={28} />
         </LinearGradient>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="fade">
+      {/* MODAL NOUVEAU RDV */}
+      <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 44 }]} />
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ajouter un rappel</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}><X color="white" size={24} /></TouchableOpacity>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalLabel}>TITRE</Text>
-              <TextInput style={styles.modalInput} placeholder="Ex: Vaccination" placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
-
-              <View style={styles.modalRow}>
-                 <View style={{flex: 1.5, marginRight: 12 }}>
-                    <Text style={styles.modalLabel}>DATE</Text>
-                    <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowDatePicker(true)}>
-                       <View style={styles.pickerInner}>
-                          <CalendarIcon color="#A855F7" size={16} />
-                          <Text style={styles.pickerValue}>{newDateStr}</Text>
-                       </View>
-                    </TouchableOpacity>
-                 </View>
-                 <View style={{flex: 1}}>
-                    <Text style={styles.modalLabel}>HEURE</Text>
-                    <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowTimePicker(true)}>
-                       <View style={styles.pickerInner}>
-                          <Clock color="#A855F7" size={16} />
-                          <Text style={styles.pickerValue}>{newTime}</Text>
-                       </View>
-                    </TouchableOpacity>
-                 </View>
+           <View style={styles.modalContent}>
+              <LinearGradient colors={['#1C1633', '#05030F']} style={[StyleSheet.absoluteFill, { borderRadius: 40 }]} />
+              <View style={styles.modalHeader}>
+                 <Text style={styles.modalTitle}>Invoquer un Rituel</Text>
+                 <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}><X color="#FFF" size={24} /></TouchableOpacity>
               </View>
+              <ScrollView>
+                 <Text style={styles.label}>OBJECTIF</Text>
+                 <TextInput style={styles.input} placeholder="Raison de la visite..." placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
+                 
+                 <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flex: 1, marginRight: 16 }}>
+                       <Text style={styles.label}>DATE</Text>
+                       <TouchableOpacity style={styles.field} onPress={() => Alert.alert("Verrou Chronos", "La sélection directe est réservée au flux standard.")}>
+                          <Text style={styles.fieldText}>{newDateStr}</Text>
+                       </TouchableOpacity>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                       <Text style={styles.label}>HEURE</Text>
+                       <TouchableOpacity style={styles.field} onPress={() => Alert.alert("Ancre Temporelle", "Fenêtre matinale standard (09:00) assignée.")}>
+                          <Text style={styles.fieldText}>{newTime}</Text>
+                       </TouchableOpacity>
+                    </View>
+                 </View>
 
-              {showDatePicker && (
-                <DateTimePicker value={tempDate} mode="date" onChange={handleDateChange} />
-              )}
-              {showTimePicker && (
-                <DateTimePicker value={tempDate} mode="time" onChange={handleTimeChange} />
-              )}
+                 <Text style={styles.label}>TYPE</Text>
+                 <View style={styles.typeRow}>
+                    {TYPE_OPTIONS.slice(0, 4).map(t => (
+                      <TouchableOpacity key={t.key} style={[styles.typeBtn, newType === t.key && styles.typeBtnActive]} onPress={() => setNewType(t.key)}>
+                         <t.icon color={newType === t.key ? '#FFF' : 'rgba(255,255,255,0.4)'} size={18} />
+                      </TouchableOpacity>
+                    ))}
+                 </View>
 
-              <Text style={styles.modalLabel}>LIEU / VÉTÉRINAIRE</Text>
-              <TextInput style={styles.modalInput} placeholder="Ex: Clinique Happy Paws" placeholderTextColor="rgba(255,255,255,0.2)" value={newVet} onChangeText={setNewVet} />
-
-              <Text style={styles.modalLabel}>TYPE D'ACTIVITÉ</Text>
-              <View style={styles.typeGrid}>
-                {TYPE_OPTIONS.map(t => (
-                   <TouchableOpacity
-                     key={t.key}
-                     style={[styles.typeChip, newType === t.key && { backgroundColor: `${t.color}25`, borderColor: t.color }]}
-                     onPress={() => setNewType(t.key)}
-                   >
-                     <t.icon color={newType === t.key ? t.color : 'rgba(255,255,255,0.4)'} size={16} />
-                     <Text style={[styles.typeChipText, newType === t.key && { color: t.color }]}>{t.label}</Text>
-                   </TouchableOpacity>
-                ))}
-              </View>
-
-              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleAddAppt}>
-                <LinearGradient colors={['#A855F7', '#7C3AED']} start={{x:0, y:0}} end={{x:1, y:0}} style={styles.modalSaveGrad}>
-                  <Text style={styles.modalSaveText}>Confirmer le rappel</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-              <View style={{height: 40}} />
-            </ScrollView>
-          </View>
+                 <TouchableOpacity style={styles.saveBtn} onPress={handleAddAppt}>
+                    <LinearGradient colors={Theme.colors.gradients.primary as any} style={styles.saveGrad}>
+                       <Text style={styles.saveText}>Sceller dans le Calendrier</Text>
+                    </LinearGradient>
+                 </TouchableOpacity>
+              </ScrollView>
+           </View>
         </View>
       </Modal>
     </SafeAreaView>
@@ -298,56 +230,48 @@ export default function AppointmentsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  scroll: { padding: 24, paddingTop: 60 },
-  glowTopRight: { position: 'absolute', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(139, 24, 116, 0.15)', top: -100, right: -150, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
-  glowBottomLeft: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(108, 36, 181, 0.1)', bottom: 50, left: -100, filter: Platform.OS === 'web' ? 'blur(80px)' : undefined },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 },
-  headerSub: { color: '#A855F7', fontSize: 12, fontWeight: '900', letterSpacing: 2 },
-  headerTitle: { color: '#fff', fontSize: 34, fontWeight: '900', marginTop: 4 },
-  addHeaderBtn: { backgroundColor: 'rgba(255,255,255,0.05)', padding: 14, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  calendarCard: { borderRadius: 40, overflow: 'hidden', marginBottom: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.1)' },
-  calendarInner: { padding: 24 },
-  calNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  navArrow: { width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
-  navArrowText: { color: 'white', fontSize: 24, fontWeight: '900', lineHeight: 28 },
-  calMonth: { color: '#fff', fontSize: 20, fontWeight: '900' },
-  daysHeader: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 },
-  dayLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 11, fontWeight: '900', width: 36, textAlign: 'center', letterSpacing: 0.5 },
+  container: { flex: 1, backgroundColor: Theme.colors.background },
+  scroll: { padding: 24, paddingTop: Platform.OS === 'ios' ? 10 : 40 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 },
+  headerSub: { color: Theme.colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 3 },
+  headerTitle: { color: '#FFF', fontSize: 36, fontWeight: '900', marginTop: 8, letterSpacing: -1.5 },
+  addBtnCircle: { width: 54, height: 54, borderRadius: 27, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+
+  calendarCard: { backgroundColor: Theme.colors.surfaceCard, borderRadius: Theme.radius.xl, padding: 24, marginBottom: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  calNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30 },
+  navBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.04)', alignItems: 'center', justifyContent: 'center' },
+  navBtnText: { color: '#FFF', fontSize: 24 },
+  calTitle: { color: '#FFF', fontSize: 20, fontWeight: '900' },
+  daysHeader: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
+  dayLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: '900', width: 40, textAlign: 'center' },
   daysGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  dayCell: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 10, borderRadius: 16, marginBottom: 4 },
-  dayCellSelected: { backgroundColor: '#A855F7' },
-  dayCellToday: { backgroundColor: 'rgba(168,85,247,0.15)', borderWidth: 1, borderColor: 'rgba(168,85,247,0.3)' },
-  dayNumber: { color: 'rgba(255,255,255,0.5)', fontSize: 15, fontWeight: '800' },
-  dayNumberSelected: { color: '#fff', fontWeight: '900' },
-  dayNumberToday: { color: '#A855F7', fontWeight: '900' },
-  apptDot: { width: 5, height: 5, borderRadius: 2.5, marginTop: 4 },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  sectionTitle: { color: '#fff', fontSize: 18, fontWeight: '900' },
-  indicatorBadge: { backgroundColor: 'rgba(168,85,247,0.1)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(168,85,247,0.2)' },
-  indicatorText: { color: '#A855F7', fontSize: 10, fontWeight: '900', letterSpacing: 1 },
-  emptyState: { alignItems: 'center', padding: 48, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 40, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-  emptyIconBg: { backgroundColor: 'rgba(168,85,247,0.1)', padding: 20, borderRadius: 24, marginBottom: 20 },
-  emptyText: { color: 'rgba(255,255,255,0.3)', fontSize: 16, fontWeight: '800', marginBottom: 24 },
-  emptyBtn: { backgroundColor: 'white', paddingHorizontal: 28, paddingVertical: 16, borderRadius: 20 },
-  emptyBtnText: { color: 'black', fontWeight: '900', fontSize: 15 },
-  fab: { position: 'absolute', bottom: 32, right: 32, borderRadius: 32 },
-  fabGradient: { width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' },
+  dayCell: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 14, borderRadius: 12 },
+  dayCellSelected: { backgroundColor: Theme.colors.primary },
+  dayNum: { color: 'rgba(255,255,255,0.6)', fontSize: 16, fontWeight: '700' },
+  dayNumActive: { color: '#000', fontWeight: '900' },
+  dot: { width: 4, height: 4, borderRadius: 2, marginTop: 4 },
+
+  sectionHeader: { marginBottom: 24 },
+  sectionTitle: { color: '#FFF', fontSize: 20, fontWeight: '800' },
+  emptyContainer: { alignItems: 'center', padding: 60, opacity: 0.5 },
+  emptyText: { color: '#FFF', fontSize: 14, marginTop: 20, textAlign: 'center' },
+
+  fab: { position: 'absolute', bottom: 120, right: 30, zIndex: 100 },
+  fabGradient: { width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center', ...Theme.shadows.glow },
+
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
-  modalContent: { borderRadius: 44, padding: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)', maxHeight: '90%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 },
-  modalTitle: { color: '#fff', fontSize: 24, fontWeight: '900' },
-  closeBtn: { backgroundColor: 'rgba(255,255,255,0.06)', padding: 10, borderRadius: 14 },
-  modalLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: '900', letterSpacing: 1.5, marginBottom: 10, marginLeft: 4 },
-  modalInput: { backgroundColor: 'rgba(255,255,255,0.04)', color: '#fff', fontSize: 16, fontWeight: '700', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 24 },
-  modalRow: { flexDirection: 'row' },
-  pickerTrigger: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 24, overflow: 'hidden' },
-  pickerInner: { flexDirection: 'row', alignItems: 'center', padding: 20 },
-  pickerValue: { color: '#fff', fontSize: 15, fontWeight: '700', marginLeft: 12 },
-  typeGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 32 },
-  typeChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 20, marginRight: 10, marginBottom: 12 },
-  typeChipText: { color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: '800', marginLeft: 10 },
-  modalSaveBtn: { borderRadius: 28, overflow: 'hidden' },
-  modalSaveGrad: { paddingVertical: 22, alignItems: 'center' },
-  modalSaveText: { color: '#fff', fontSize: 18, fontWeight: '900' },
+  modalContent: { height: '80%', padding: 40, borderTopLeftRadius: 40, borderTopRightRadius: 40, overflow: 'hidden' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 32 },
+  modalTitle: { color: '#FFF', fontSize: 28, fontWeight: '900' },
+  closeBtn: { backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 12 },
+  label: { color: Theme.colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 2, marginBottom: 16 },
+  input: { backgroundColor: 'rgba(255,255,255,0.04)', padding: 20, borderRadius: 16, color: '#FFF', fontSize: 16, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  field: { backgroundColor: 'rgba(255,255,255,0.04)', padding: 20, borderRadius: 16, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  fieldText: { color: '#FFF', fontSize: 16 },
+  typeRow: { flexDirection: 'row', marginBottom: 32 },
+  typeBtn: { width: 56, height: 56, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.04)', alignItems: 'center', justifyContent: 'center', marginRight: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  typeBtnActive: { backgroundColor: Theme.colors.primary, borderColor: Theme.colors.primary },
+  saveBtn: { marginTop: 10, borderRadius: 20, overflow: 'hidden' },
+  saveGrad: { paddingVertical: 24, alignItems: 'center' },
+  saveText: { color: '#FFF', fontSize: 18, fontWeight: '900' },
 });

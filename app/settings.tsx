@@ -1,217 +1,119 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Alert, Animated, Share, Modal, Switch } from 'react-native';
-import { User, Bell, Shield, HelpCircle, LogOut, ChevronRight, Star, Share2, Trash2, Dog } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Animated, Alert } from 'react-native';
+import { ChevronRight, Bell, Shield, CircleHelp, LogOut, Moon, User, Database, Globe, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/store/AuthContext';
-import { usePet } from '@/store/PetContext';
 import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X } from 'lucide-react-native';
+import { Theme } from '@/constants/Theme';
+import { BackgroundRefined } from '@/components/BackgroundRefined';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user } = useAuth();
-  const { resetPet, pet } = usePet();
-  const fullName = user?.user_metadata?.full_name || "Alex Johnson";
-  
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState<'privacy' | null>(null);
-  const [shareData, setShareData] = useState(true);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [notifications, setNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-  }, []);
+    Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
+  }, [fadeAnim]);
 
-  const handleClearCache = async () => {
-    await resetPet();
-    router.push('/onboarding' as any);
-  };
-
-  const handleShare = async () => {
-    try {
-      await Share.share({
-        message: 'Rejoignez-moi sur VetCare Pro et prenez soin de votre animal avec l\'IA ! 🐾 https://vetcare.pro',
-      });
-    } catch (error) {
-      Alert.alert('Erreur', 'Impossible d\'ouvrir le partage.');
-    }
-  };
-
-  const openSubSetting = (type: 'privacy') => {
-    setModalType(type);
-    setModalVisible(true);
-  };
-
-  const MenuItem = ({ icon: Icon, title, subtitle, color = "#A855F7", onPress }: any) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress || (() => Alert.alert(title, "Cette fonctionnalité sera disponible dans une prochaine mise à jour."))}>
-      <View style={[styles.menuIconBg, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
-        <Icon color={color} size={22} />
+  const SettingItem = ({ icon: Icon, label, value, type = 'arrow', onPress }: any) => (
+    <TouchableOpacity style={styles.item} onPress={onPress} activeOpacity={0.7}>
+      <View style={styles.itemLeft}>
+        <View style={styles.iconBox}>
+           <Icon color={Theme.colors.primary} size={20} />
+        </View>
+        <Text style={styles.label}>{label}</Text>
       </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.menuTitle}>{title}</Text>
-        {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+      <View style={styles.itemRight}>
+         {type === 'switch' ? (
+           <Switch 
+             value={value} 
+             onValueChange={onPress} 
+             trackColor={{ false: '#333', true: Theme.colors.primary }}
+             thumbColor="#FFF"
+           />
+         ) : (
+           <>
+             {value && <Text style={styles.valueText}>{value}</Text>}
+             <ChevronRight color="rgba(255,255,255,0.2)" size={18} />
+           </>
+         )}
       </View>
-      <ChevronRight color="rgba(255,255,255,0.2)" size={20} />
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#170B3B', '#0E0824', '#000000']}
-        style={StyleSheet.absoluteFill}
-      />
-      <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.inner, { opacity: fadeAnim }]}>
-        <Text style={styles.headerTitle}>Paramètres</Text>
+      <BackgroundRefined />
+      
+      <Animated.ScrollView 
+        showsVerticalScrollIndicator={false} 
+        style={[styles.scroll, { opacity: fadeAnim }]}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
+        <View style={styles.header}>
+           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+             <ChevronLeft color="#FFF" size={24} />
+           </TouchableOpacity>
+           <Text style={styles.headerTitle}>Réglages</Text>
+           <View style={{ width: 44 }} />
+        </View>
 
-        <TouchableOpacity 
-          activeOpacity={0.9} 
-          onPress={() => router.push('/user-profile' as any)}
-          style={styles.profileHeader}
-        >
-          <Image 
-            source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} 
-            style={styles.avatar}
-          />
-          <View style={{ flex: 1, marginLeft: 24 }}>
-            <Text style={styles.profileName}>{fullName}</Text>
-            <View style={styles.badgeFree}>
-               <Text style={styles.badgeTextFree}>PLAN GRATUIT • {pet?.name || 'Buddy'}</Text>
-            </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>COMPTE & SÉCURITÉ</Text>
+          <View style={styles.card}>
+             <SettingItem icon={User} label="Profil Utilisateur" value="Sarah Miller" onPress={() => router.push('/user-profile' as any)} />
+             <SettingItem icon={Shield} label="Confidentialité" onPress={() => Alert.alert("Sécurité", "Vos données sont cryptées en bout en bout.")} />
+             <SettingItem icon={Database} label="Sauvegarde iCloud" value="Activée" />
           </View>
-          <ChevronRight color="rgba(255,255,255,0.2)" size={20} />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          onPress={() => router.push('/paywall')}
-          style={styles.upsellCard}
-        >
-          <LinearGradient
-            colors={['#A855F7', '#6D28D9']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.upsellGradient}
-          >
-            <View style={styles.upsellRow}>
-              <View style={styles.starIconBg}>
-                 <Star color="white" size={24} fill="white" />
-              </View>
-              <View style={{ flex: 1, marginLeft: 18 }}>
-                 <Text style={styles.upsellTitle}>Passer à VetCare+</Text>
-                 <Text style={styles.upsellSubtitle}>Support d'urgence 24/7 & scans illimités</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <Text style={styles.sectionTitle}>Préférences App</Text>
-        <View style={styles.menuGroup}>
-          <MenuItem icon={Dog} title="Profil de l'animal" subtitle="Identité, Santé & Notes" color="#A855F7" onPress={() => router.push('/pet-profile' as any)} />
-          <MenuItem icon={Bell} title="Rappels" subtitle="Vaccins, Toilettage, Médocs" onPress={() => router.push('/appointments' as any)} />
-          <MenuItem icon={Shield} title="Confidentialité" subtitle="Contrôle des données" color="#10B981" onPress={() => openSubSetting('privacy')} />
         </View>
 
-        <Text style={styles.sectionTitle}>Support & Aide</Text>
-        <View style={styles.menuGroup}>
-          <MenuItem icon={HelpCircle} title="Centre d'aide" color="#3B82F6" onPress={() => router.push('/ai-assist' as any)} />
-          <MenuItem icon={Share2} title="Inviter un membre" color="#F59E0B" onPress={handleShare} />
-          <MenuItem icon={Trash2} title="Effacer les données" subtitle="Réinitialisation complète" color="#EF4444" onPress={handleClearCache} />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>PRÉFÉRENCES</Text>
+          <View style={styles.card}>
+             <SettingItem icon={Bell} label="Notifications Push" type="switch" value={notifications} onPress={() => setNotifications(!notifications)} />
+             <SettingItem icon={Moon} label="Mode Sombre" type="switch" value={darkMode} onPress={() => setDarkMode(!darkMode)} />
+             <SettingItem icon={Globe} label="Langue" value="Français (FR)" />
+          </View>
         </View>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={() => router.push('/onboarding' as any)}>
-          <LogOut color="#EF4444" size={20} />
-          <Text style={styles.logoutText}>Déconnexion</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>SUPPORT</Text>
+          <View style={styles.card}>
+             <SettingItem icon={CircleHelp} label="Centre d'aide" />
+             <SettingItem icon={Shield} label="Conditions Générales" />
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.logoutBtn} onPress={() => router.replace('/')}>
+           <LogOut color="#FF3B30" size={20} />
+           <Text style={styles.logoutText}>Se déconnecter</Text>
         </TouchableOpacity>
 
-        <Text style={styles.versionText}>VetCare Pro v1.0.0 (Stack Shadow enabled)</Text>
-        <View style={{ height: 120 }} />
+        <Text style={styles.version}>VetCare Pro v3.4.2 • Scellé par Antigravity</Text>
       </Animated.ScrollView>
-
-      {/* ── SUB-SETTINGS MODAL ── */}
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 44 }]} />
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Confidentialité</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}>
-                <X color="white" size={24} />
-              </TouchableOpacity>
-            </View>
-
-            <View>
-              <View style={styles.settingRow}>
-                  <View style={{ flex: 1, marginRight: 15 }}>
-                    <Text style={styles.settingText}>Amélioration IA</Text>
-                    <Text style={styles.settingSub}>Partager les diagnostics anonymisés pour entraîner l'IA.</Text>
-                  </View>
-                  <Switch 
-                    value={shareData} 
-                    onValueChange={setShareData} 
-                    trackColor={{ false: '#3e3e3e', true: '#10B981' }}
-                    thumbColor={shareData ? '#fff' : '#f4f3f4'}
-                  />
-              </View>
-              <View style={styles.privacyNote}>
-                  <Shield color="rgba(255,255,255,0.4)" size={20} />
-                  <Text style={styles.privacyNoteText}>
-                    Vos données personnelles et photos ne sont jamais partagées sans votre consentement explicite.
-                  </Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.modalSaveBtn} onPress={() => setModalVisible(false)}>
-              <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.modalSaveGrad}>
-                <Text style={styles.modalSaveText}>Fermer</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000000' },
-  inner: { padding: 24, paddingTop: 60 },
-  headerTitle: { fontSize: 34, fontWeight: '900', color: '#FFFFFF', marginBottom: 32 },
-  profileHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.04)', padding: 24, borderRadius: 40, borderWidth: 1.2, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 32 },
-  avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 3, borderColor: '#A855F7' },
-  profileName: { fontSize: 22, fontWeight: '900', color: '#FFFFFF', marginBottom: 6 },
-  badgeFree: { alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
-  badgeTextFree: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
-  upsellCard: { borderRadius: 40, overflow: 'hidden', marginBottom: 40 },
-  upsellGradient: { padding: 28 },
-  upsellRow: { flexDirection: 'row', alignItems: 'center' },
-  starIconBg: { backgroundColor: 'rgba(255,255,255,0.2)', padding: 14, borderRadius: 18 },
-  upsellTitle: { color: '#FFFFFF', fontSize: 20, fontWeight: '900' },
-  upsellSubtitle: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '600', marginTop: 4, lineHeight: 20 },
-  sectionTitle: { fontSize: 14, fontWeight: '900', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16, marginLeft: 12 },
-  menuGroup: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 40, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 32 },
-  menuItem: { flexDirection: 'row', alignItems: 'center', padding: 20 },
-  menuIconBg: { padding: 12, borderRadius: 18, borderWidth: 1 },
-  menuTitle: { fontSize: 17, fontWeight: '800', color: '#FFFFFF' },
-  menuSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: '600', marginTop: 2 },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 24, borderRadius: 32, backgroundColor: 'rgba(239, 68, 68, 0.1)', marginBottom: 24, borderColor: 'rgba(239, 68, 68, 0.2)', borderWidth: 1 },
-  logoutText: { color: '#EF4444', fontSize: 17, fontWeight: '800', marginLeft: 12 },
-  versionText: { textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 13, fontWeight: '700' },
+  container: { flex: 1, backgroundColor: Theme.colors.background },
+  scroll: { padding: 24 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40, marginTop: 10 },
+  backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: '900', color: '#FFF', letterSpacing: -1 },
 
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
-  modalContent: { borderRadius: 44, padding: 32, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)', maxHeight: '70%', overflow: 'hidden' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-  modalTitle: { color: '#fff', fontSize: 24, fontWeight: '900' },
-  closeBtn: { backgroundColor: 'rgba(255,255,255,0.06)', padding: 10, borderRadius: 14 },
-  settingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.04)', padding: 20, borderRadius: 24, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  settingText: { color: 'white', fontSize: 17, fontWeight: '800' },
-  settingSub: { color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: '600', marginTop: 4 },
-  privacyNote: { flexDirection: 'row', padding: 20, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 24, marginBottom: 32 },
-  privacyNoteText: { flex: 1, marginLeft: 14, color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: '600', lineHeight: 20 },
-  modalSaveBtn: { borderRadius: 24, overflow: 'hidden' },
-  modalSaveGrad: { paddingVertical: 18, alignItems: 'center' },
-  modalSaveText: { color: '#fff', fontSize: 17, fontWeight: '900' },
+  section: { marginBottom: 32 },
+  sectionTitle: { color: Theme.colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 2, marginBottom: 16, marginLeft: 8 },
+  card: { backgroundColor: Theme.colors.surfaceCard, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  item: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.03)' },
+  itemLeft: { flexDirection: 'row', alignItems: 'center' },
+  iconBox: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(183,109,255,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+  label: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  itemRight: { flexDirection: 'row', alignItems: 'center' },
+  valueText: { color: 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: '600', marginRight: 10 },
+
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,59,48,0.1)', padding: 20, borderRadius: 20, marginTop: 20, borderWidth: 1, borderColor: 'rgba(255,59,48,0.2)' },
+  logoutText: { color: '#FF3B30', fontSize: 16, fontWeight: '900', marginLeft: 12 },
+  version: { color: 'rgba(255,255,255,0.2)', fontSize: 11, fontWeight: '700', textAlign: 'center', marginTop: 40, letterSpacing: 1 },
 });

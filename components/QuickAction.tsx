@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { LucideIcon } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Theme } from '@/constants/Theme';
 
 interface QuickActionProps {
-  icon: LucideIcon;
+  icon: any;
   label: string;
   color: string;
   onPress: () => void;
@@ -11,37 +12,26 @@ interface QuickActionProps {
 
 export const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, color, onPress }) => {
   return (
-    <TouchableOpacity style={styles.qaBtn} onPress={onPress}>
-       <View style={[styles.qaIcon, { backgroundColor: `${color}20`, borderColor: `${color}40` }]}>
-          <Icon color={color} size={22} />
-       </View>
-       <Text style={styles.qaLabel}>{label}</Text>
+    <TouchableOpacity style={styles.actionItem} onPress={onPress}>
+      <LinearGradient colors={[color + '30', 'rgba(255,255,255,0.02)']} style={styles.iconBg}>
+         <Icon color={color} size={24} />
+      </LinearGradient>
+      <Text numberOfLines={1} style={styles.label}>{label}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  qaBtn: { alignItems: 'center', flex: 1 },
-  qaIcon: { 
-    width: 65, 
-    height: 65, 
-    borderRadius: 26, 
-    backgroundColor: 'rgba(21, 15, 43, 0.6)', 
-    justifyContent: 'center', 
+  actionItem: { alignItems: 'center', flex: 1, marginHorizontal: 8 },
+  iconBg: { 
+    width: 64, 
+    height: 64, 
+    borderRadius: 32, 
     alignItems: 'center', 
-    marginBottom: 12, 
+    justifyContent: 'center', 
+    marginBottom: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    elevation: 10
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  qaLabel: { 
-    color: '#E7DEFF', 
-    fontSize: 13, 
-    fontWeight: '700',
-    letterSpacing: 0.3
-  },
+  label: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
 });

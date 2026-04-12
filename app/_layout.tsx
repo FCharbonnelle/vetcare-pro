@@ -1,14 +1,15 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme, View, StyleSheet, useWindowDimensions, TouchableOpacity, Text, SafeAreaView, Platform } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, TouchableOpacity, Text, Platform } from 'react-native';
 import { AuthProvider } from '@/store/AuthContext';
 import { PetProvider } from '@/store/PetContext';
 import { AppointmentProvider } from '@/store/AppointmentContext';
-import { Home, Heart, Calendar, MapPin, User, Bell } from 'lucide-react-native';
+import { Home, Heart, MessageSquare, ShoppingCart, Settings, PawPrint } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Theme } from '@/constants/Theme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,64 +19,72 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
   
   const isActive = (path: string) => {
      const s = segments[0];
-     if (path === 'dashboard' && s === 'dashboard') return true;
+     if (path === 'dashboard' && (s === 'dashboard' || !s)) return true;
      if (path === 'history' && s === 'history') return true;
-     if (path === 'appointments' && s === 'appointments') return true;
-     if (path === 'map' && s === 'map') return true;
+     if (path === 'ai-assist' && s === 'ai-assist') return true;
+     if (path === 'paywall' && s === 'paywall') return true;
      if (path === 'settings' && s === 'settings') return true;
      return false;
   };
 
-  const NavItem = ({ icon: Icon, label, path }: any) => (
-    <TouchableOpacity 
-      onPress={() => router.push(path as any)}
-      style={[
-        isDesktop ? styles.desktopNavItem : styles.mobileNavItem, 
-      ]}
-    >
-      <Icon color={isActive(path) ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive(path) ? '#A855F7' : 'transparent'} />
-      <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive(path) && styles.navLabelActive]}>{label}</Text>
-    </TouchableOpacity>
-  );
+  const NavItem = ({ icon: Icon, label, path }: any) => {
+    const active = isActive(path);
+    return (
+      <TouchableOpacity 
+        onPress={() => router.push(path as any)}
+        style={[
+          isDesktop ? styles.desktopNavItem : styles.mobileNavItem, 
+        ]}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.iconWrapper]}>
+          {active && (
+            <LinearGradient
+              colors={['rgba(183, 109, 255, 0.4)', 'rgba(183, 109, 255, 0)']}
+              style={styles.activeHalo}
+            />
+          )}
+          <View style={[styles.iconContainer, active && styles.iconContainerActive]}>
+             <Icon 
+               color={active ? '#FFF' : 'rgba(255,255,255,0.4)'} 
+               size={24} 
+               strokeWidth={active ? 2.5 : 2}
+               fill={active ? 'rgba(255,255,255,0.1)' : 'transparent'}
+             />
+          </View>
+        </View>
+        <Text style={[styles.mobileNavLabel, active && styles.navLabelActive]}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   if (isDesktop) {
     return (
       <View style={styles.topNav}>
         <View style={styles.brand}>
-           <View style={styles.logoBg}><Heart color="white" size={20} fill="white" /></View>
-           <Text style={styles.brandText}>VetCare Pro</Text>
+           <View style={styles.logoBg}><Home color="white" size={20} fill="white" /></View>
+           <Text style={styles.brandText}>VetCare <Text style={{ color: Theme.colors.primaryContainer }}>PRO</Text></Text>
         </View>
-        <View style={styles.navLinks}>
-           <NavItem icon={Home} label="Accueil" path="dashboard" />
-           <NavItem icon={Heart} label="Santé" path="history" />
-           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" />
-           <NavItem icon={MapPin} label="Carte" path="map" />
-           <NavItem icon={User} label="Profil" path="settings" />
-        </View>
-        <View style={styles.topRight}>
-           <TouchableOpacity style={styles.notifBtn}><Bell color="white" size={20} /></TouchableOpacity>
-           <TouchableOpacity style={styles.upgradeBtn} activeOpacity={0.8} onPress={() => router.push('/paywall')}>
-              <LinearGradient
-                colors={['#A855F7', '#7C3AED']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.upgradeGradient}
-              >
-                <Text style={styles.upgradeText}>Passer Pro</Text>
-              </LinearGradient>
-           </TouchableOpacity>
-        </View>
+         <View style={styles.navLinks}>
+             <NavItem icon={Home} label="Accueil" path="dashboard" />
+             <NavItem icon={PawPrint} label="Animaux" path="history" />
+             <NavItem icon={MessageSquare} label="Messages" path="ai-assist" />
+             <NavItem icon={ShoppingCart} label="Boutique" path="paywall" />
+             <NavItem icon={Settings} label="Réglages" path="settings" />
+         </View>
       </View>
     );
   }
 
   return (
     <View style={styles.bottomNav}>
-       <NavItem icon={Home} label="Accueil" path="dashboard" />
-       <NavItem icon={Heart} label="Santé" path="history" />
-       <NavItem icon={Calendar} label="Agenda" path="appointments" />
-       <NavItem icon={MapPin} label="Carte" path="map" />
-       <NavItem icon={User} label="Profil" path="settings" />
+        <NavItem icon={Home} label="Accueil" path="dashboard" />
+        <NavItem icon={PawPrint} label="Animaux" path="history" />
+        <NavItem icon={MessageSquare} label="Messages" path="ai-assist" />
+        <NavItem icon={ShoppingCart} label="Boutique" path="paywall" />
+        <NavItem icon={Settings} label="Réglages" path="settings" />
     </View>
   );
 }
@@ -95,9 +104,7 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
 
   return (
     <AuthProvider>
@@ -117,135 +124,92 @@ function RootLayoutNav() {
 
   const showNav = (segments: string[]) => {
     const s = segments[0];
-    const hiddenIn = ['index', 'onboarding', 'paywall'];
-    return s && !hiddenIn.includes(s) && s !== '(tabs)';
+    const hiddenIn = ['index', 'onboarding'];
+    // In our specific case, we want navigation for dashboard, history, etc.
+    return s && !hiddenIn.includes(s);
   };
 
   return (
     <ThemeProvider value={DarkTheme}>
       <View style={styles.root}>
-        <LinearGradient
-          colors={['#170B3B', '#0E0824', '#000000']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        
-        {isDesktop && showNav(segments as string[]) && <UnifiedNav isDesktop={true} />}
-        
-        <View style={[styles.flex, isDesktop && showNav(segments as string[]) && styles.containerDesktop]}>
-           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
-             <Stack.Screen name="index" />
-             <Stack.Screen name="onboarding" />
-             <Stack.Screen name="dashboard" />
-             <Stack.Screen name="history" />
-             <Stack.Screen name="appointments" />
-             <Stack.Screen name="map" />
-             <Stack.Screen name="settings" />
-             <Stack.Screen name="ai-assist" />
-             <Stack.Screen name="pet-profile" />
-             <Stack.Screen name="paywall" options={{ presentation: 'fullScreenModal' }} />
+        <View style={styles.flex}>
+           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#070514' } }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="onboarding" />
+              <Stack.Screen name="dashboard" />
+              <Stack.Screen name="history" />
+              <Stack.Screen name="appointments" />
+              <Stack.Screen name="settings" />
+              <Stack.Screen name="ai-assist" />
+              <Stack.Screen name="pet-profile" />
+              <Stack.Screen name="paywall" />
+              <Stack.Screen name="market" />
            </Stack>
         </View>
-
-        {!isDesktop && showNav(segments as string[]) && <UnifiedNav isDesktop={false} />}
+        {showNav(segments as string[]) && <UnifiedNav isDesktop={isDesktop} />}
       </View>
     </ThemeProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0F0925' },
+  root: { flex: 1, backgroundColor: '#070514' },
   flex: { flex: 1 },
   topNav: { 
-    height: 90, 
-    backgroundColor: 'rgba(21, 15, 43, 0.7)', 
-    borderBottomWidth: 0, 
+    height: 80, 
+    backgroundColor: '#070514', 
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 60,
-    zIndex: 100,
-    // Glassmorphism effect
-    ...Platform.select({
-      web: { backdropFilter: 'blur(20px)' },
-    })
+    borderBottomWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
   },
   brand: { flexDirection: 'row', alignItems: 'center' },
-  logoBg: { 
-    backgroundColor: '#A855F7', 
-    padding: 10, 
-    borderRadius: 16,
-    shadowColor: '#A855F7',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8
-  },
-  brandText: { 
-    fontSize: 26, 
-    fontWeight: '900', 
-    color: '#E7DEFF', 
-    marginLeft: 16, 
-    letterSpacing: -0.8 
-  },
-  navLinks: { flexDirection: 'row', alignItems: 'center' },
-  desktopNavItem: { alignItems: 'center', paddingHorizontal: 20 },
-  navLabel: { fontSize: 13, fontWeight: '700', color: '#94A3B8', marginTop: 6, letterSpacing: 0.2 },
-  navLabelActive: { color: '#A855F7' },
-  topRight: { flexDirection: 'row', alignItems: 'center' },
-  notifBtn: { 
-    marginRight: 20, 
-    backgroundColor: 'rgba(255,255,255,0.04)', 
-    padding: 14, 
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)'
-  },
-  upgradeBtn: { 
-    overflow: 'hidden',
-    borderRadius: 22,
-  },
-  upgradeGradient: {
-    paddingHorizontal: 30, 
-    paddingVertical: 15, 
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  upgradeText: { color: '#FFFFFF', fontWeight: '900', fontSize: 14, letterSpacing: 0.5 },
-  
-  containerDesktop: { 
-    maxWidth: 1300, 
-    width: '95%',
-    alignSelf: 'center',
-    backgroundColor: 'rgba(21, 15, 43, 0.4)',
-    marginTop: 30,
-    marginBottom: 30,
-    borderRadius: 48,
-    borderWidth: 0,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 30 },
-    shadowOpacity: 0.3,
-    shadowRadius: 50,
-    elevation: 25
-  },
+  logoBg: { backgroundColor: '#B76DFF', padding: 8, borderRadius: 10 },
+  brandText: { fontSize: 20, fontWeight: '900', color: '#FFF', marginLeft: 12 },
+  navLinks: { flexDirection: 'row' },
+  desktopNavItem: { alignItems: 'center', marginLeft: 30 },
   
   bottomNav: { 
-    height: 95, 
-    backgroundColor: 'rgba(15, 9, 37, 0.9)', 
-    borderTopWidth: 0, 
+    height: 85, 
+    backgroundColor: 'rgba(7, 5, 20, 0.98)', 
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingBottom: 25,
-    paddingHorizontal: 15,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    ...Platform.select({
-      web: { backdropFilter: 'blur(30px)' },
-    })
+    paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+    borderTopWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   mobileNavItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
-  mobileNavLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '700', marginTop: 8, textTransform: 'uppercase', letterSpacing: 0.5 }
+  iconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 64,
+    height: 54,
+  },
+  activeHalo: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    opacity: 0.5,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  iconContainerActive: {
+    backgroundColor: 'rgba(183, 109, 255, 0.25)',
+  },
+  mobileNavLabel: { fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: '800', marginTop: -4 },
+  navLabelActive: { color: '#FFF' }
 });

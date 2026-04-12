@@ -9,6 +9,7 @@ export interface Pet {
   age: string;
   weight: string;
   photo?: string | null;
+  type?: 'dog' | 'cat' | 'rabbit' | string;
 }
 
 interface PetContextType {
@@ -32,7 +33,10 @@ export function PetProvider({ children }: { children: React.ReactNode }) {
   const loadPet = async () => {
     try {
       const stored = await AsyncStorage.getItem('vetcare_pet');
-      if (stored) setPet(JSON.parse(stored));
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setPet(parsed);
+      }
     } catch (e) {
       console.error('Failed to load pet', e);
     } finally {
@@ -42,7 +46,8 @@ export function PetProvider({ children }: { children: React.ReactNode }) {
 
   const savePet = async (data: Partial<Pet>) => {
     try {
-      const newPet = pet ? { ...pet, ...data } : (data as Pet);
+      const currentPet = pet || { id: 'buddy', name: 'Buddy', species: 'Chien', breed: 'Golden', age: '3 years', weight: '32kg', type: 'dog' };
+      const newPet = { ...currentPet, ...data } as Pet;
       setPet(newPet);
       await AsyncStorage.setItem('vetcare_pet', JSON.stringify(newPet));
     } catch (e) {
@@ -50,7 +55,6 @@ export function PetProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Alias for compatibility
   const updatePet = savePet;
 
   const resetPet = async () => {
