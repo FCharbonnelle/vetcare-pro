@@ -24,6 +24,9 @@ export default function Onboarding() {
   }, [step]);
 
   const handleNext = async () => {
+    const isStepValid = (step === 1 && name) || (step === 2 && type) || (step === 3 && age);
+    if (!isStepValid) return;
+
     if (step < 3) {
       setStep(step + 1);
     } else {
@@ -33,9 +36,12 @@ export default function Onboarding() {
   };
 
   const TypeCard = ({ icon: Icon, label, isSelected, onPress }: any) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isSelected }}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -53,7 +59,11 @@ export default function Onboarding() {
       
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
+        <View
+          style={styles.progressBar}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 1, max: 3, now: step }}
+        >
            {[1, 2, 3].map(s => (
               <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
            ))}
@@ -76,6 +86,8 @@ export default function Onboarding() {
                  value={name}
                  onChangeText={setName}
                  autoFocus
+                 returnKeyType="next"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
@@ -105,16 +117,20 @@ export default function Onboarding() {
                  value={age}
                  onChangeText={setAge}
                  autoFocus
+                 returnKeyType="done"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
         )}
 
         <View style={styles.footer}>
-           <TouchableOpacity 
-             style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]} 
+           <TouchableOpacity
+             style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]}
              onPress={handleNext}
              disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
+             accessibilityRole="button"
+             accessibilityLabel={step === 3 ? "C'est parti !" : "Suivant"}
            >
               <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
               <ChevronRight color="black" size={24} />
