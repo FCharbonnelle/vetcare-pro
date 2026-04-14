@@ -1,0 +1,3 @@
+## 2025-05-15 - Improving Onboarding Keyboard Flow & Accessibility
+**Learning:** In multi-step forms using React Native's `TextInput`, users expect the keyboard "Next" or "Done" key to advance the form. Relying solely on a "Submit" button creates friction. Additionally, custom interactive elements like selection cards and progress bars must include comprehensive accessibility attributes (`accessibilityRole`, `accessibilityState`, `accessibilityValue`) to be usable by screen readers.
+**Action:** Always implement `onSubmitEditing` and `returnKeyType` for form inputs. Ensure all custom UI components have semantic roles and appropriate accessibility states to maintain a high standard of inclusion.

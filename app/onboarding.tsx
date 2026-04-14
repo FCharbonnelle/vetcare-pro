@@ -24,6 +24,9 @@ export default function Onboarding() {
   }, [step]);
 
   const handleNext = async () => {
+    const isStepValid = (step === 1 && name !== '') || (step === 2 && type !== '') || (step === 3 && age !== '');
+    if (!isStepValid) return;
+
     if (step < 3) {
       setStep(step + 1);
     } else {
@@ -36,6 +39,10 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+      accessibilityLabel={`Sélectionner ${label}`}
+      accessibilityHint={`Définit le type d'animal sur ${label}`}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -53,7 +60,12 @@ export default function Onboarding() {
       
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
+        <View
+          style={styles.progressBar}
+          accessibilityRole="progressbar"
+          accessibilityLabel="Progression de l'onboarding"
+          accessibilityValue={{ min: 1, max: 3, now: step }}
+        >
            {[1, 2, 3].map(s => (
               <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
            ))}
@@ -76,6 +88,8 @@ export default function Onboarding() {
                  value={name}
                  onChangeText={setName}
                  autoFocus
+                 onSubmitEditing={handleNext}
+                 returnKeyType="next"
                />
             </View>
           </View>
@@ -105,6 +119,8 @@ export default function Onboarding() {
                  value={age}
                  onChangeText={setAge}
                  autoFocus
+                 onSubmitEditing={handleNext}
+                 returnKeyType="done"
                />
             </View>
           </View>
