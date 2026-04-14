@@ -1,0 +1,3 @@
+## 2026-04-14 - Memoization of heavy Dashboard components
+**Learning:** The Dashboard screen is a central hub with many reusable UI components (StatPill, QuickAction, VetCard, NotifItem) and expensive SVG charts. Without memoization, any state change (like opening the notification modal or navigation) triggers a full re-render of all these components. Using React.memo for these components and useCallback for their handlers significantly reduces redundant work.
+**Action:** Always memoize reusable UI components used in lists or dashboards, and ensure navigation handlers are wrapped in useCallback to maintain stable prop references.
