@@ -10,7 +10,11 @@ interface StatPillProps {
 
 export const StatPill: React.FC<StatPillProps> = ({ icon: Icon, label, value }) => {
   return (
-    <View style={styles.statPill}>
+    <View
+      style={styles.statPill}
+      accessible={true}
+      accessibilityLabel={`${label}: ${value}`}
+    >
       <View style={styles.statIcon}><Icon color="#A855F7" size={14} /></View>
       <View>
         <Text style={styles.statLabel}>{label}</Text>
