@@ -161,12 +161,22 @@ export default function Dashboard() {
              <Text style={styles.healthStatus}>SANTÉ : OPTIMALE</Text>
            </View>
            
-           <TouchableOpacity onPress={() => setNotifModalVisible(true)} style={styles.notifBtn}>
+           <TouchableOpacity
+             onPress={() => setNotifModalVisible(true)}
+             style={styles.notifBtn}
+             accessibilityLabel="Notifications"
+             accessibilityRole="button"
+           >
              <Bell color="white" size={24} />
              <View style={styles.badge} />
            </TouchableOpacity>
            
-           <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
+           <TouchableOpacity
+             onPress={() => router.push('/settings' as any)}
+             style={styles.avatarBtn}
+             accessibilityLabel="Profil utilisateur"
+             accessibilityRole="button"
+           >
              <Image source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} style={styles.avatar} />
            </TouchableOpacity>
         </View>
