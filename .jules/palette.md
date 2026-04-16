@@ -1,0 +1,3 @@
+## 2025-05-15 - Accessibility in Core Interactive Components
+**Learning:** Icon-only buttons and informational pills in this app often lacked semantic roles and labels, making them invisible or confusing to screen reader users. Grouping multiple text elements into a single accessible unit using `accessible={true}` on a container significantly improves the screen reader experience for data-heavy components like `StatPill`.
+**Action:** Always verify that `TouchableOpacity` components have an `accessibilityRole="button"` and a descriptive `accessibilityLabel`. For data displays, use the grouping pattern to provide a cohesive reading of the information.
