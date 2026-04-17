@@ -9,8 +9,30 @@ import { PetProvider } from '@/store/PetContext';
 import { AppointmentProvider } from '@/store/AppointmentContext';
 import { Home, Heart, Calendar, MapPin, User, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
 
 SplashScreen.preventAutoHideAsync();
+
+interface NavItemProps {
+  icon: any;
+  label: string;
+  path: string;
+  isDesktop: boolean;
+  isActive: boolean;
+  onPress: () => void;
+}
+
+const NavItem = React.memo<NavItemProps>(({ icon: Icon, label, path, isDesktop, isActive, onPress }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[
+      isDesktop ? styles.desktopNavItem : styles.mobileNavItem,
+    ]}
+  >
+    <Icon color={isActive ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive ? '#A855F7' : 'transparent'} />
+    <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive && styles.navLabelActive]}>{label}</Text>
+  </TouchableOpacity>
+));
 
 function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
   const router = useRouter();
@@ -26,17 +48,16 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
      return false;
   };
 
-  const NavItem = ({ icon: Icon, label, path }: any) => (
-    <TouchableOpacity 
+  const renderNavItem = React.useCallback((icon: any, label: string, path: string) => (
+    <NavItem
+      icon={icon}
+      label={label}
+      path={path}
+      isDesktop={isDesktop}
+      isActive={isActive(path)}
       onPress={() => router.push(path as any)}
-      style={[
-        isDesktop ? styles.desktopNavItem : styles.mobileNavItem, 
-      ]}
-    >
-      <Icon color={isActive(path) ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive(path) ? '#A855F7' : 'transparent'} />
-      <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive(path) && styles.navLabelActive]}>{label}</Text>
-    </TouchableOpacity>
-  );
+    />
+  ), [isDesktop, segments, router]);
 
   if (isDesktop) {
     return (
@@ -46,11 +67,11 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
            <Text style={styles.brandText}>VetCare Pro</Text>
         </View>
         <View style={styles.navLinks}>
-           <NavItem icon={Home} label="Accueil" path="dashboard" />
-           <NavItem icon={Heart} label="Santé" path="history" />
-           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" />
-           <NavItem icon={MapPin} label="Carte" path="map" />
-           <NavItem icon={User} label="Profil" path="settings" />
+           {renderNavItem(Home, "Accueil", "dashboard")}
+           {renderNavItem(Heart, "Santé", "history")}
+           {renderNavItem(Calendar, "Rendez-vous", "appointments")}
+           {renderNavItem(MapPin, "Carte", "map")}
+           {renderNavItem(User, "Profil", "settings")}
         </View>
         <View style={styles.topRight}>
            <TouchableOpacity style={styles.notifBtn}><Bell color="white" size={20} /></TouchableOpacity>
@@ -71,11 +92,11 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
 
   return (
     <View style={styles.bottomNav}>
-       <NavItem icon={Home} label="Accueil" path="dashboard" />
-       <NavItem icon={Heart} label="Santé" path="history" />
-       <NavItem icon={Calendar} label="Agenda" path="appointments" />
-       <NavItem icon={MapPin} label="Carte" path="map" />
-       <NavItem icon={User} label="Profil" path="settings" />
+       {renderNavItem(Home, "Accueil", "dashboard")}
+       {renderNavItem(Heart, "Santé", "history")}
+       {renderNavItem(Calendar, "Agenda", "appointments")}
+       {renderNavItem(MapPin, "Carte", "map")}
+       {renderNavItem(User, "Profil", "settings")}
     </View>
   );
 }
