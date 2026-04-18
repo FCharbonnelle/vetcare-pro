@@ -2,21 +2,45 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useColorScheme, View, StyleSheet, useWindowDimensions, TouchableOpacity, Text, SafeAreaView, Platform } from 'react-native';
 import { AuthProvider } from '@/store/AuthContext';
 import { PetProvider } from '@/store/PetContext';
 import { AppointmentProvider } from '@/store/AppointmentContext';
-import { Home, Heart, Calendar, MapPin, User, Bell } from 'lucide-react-native';
+import { Home, Heart, Calendar, MapPin, User, Bell, LucideIcon } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 SplashScreen.preventAutoHideAsync();
+
+// ⚡ Optimization: Extract NavItem to module scope and memoize it.
+// This prevents the component from being recreated on every render of UnifiedNav,
+// stabilizing the component tree and avoiding full subtree unmounting.
+interface NavItemProps {
+  icon: LucideIcon;
+  label: string;
+  path: string;
+  isActive: boolean;
+  isDesktop: boolean;
+  onPress: (path: string) => void;
+}
+
+const NavItem = React.memo<NavItemProps>(({ icon: Icon, label, path, isActive, isDesktop, onPress }) => (
+  <TouchableOpacity
+    onPress={() => onPress(path)}
+    style={[
+      isDesktop ? styles.desktopNavItem : styles.mobileNavItem,
+    ]}
+  >
+    <Icon color={isActive ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive ? '#A855F7' : 'transparent'} />
+    <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive && styles.navLabelActive]}>{label}</Text>
+  </TouchableOpacity>
+));
 
 function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
   const router = useRouter();
   const segments = useSegments();
   
-  const isActive = (path: string) => {
+  const isActive = React.useCallback((path: string) => {
      const s = segments[0];
      if (path === 'dashboard' && s === 'dashboard') return true;
      if (path === 'history' && s === 'history') return true;
@@ -24,19 +48,11 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
      if (path === 'map' && s === 'map') return true;
      if (path === 'settings' && s === 'settings') return true;
      return false;
-  };
+  }, [segments]);
 
-  const NavItem = ({ icon: Icon, label, path }: any) => (
-    <TouchableOpacity 
-      onPress={() => router.push(path as any)}
-      style={[
-        isDesktop ? styles.desktopNavItem : styles.mobileNavItem, 
-      ]}
-    >
-      <Icon color={isActive(path) ? '#A855F7' : '#94A3B8'} size={isDesktop ? 22 : 24} fill={isActive(path) ? '#A855F7' : 'transparent'} />
-      <Text style={[isDesktop ? styles.navLabel : styles.mobileNavLabel, isActive(path) && styles.navLabelActive]}>{label}</Text>
-    </TouchableOpacity>
-  );
+  const handlePress = React.useCallback((path: string) => {
+    router.push(path as any);
+  }, [router]);
 
   if (isDesktop) {
     return (
@@ -46,11 +62,11 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
            <Text style={styles.brandText}>VetCare Pro</Text>
         </View>
         <View style={styles.navLinks}>
-           <NavItem icon={Home} label="Accueil" path="dashboard" />
-           <NavItem icon={Heart} label="Santé" path="history" />
-           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" />
-           <NavItem icon={MapPin} label="Carte" path="map" />
-           <NavItem icon={User} label="Profil" path="settings" />
+           <NavItem icon={Home} label="Accueil" path="dashboard" isActive={isActive('dashboard')} isDesktop={isDesktop} onPress={handlePress} />
+           <NavItem icon={Heart} label="Santé" path="history" isActive={isActive('history')} isDesktop={isDesktop} onPress={handlePress} />
+           <NavItem icon={Calendar} label="Rendez-vous" path="appointments" isActive={isActive('appointments')} isDesktop={isDesktop} onPress={handlePress} />
+           <NavItem icon={MapPin} label="Carte" path="map" isActive={isActive('map')} isDesktop={isDesktop} onPress={handlePress} />
+           <NavItem icon={User} label="Profil" path="settings" isActive={isActive('settings')} isDesktop={isDesktop} onPress={handlePress} />
         </View>
         <View style={styles.topRight}>
            <TouchableOpacity style={styles.notifBtn}><Bell color="white" size={20} /></TouchableOpacity>
@@ -71,11 +87,11 @@ function UnifiedNav({ isDesktop }: { isDesktop: boolean }) {
 
   return (
     <View style={styles.bottomNav}>
-       <NavItem icon={Home} label="Accueil" path="dashboard" />
-       <NavItem icon={Heart} label="Santé" path="history" />
-       <NavItem icon={Calendar} label="Agenda" path="appointments" />
-       <NavItem icon={MapPin} label="Carte" path="map" />
-       <NavItem icon={User} label="Profil" path="settings" />
+       <NavItem icon={Home} label="Accueil" path="dashboard" isActive={isActive('dashboard')} isDesktop={isDesktop} onPress={handlePress} />
+       <NavItem icon={Heart} label="Santé" path="history" isActive={isActive('history')} isDesktop={isDesktop} onPress={handlePress} />
+       <NavItem icon={Calendar} label="Agenda" path="appointments" isActive={isActive('appointments')} isDesktop={isDesktop} onPress={handlePress} />
+       <NavItem icon={MapPin} label="Carte" path="map" isActive={isActive('map')} isDesktop={isDesktop} onPress={handlePress} />
+       <NavItem icon={User} label="Profil" path="settings" isActive={isActive('settings')} isDesktop={isDesktop} onPress={handlePress} />
     </View>
   );
 }
