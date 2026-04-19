@@ -7,11 +7,11 @@ interface ApptCardProps {
   item: Appointment;
 }
 
-export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
+export const ApptCard = React.memo<ApptCardProps>(({ item }) => {
   const t = TYPE_OPTIONS.find(opt => opt.key === item.type) ?? TYPE_OPTIONS[0];
 
   return (
-    <TouchableOpacity style={styles.apptCard} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.apptCard} activeOpacity={0.8} accessibilityRole="button">
       <View style={[styles.apptIcon, { backgroundColor: `${t.color}15`, borderColor: `${t.color}30` }]}>
         <t.icon color={t.color} size={22} />
       </View>
@@ -33,7 +33,7 @@ export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   apptCard: { 

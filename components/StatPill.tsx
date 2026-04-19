@@ -8,9 +8,9 @@ interface StatPillProps {
   value: string;
 }
 
-export const StatPill: React.FC<StatPillProps> = ({ icon: Icon, label, value }) => {
+export const StatPill = React.memo<StatPillProps>(({ icon: Icon, label, value }) => {
   return (
-    <View style={styles.statPill}>
+    <View style={styles.statPill} accessibilityRole="none">
       <View style={styles.statIcon}><Icon color="#A855F7" size={14} /></View>
       <View>
         <Text style={styles.statLabel}>{label}</Text>
@@ -18,7 +18,7 @@ export const StatPill: React.FC<StatPillProps> = ({ icon: Icon, label, value }) 
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   statPill: { 
