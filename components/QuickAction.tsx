@@ -9,16 +9,16 @@ interface QuickActionProps {
   onPress: () => void;
 }
 
-export const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, color, onPress }) => {
+export const QuickAction = React.memo<QuickActionProps>(({ icon: Icon, label, color, onPress }) => {
   return (
-    <TouchableOpacity style={styles.qaBtn} onPress={onPress}>
+    <TouchableOpacity style={styles.qaBtn} onPress={onPress} accessibilityRole="button">
        <View style={[styles.qaIcon, { backgroundColor: `${color}20`, borderColor: `${color}40` }]}>
           <Icon color={color} size={22} />
        </View>
        <Text style={styles.qaLabel}>{label}</Text>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   qaBtn: { alignItems: 'center', flex: 1 },

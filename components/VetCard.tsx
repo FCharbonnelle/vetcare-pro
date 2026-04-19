@@ -11,10 +11,10 @@ interface VetCardProps {
   img: string;
 }
 
-export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => {
+export const VetCard = React.memo<VetCardProps>(({ name, rating, dist, img }) => {
   const router = useRouter();
   return (
-    <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
+    <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)} accessibilityRole="button">
       <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.vetCardGlass}>
         <Image source={{ uri: img }} style={styles.vetImg} />
         <View style={styles.vetContent}>
@@ -30,7 +30,7 @@ export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => 
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   vetCardWrap: { 

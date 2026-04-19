@@ -9,9 +9,9 @@ interface NotifItemProps {
   color: string;
 }
 
-export const NotifItem: React.FC<NotifItemProps> = ({ icon: Icon, title, time, color }) => {
+export const NotifItem = React.memo<NotifItemProps>(({ icon: Icon, title, time, color }) => {
   return (
-    <View style={styles.notifItem}>
+    <View style={styles.notifItem} accessibilityRole="none">
       <View style={[styles.notifIcon, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
         <Icon color={color} size={18} />
       </View>
@@ -21,7 +21,7 @@ export const NotifItem: React.FC<NotifItemProps> = ({ icon: Icon, title, time, c
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   notifItem: { 
