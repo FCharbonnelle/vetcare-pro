@@ -7,7 +7,8 @@ interface ApptCardProps {
   item: Appointment;
 }
 
-export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
+// Memoized to prevent list items from re-rendering when the agenda date changes (if item is same)
+export const ApptCard: React.FC<ApptCardProps> = React.memo(({ item }) => {
   const t = TYPE_OPTIONS.find(opt => opt.key === item.type) ?? TYPE_OPTIONS[0];
 
   return (
@@ -33,7 +34,7 @@ export const ApptCard: React.FC<ApptCardProps> = ({ item }) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   apptCard: { 

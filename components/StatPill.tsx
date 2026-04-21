@@ -8,7 +8,8 @@ interface StatPillProps {
   value: string;
 }
 
-export const StatPill: React.FC<StatPillProps> = ({ icon: Icon, label, value }) => {
+// React.memo prevents re-renders when the Dashboard state changes but pet stats remain the same
+export const StatPill: React.FC<StatPillProps> = React.memo(({ icon: Icon, label, value }) => {
   return (
     <View style={styles.statPill}>
       <View style={styles.statIcon}><Icon color="#A855F7" size={14} /></View>
@@ -18,7 +19,7 @@ export const StatPill: React.FC<StatPillProps> = ({ icon: Icon, label, value }) 
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   statPill: { 

@@ -9,7 +9,8 @@ interface QuickActionProps {
   onPress: () => void;
 }
 
-export const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, color, onPress }) => {
+// Memoized to avoid re-renders during dashboard animations or modal toggles
+export const QuickAction: React.FC<QuickActionProps> = React.memo(({ icon: Icon, label, color, onPress }) => {
   return (
     <TouchableOpacity style={styles.qaBtn} onPress={onPress}>
        <View style={[styles.qaIcon, { backgroundColor: `${color}20`, borderColor: `${color}40` }]}>
@@ -18,7 +19,7 @@ export const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, col
        <Text style={styles.qaLabel}>{label}</Text>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   qaBtn: { alignItems: 'center', flex: 1 },
