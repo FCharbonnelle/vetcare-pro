@@ -161,12 +161,22 @@ export default function Dashboard() {
              <Text style={styles.healthStatus}>SANTÉ : OPTIMALE</Text>
            </View>
            
-           <TouchableOpacity onPress={() => setNotifModalVisible(true)} style={styles.notifBtn}>
+           <TouchableOpacity
+             onPress={() => setNotifModalVisible(true)}
+             style={styles.notifBtn}
+             accessibilityLabel="Ouvrir les notifications"
+             accessibilityRole="button"
+           >
              <Bell color="white" size={24} />
              <View style={styles.badge} />
            </TouchableOpacity>
            
-           <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
+           <TouchableOpacity
+             onPress={() => router.push('/settings' as any)}
+             style={styles.avatarBtn}
+             accessibilityLabel="Voir mon profil"
+             accessibilityRole="button"
+           >
              <Image source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} style={styles.avatar} />
            </TouchableOpacity>
         </View>
@@ -178,7 +188,13 @@ export default function Dashboard() {
         </View>
 
         {/* ── HERO PET CARD ── */}
-        <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={() => router.push('/pet-profile' as any)}>
+        <TouchableOpacity
+           style={styles.heroCard}
+           activeOpacity={0.9}
+           onPress={() => router.push('/pet-profile' as any)}
+           accessibilityLabel={`Profil de ${currentPet.name}, ${currentPet.breed}`}
+           accessibilityRole="button"
+        >
            <LinearGradient colors={['rgba(168,85,247,0.25)', 'rgba(124,58,237,0.05)']} style={styles.heroGrad}>
               <View style={styles.heroContent}>
                  <View style={styles.heroText}>
