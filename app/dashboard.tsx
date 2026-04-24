@@ -30,7 +30,7 @@ const VET_DATA = [
   { id: '3', name: "Centre du Bien-être", rating: "4.8", dist: "0.8 km", img: "https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" },
 ];
 
-function WeightLineChart() {
+const WeightLineChart = React.memo(() => {
   const { chartW, chartH, linePath, areaPath, peakIdx, vals, toX, toY, padL, padT, H, W } = React.useMemo(() => {
     const chartW = Math.min(SCREEN_W - 48, 600); 
     const chartH = 160;
@@ -121,7 +121,7 @@ function WeightLineChart() {
       </SvgText>
     </Svg>
   );
-}
+});
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -129,6 +129,10 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
   const [notifModalVisible, setNotifModalVisible] = React.useState(false);
+
+  const renderVetItem = React.useCallback(({ item }: { item: typeof VET_DATA[0] }) => (
+    <VetCard {...item} />
+  ), []);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -227,9 +231,7 @@ export default function Dashboard() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <VetCard {...item} />
-          )}
+          renderItem={renderVetItem}
         />
 
         <View style={{ height: 100 }} />
