@@ -1,0 +1,3 @@
+## 2026-04-25 - [Accessibility & Keyboard Flow in Multi-step Onboarding]
+**Learning:** Adding `accessibilityRole="progressbar"`, `accessibilityLabel`, and `accessibilityValue` to custom progress components significantly improves orientation for screen-reader users. For better keyboard-only UX in multi-step forms, using `returnKeyType` and `onSubmitEditing` to trigger navigation allows for a much smoother, uninterrupted experience than forcing a switch to touch interactions.
+**Action:** Always verify that interactive elements triggered by keyboard (like `onSubmitEditing`) have the same validation logic as their button counterparts to prevent accidental state progression with invalid or missing data.
