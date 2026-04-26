@@ -11,7 +11,11 @@ interface VetCardProps {
   img: string;
 }
 
-export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => {
+/**
+ * VetCard component for displaying veterinarian info in a horizontal list.
+ * Memoized to optimize FlatList rendering performance.
+ */
+export const VetCard: React.FC<VetCardProps> = React.memo(function VetCard({ name, rating, dist, img }) {
   const router = useRouter();
   return (
     <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
@@ -30,7 +34,7 @@ export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => 
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   vetCardWrap: { 
