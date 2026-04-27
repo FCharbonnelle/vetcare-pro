@@ -1,0 +1,3 @@
+## 2025-05-12 - Accessibility and Keyboard UX in Onboarding
+**Learning:** multi-step onboarding forms in React Native (Expo Web) often lack semantic roles and keyboard-driven progression. Using `accessibilityRole="progressbar"` and `accessibilityRole="button"` significantly improves the screen reader experience. Stabilizing keyboard navigation with `returnKeyType`, `onSubmitEditing`, and `blurOnSubmit={false}` creates a much smoother "auto-advance" feel for power users and mobile users.
+**Action:** Always include semantic roles for progress indicators and selectable cards. Implement keyboard-driven navigation (`onSubmitEditing`) for multi-step forms to reduce friction.
