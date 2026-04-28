@@ -30,7 +30,11 @@ const VET_DATA = [
   { id: '3', name: "Centre du Bien-être", rating: "4.8", dist: "0.8 km", img: "https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" },
 ];
 
-function WeightLineChart() {
+/**
+ * Optimized weight chart component.
+ * Wrapped in React.memo to prevent expensive SVG path recalculations during parent re-renders.
+ */
+const WeightLineChart = React.memo(function WeightLineChart() {
   const { chartW, chartH, linePath, areaPath, peakIdx, vals, toX, toY, padL, padT, H, W } = React.useMemo(() => {
     const chartW = Math.min(SCREEN_W - 48, 600); 
     const chartH = 160;
@@ -121,7 +125,7 @@ function WeightLineChart() {
       </SvgText>
     </Svg>
   );
-}
+});
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -142,6 +146,14 @@ export default function Dashboard() {
 
   const currentPet = pet || { name: 'Buddy', breed: 'Golden Retriever', age: '3 ans', weight: '34 kg', photo: null };
   const buddyImg = currentPet.photo || 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Golden_Retriever_transparent.png';
+
+  /**
+   * Stabilized render function for FlatList.
+   * Prevents re-rendering of all list items when the Dashboard state updates.
+   */
+  const renderVetItem = React.useCallback(({ item }: { item: typeof VET_DATA[0] }) => (
+    <VetCard {...item} />
+  ), []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -227,9 +239,7 @@ export default function Dashboard() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <VetCard {...item} />
-          )}
+          renderItem={renderVetItem}
         />
 
         <View style={{ height: 100 }} />
