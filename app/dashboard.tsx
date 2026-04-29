@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Animated, Dimensions, Platform, Modal, FlatList } from 'react-native';
 import { Bell, MapPin, Heart, Clock, Scale, Dog, Star, Zap, Activity } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -30,7 +30,12 @@ const VET_DATA = [
   { id: '3', name: "Centre du Bien-être", rating: "4.8", dist: "0.8 km", img: "https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" },
 ];
 
-function WeightLineChart() {
+/**
+ * Expected Impact: Prevents expensive re-calculations of SVG paths and
+ * area gradients when the parent Dashboard re-renders but chart data
+ * remains the same.
+ */
+const WeightLineChart = React.memo(function WeightLineChart() {
   const { chartW, chartH, linePath, areaPath, peakIdx, vals, toX, toY, padL, padT, H, W } = React.useMemo(() => {
     const chartW = Math.min(SCREEN_W - 48, 600); 
     const chartH = 160;
@@ -121,7 +126,7 @@ function WeightLineChart() {
       </SvgText>
     </Svg>
   );
-}
+});
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -129,6 +134,42 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
   const [notifModalVisible, setNotifModalVisible] = React.useState(false);
+
+  /**
+   * Expected Impact: Reduces re-renders of the dashboard sub-tree by providing
+   * stable function references to memoized child components.
+   */
+  const openNotifModal = useCallback(() => {
+    setNotifModalVisible(true);
+  }, []);
+
+  const closeNotifModal = useCallback(() => {
+    setNotifModalVisible(false);
+  }, []);
+
+  const handleNavigateToSettings = useCallback(() => {
+    router.push('/settings' as any);
+  }, [router]);
+
+  const handleNavigateToPetProfile = useCallback(() => {
+    router.push('/pet-profile' as any);
+  }, [router]);
+
+  const handleNavigateToAiAssist = useCallback(() => {
+    router.push('/ai-assist' as any);
+  }, [router]);
+
+  const handleNavigateToHistory = useCallback(() => {
+    router.push('/history' as any);
+  }, [router]);
+
+  const handleNavigateToMap = useCallback(() => {
+    router.push('/map' as any);
+  }, [router]);
+
+  const renderVetCard = useCallback(({ item }: { item: typeof VET_DATA[0] }) => (
+    <VetCard {...item} />
+  ), []);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -161,12 +202,12 @@ export default function Dashboard() {
              <Text style={styles.healthStatus}>SANTÉ : OPTIMALE</Text>
            </View>
            
-           <TouchableOpacity onPress={() => setNotifModalVisible(true)} style={styles.notifBtn}>
+           <TouchableOpacity onPress={openNotifModal} style={styles.notifBtn}>
              <Bell color="white" size={24} />
              <View style={styles.badge} />
            </TouchableOpacity>
            
-           <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
+           <TouchableOpacity onPress={handleNavigateToSettings} style={styles.avatarBtn}>
              <Image source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} style={styles.avatar} />
            </TouchableOpacity>
         </View>
@@ -178,7 +219,7 @@ export default function Dashboard() {
         </View>
 
         {/* ── HERO PET CARD ── */}
-        <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={() => router.push('/pet-profile' as any)}>
+        <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={handleNavigateToPetProfile}>
            <LinearGradient colors={['rgba(168,85,247,0.25)', 'rgba(124,58,237,0.05)']} style={styles.heroGrad}>
               <View style={styles.heroContent}>
                  <View style={styles.heroText}>
@@ -202,9 +243,9 @@ export default function Dashboard() {
 
         {/* ── QUICK ACTIONS ── */}
         <View style={styles.actionsGrid}>
-           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={() => router.push('/ai-assist' as any)} />
-           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={() => router.push('/history' as any)} />
-           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={() => router.push('/map' as any)} />
+           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={handleNavigateToAiAssist} />
+           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={handleNavigateToHistory} />
+           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={handleNavigateToMap} />
         </View>
 
         {/* ── WEIGHT CHART ── */}
@@ -219,7 +260,7 @@ export default function Dashboard() {
         {/* ── VET LIST ── */}
         <View style={styles.sectionHeader}>
            <Text style={styles.sectionTitle}>Vétérinaires Proches</Text>
-           <TouchableOpacity onPress={() => router.push('/map' as any)}><Text style={styles.seeAll}>Voir Carte</Text></TouchableOpacity>
+           <TouchableOpacity onPress={handleNavigateToMap}><Text style={styles.seeAll}>Voir Carte</Text></TouchableOpacity>
         </View>
         <FlatList
           data={VET_DATA}
@@ -227,9 +268,7 @@ export default function Dashboard() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <VetCard {...item} />
-          )}
+          renderItem={renderVetCard}
         />
 
         <View style={{ height: 100 }} />
@@ -241,7 +280,7 @@ export default function Dashboard() {
            <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                  <Text style={styles.modalTitle}>Notifications</Text>
-                 <TouchableOpacity onPress={() => setNotifModalVisible(false)}>
+                 <TouchableOpacity onPress={closeNotifModal}>
                     <Text style={[styles.seeAll, { fontSize: 16 }]}>Fermer</Text>
                  </TouchableOpacity>
               </View>
