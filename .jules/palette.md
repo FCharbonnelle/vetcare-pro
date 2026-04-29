@@ -1,0 +1,3 @@
+## 2025-05-23 - Enhancing Multi-step Form UX and Accessibility
+**Learning:** In React Native, multi-step onboarding flows can be significantly improved for all users by combining keyboard-driven navigation (`returnKeyType`, `onSubmitEditing`) with semantic accessibility attributes (`accessibilityRole="progressbar"`, `accessibilityValue`). This creates a cohesive experience where the user is kept informed of their progress and can navigate fluently.
+**Action:** Always pair visual progress indicators with ARIA-equivalent roles and values, and ensure text inputs in forms facilitate step transitions via the "Return" key.
