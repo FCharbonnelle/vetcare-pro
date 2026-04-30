@@ -30,7 +30,11 @@ const VET_DATA = [
   { id: '3', name: "Centre du Bien-être", rating: "4.8", dist: "0.8 km", img: "https://images.unsplash.com/photo-1594824436998-fa58cb854736?w=300&h=300&fit=crop" },
 ];
 
-function WeightLineChart() {
+/**
+ * WeightLineChart - Memoized to prevent expensive re-calculations of SVG paths
+ * and re-renders during Dashboard state updates (like notification modal toggling).
+ */
+const WeightLineChart = React.memo(function WeightLineChart() {
   const { chartW, chartH, linePath, areaPath, peakIdx, vals, toX, toY, padL, padT, H, W } = React.useMemo(() => {
     const chartW = Math.min(SCREEN_W - 48, 600); 
     const chartH = 160;
@@ -121,7 +125,7 @@ function WeightLineChart() {
       </SvgText>
     </Svg>
   );
-}
+});
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -129,7 +133,21 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Ami';
   const router = useRouter();
   const [notifModalVisible, setNotifModalVisible] = React.useState(false);
+
+  // Stable callbacks to prevent unnecessary re-renders of memoized child components
+  const openNotifs = React.useCallback(() => setNotifModalVisible(true), []);
+  const closeNotifs = React.useCallback(() => setNotifModalVisible(false), []);
   
+  const goToSettings = React.useCallback(() => router.push('/settings' as any), [router]);
+  const goToPetProfile = React.useCallback(() => router.push('/pet-profile' as any), [router]);
+  const goToAiAssist = React.useCallback(() => router.push('/ai-assist' as any), [router]);
+  const goToHistory = React.useCallback(() => router.push('/history' as any), [router]);
+  const goToMap = React.useCallback(() => router.push('/map' as any), [router]);
+
+  const renderVetCard = React.useCallback(({ item }: { item: typeof VET_DATA[0] }) => (
+    <VetCard {...item} />
+  ), []);
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -161,12 +179,12 @@ export default function Dashboard() {
              <Text style={styles.healthStatus}>SANTÉ : OPTIMALE</Text>
            </View>
            
-           <TouchableOpacity onPress={() => setNotifModalVisible(true)} style={styles.notifBtn}>
+           <TouchableOpacity onPress={openNotifs} style={styles.notifBtn}>
              <Bell color="white" size={24} />
              <View style={styles.badge} />
            </TouchableOpacity>
            
-           <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
+           <TouchableOpacity onPress={goToSettings} style={styles.avatarBtn}>
              <Image source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} style={styles.avatar} />
            </TouchableOpacity>
         </View>
@@ -178,7 +196,7 @@ export default function Dashboard() {
         </View>
 
         {/* ── HERO PET CARD ── */}
-        <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={() => router.push('/pet-profile' as any)}>
+        <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={goToPetProfile}>
            <LinearGradient colors={['rgba(168,85,247,0.25)', 'rgba(124,58,237,0.05)']} style={styles.heroGrad}>
               <View style={styles.heroContent}>
                  <View style={styles.heroText}>
@@ -202,9 +220,9 @@ export default function Dashboard() {
 
         {/* ── QUICK ACTIONS ── */}
         <View style={styles.actionsGrid}>
-           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={() => router.push('/ai-assist' as any)} />
-           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={() => router.push('/history' as any)} />
-           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={() => router.push('/map' as any)} />
+           <QuickAction icon={Zap} label="IA Assist" color="#A855F7" onPress={goToAiAssist} />
+           <QuickAction icon={Activity} label="Santé" color="#10B981" onPress={goToHistory} />
+           <QuickAction icon={MapPin} label="Trouver" color="#3B82F6" onPress={goToMap} />
         </View>
 
         {/* ── WEIGHT CHART ── */}
@@ -219,7 +237,7 @@ export default function Dashboard() {
         {/* ── VET LIST ── */}
         <View style={styles.sectionHeader}>
            <Text style={styles.sectionTitle}>Vétérinaires Proches</Text>
-           <TouchableOpacity onPress={() => router.push('/map' as any)}><Text style={styles.seeAll}>Voir Carte</Text></TouchableOpacity>
+           <TouchableOpacity onPress={goToMap}><Text style={styles.seeAll}>Voir Carte</Text></TouchableOpacity>
         </View>
         <FlatList
           data={VET_DATA}
@@ -227,21 +245,19 @@ export default function Dashboard() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <VetCard {...item} />
-          )}
+          renderItem={renderVetCard}
         />
 
         <View style={{ height: 100 }} />
       </Animated.ScrollView>
 
       {/* NOTIFICATIONS MODAL */}
-      <Modal visible={notifModalVisible} transparent animationType="fade">
+      <Modal visible={notifModalVisible} transparent animationType="fade" onRequestClose={closeNotifs}>
         <View style={styles.modalOverlay}>
            <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                  <Text style={styles.modalTitle}>Notifications</Text>
-                 <TouchableOpacity onPress={() => setNotifModalVisible(false)}>
+                 <TouchableOpacity onPress={closeNotifs}>
                     <Text style={[styles.seeAll, { fontSize: 16 }]}>Fermer</Text>
                  </TouchableOpacity>
               </View>

@@ -8,7 +8,11 @@ interface StatPillProps {
   value: string;
 }
 
-export const StatPill: React.FC<StatPillProps> = ({ icon: Icon, label, value }) => {
+/**
+ * StatPill component - Memoized to prevent unnecessary re-renders
+ * when parent (Dashboard) updates due to context changes.
+ */
+export const StatPill = React.memo(({ icon: Icon, label, value }: StatPillProps) => {
   return (
     <View style={styles.statPill}>
       <View style={styles.statIcon}><Icon color="#A855F7" size={14} /></View>
@@ -18,7 +22,7 @@ export const StatPill: React.FC<StatPillProps> = ({ icon: Icon, label, value }) 
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   statPill: { 
