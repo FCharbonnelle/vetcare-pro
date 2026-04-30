@@ -11,7 +11,10 @@ interface VetCardProps {
   img: string;
 }
 
-export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => {
+/**
+ * VetCard component - Memoized to prevent unnecessary re-renders in horizontal lists.
+ */
+export const VetCard = React.memo(({ name, rating, dist, img }: VetCardProps) => {
   const router = useRouter();
   return (
     <TouchableOpacity style={styles.vetCardWrap} onPress={() => router.push('/map' as any)}>
@@ -30,7 +33,7 @@ export const VetCard: React.FC<VetCardProps> = ({ name, rating, dist, img }) => 
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   vetCardWrap: { 
