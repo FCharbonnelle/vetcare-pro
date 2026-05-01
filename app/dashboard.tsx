@@ -161,12 +161,22 @@ export default function Dashboard() {
              <Text style={styles.healthStatus}>SANTÉ : OPTIMALE</Text>
            </View>
            
-           <TouchableOpacity onPress={() => setNotifModalVisible(true)} style={styles.notifBtn}>
+           <TouchableOpacity
+             onPress={() => setNotifModalVisible(true)}
+             style={styles.notifBtn}
+             accessibilityRole="button"
+             accessibilityLabel="Notifications"
+           >
              <Bell color="white" size={24} />
              <View style={styles.badge} />
            </TouchableOpacity>
            
-           <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.avatarBtn}>
+           <TouchableOpacity
+             onPress={() => router.push('/settings' as any)}
+             style={styles.avatarBtn}
+             accessibilityRole="button"
+             accessibilityLabel="Paramètres"
+           >
              <Image source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} style={styles.avatar} />
            </TouchableOpacity>
         </View>
@@ -178,7 +188,13 @@ export default function Dashboard() {
         </View>
 
         {/* ── HERO PET CARD ── */}
-        <TouchableOpacity style={styles.heroCard} activeOpacity={0.9} onPress={() => router.push('/pet-profile' as any)}>
+        <TouchableOpacity
+          style={styles.heroCard}
+          activeOpacity={0.9}
+          onPress={() => router.push('/pet-profile' as any)}
+          accessibilityRole="button"
+          accessibilityLabel={`Profil de ${currentPet.name}`}
+        >
            <LinearGradient colors={['rgba(168,85,247,0.25)', 'rgba(124,58,237,0.05)']} style={styles.heroGrad}>
               <View style={styles.heroContent}>
                  <View style={styles.heroText}>
@@ -210,7 +226,10 @@ export default function Dashboard() {
         {/* ── WEIGHT CHART ── */}
         <View style={styles.sectionHeader}>
            <Text style={styles.sectionTitle}>Courbe de Poids</Text>
-           <TouchableOpacity><Text style={styles.seeAll}>Détails</Text></TouchableOpacity>
+           <TouchableOpacity
+             accessibilityRole="button"
+             accessibilityLabel="Détails de la courbe de poids"
+           ><Text style={styles.seeAll}>Détails</Text></TouchableOpacity>
         </View>
         <View style={styles.chartCard}>
            <WeightLineChart />
@@ -219,7 +238,11 @@ export default function Dashboard() {
         {/* ── VET LIST ── */}
         <View style={styles.sectionHeader}>
            <Text style={styles.sectionTitle}>Vétérinaires Proches</Text>
-           <TouchableOpacity onPress={() => router.push('/map' as any)}><Text style={styles.seeAll}>Voir Carte</Text></TouchableOpacity>
+           <TouchableOpacity
+             onPress={() => router.push('/map' as any)}
+             accessibilityRole="button"
+             accessibilityLabel="Voir la carte des vétérinaires"
+           ><Text style={styles.seeAll}>Voir Carte</Text></TouchableOpacity>
         </View>
         <FlatList
           data={VET_DATA}
@@ -241,7 +264,11 @@ export default function Dashboard() {
            <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                  <Text style={styles.modalTitle}>Notifications</Text>
-                 <TouchableOpacity onPress={() => setNotifModalVisible(false)}>
+                 <TouchableOpacity
+                   onPress={() => setNotifModalVisible(false)}
+                   accessibilityRole="button"
+                   accessibilityLabel="Fermer les notifications"
+                 >
                     <Text style={[styles.seeAll, { fontSize: 16 }]}>Fermer</Text>
                  </TouchableOpacity>
               </View>
