@@ -9,7 +9,10 @@ interface NotifItemProps {
   color: string;
 }
 
-export const NotifItem: React.FC<NotifItemProps> = ({ icon: Icon, title, time, color }) => {
+/**
+ * Memoized NotifItem component to optimize list rendering inside the notification modal.
+ */
+export const NotifItem: React.FC<NotifItemProps> = React.memo(({ icon: Icon, title, time, color }) => {
   return (
     <View style={styles.notifItem}>
       <View style={[styles.notifIcon, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
@@ -21,7 +24,7 @@ export const NotifItem: React.FC<NotifItemProps> = ({ icon: Icon, title, time, c
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   notifItem: { 
