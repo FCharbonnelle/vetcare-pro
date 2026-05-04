@@ -24,6 +24,9 @@ export default function Onboarding() {
   }, [step]);
 
   const handleNext = async () => {
+    if ((step === 1 && !name) || (step === 2 && !type) || (step === 3 && !age)) {
+      return;
+    }
     if (step < 3) {
       setStep(step + 1);
     } else {
@@ -36,6 +39,9 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isSelected }}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -53,7 +59,11 @@ export default function Onboarding() {
       
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
+        <View
+          style={styles.progressBar}
+          accessible={true}
+          accessibilityLabel={`Étape ${step} sur 3`}
+        >
            {[1, 2, 3].map(s => (
               <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
            ))}
@@ -76,6 +86,8 @@ export default function Onboarding() {
                  value={name}
                  onChangeText={setName}
                  autoFocus
+                 returnKeyType="next"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
@@ -105,6 +117,8 @@ export default function Onboarding() {
                  value={age}
                  onChangeText={setAge}
                  autoFocus
+                 returnKeyType="done"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
