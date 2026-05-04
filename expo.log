@@ -1,0 +1,40 @@
+
+> scratch@1.0.0 web /app
+> expo start --web
+
+Starting project at /app
+Starting Metro Bundler
+
+The following packages should be updated for best compatibility with the installed expo version:
+  @react-native-async-storage/async-storage@3.0.2 - expected version: 2.2.0
+  react-native@0.83.2 - expected version: 0.83.6
+  react-native-reanimated@4.3.0 - expected version: 4.2.1
+  react-native-svg@15.15.4 - expected version: 15.15.3
+  react-native-worklets@0.7.2 - expected version: 0.7.4
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓░░░░░░░░░░ 39.5% (154/245)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓░░░░░░░░░░░░░░ 18.7% (27/76)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.2% (269/401)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓▓░░░░░░░░░░░░░ 23.5% (161/365)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54.4% (376/520)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓▓▓░░░░░░░░░░░░ 27.0% ( 226/2125)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54.4% (409/571)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓▓▓░░░░░░░░░░░░ 27.0% (1082/2292)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 56.1% (441/589)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 85.6% (2130/2302)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.5% ( 667/2441)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.1% (2347/2500)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.5% (1831/2470)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.3% (2375/2533)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.9% (2497/2547)
+λ node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.9% (2557/2598)
+Web Bundled 30617ms node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js (2657 modules)
+λ Bundled 31067ms node_modules/.pnpm/@expo+router-server@55.0.15_@expo+metro-runtime@55.0.10_expo-constants@55.0.15_expo-fon_749c462d6c2ed6509288f1b0a05c6957/node_modules/@expo/router-server/node/render.js (2664 modules)
+"shadow*" style props are deprecated. Use "boxShadow".
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.7% (385/546)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.2% (1050/2407)
+Web node_modules/.pnpm/expo-router@55.0.13_@expo+log-box@55.0.11_@expo+metro-runtime@55.0.10_@types+react@19.2_5099d1335c8b6834258bb8f1f2a462f8/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77.5% (2124/2412)
