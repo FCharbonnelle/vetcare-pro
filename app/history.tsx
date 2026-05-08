@@ -1,9 +1,35 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Modal, TextInput } from 'react-native';
 import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X, Clock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, memo, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+/**
+ * Individual history record item.
+ * Memoized to prevent unnecessary re-renders when parent state changes.
+ * Expected Impact: Reduces re-renders of the list items when typing in the modal or toggling UI states.
+ */
+const HistoryItem = memo(({ icon: Icon, title, date, type, color = "#A855F7" }: any) => {
+  return (
+    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
+      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
+        <Icon color={color} size={20} />
+      </View>
+      <View style={{ flex: 1, marginLeft: 16 }}>
+        <Text style={styles.itemTitle}>{title}</Text>
+        <Text style={styles.itemType}>{type}</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Text style={styles.itemDate}>{date}</Text>
+        <View style={styles.statusBadge}>
+           <View style={styles.statusDot} />
+           <Text style={styles.itemStatus}>Terminé</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+});
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -36,30 +62,30 @@ export default function HistoryScreen() {
     formatDateTime(tempDate);
   }, []);
 
-  const formatDateTime = (date: Date) => {
+  const formatDateTime = useCallback((date: Date) => {
     const d = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
     const t = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     setNewDate(d);
     setNewTime(t);
-  };
+  }, []);
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = useCallback((event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setTempDate(selectedDate);
       formatDateTime(selectedDate);
     }
-  };
+  }, [formatDateTime]);
 
-  const handleTimeChange = (event: any, selectedTime?: Date) => {
+  const handleTimeChange = useCallback((event: any, selectedTime?: Date) => {
     setShowTimePicker(false);
     if (selectedTime) {
       setTempDate(selectedTime);
       formatDateTime(selectedTime);
     }
-  };
+  }, [formatDateTime]);
 
-  const handleAddRecord = () => {
+  const handleAddRecord = useCallback(() => {
     if (!newTitle) return;
     const newRecord = {
       id: Date.now().toString(),
@@ -69,30 +95,12 @@ export default function HistoryScreen() {
       type: newType || "Général",
       color: "#A855F7"
     };
-    setRecords([newRecord, ...records]);
+    setRecords(prev => [newRecord, ...prev]);
     setNewTitle('');
     setNewType('');
     setModalVisible(false);
-  };
+  }, [newTitle, newDate, newTime, newType]);
 
-  const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
-    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
-      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
-        <Icon color={color} size={20} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.itemTitle}>{title}</Text>
-        <Text style={styles.itemType}>{type}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={styles.itemDate}>{date}</Text>
-        <View style={styles.statusBadge}>
-           <View style={styles.statusDot} />
-           <Text style={styles.itemStatus}>Terminé</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
