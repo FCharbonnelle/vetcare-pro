@@ -1,9 +1,31 @@
+import React, { useRef, useEffect, useState, useCallback, memo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Modal, TextInput } from 'react-native';
 import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X, Clock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+// Move HistoryItem outside to prevent re-creation on every render of HistoryScreen
+const HistoryItem = memo(({ icon: Icon, title, date, type, color = "#A855F7" }: any) => {
+  return (
+    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
+      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
+        <Icon color={color} size={20} />
+      </View>
+      <View style={{ flex: 1, marginLeft: 16 }}>
+        <Text style={styles.itemTitle}>{title}</Text>
+        <Text style={styles.itemType}>{type}</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Text style={styles.itemDate}>{date}</Text>
+        <View style={styles.statusBadge}>
+           <View style={styles.statusDot} />
+           <Text style={styles.itemStatus}>Terminé</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+});
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -36,12 +58,12 @@ export default function HistoryScreen() {
     formatDateTime(tempDate);
   }, []);
 
-  const formatDateTime = (date: Date) => {
+  const formatDateTime = useCallback((date: Date) => {
     const d = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
     const t = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     setNewDate(d);
     setNewTime(t);
-  };
+  }, []);
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
@@ -59,7 +81,7 @@ export default function HistoryScreen() {
     }
   };
 
-  const handleAddRecord = () => {
+  const handleAddRecord = useCallback(() => {
     if (!newTitle) return;
     const newRecord = {
       id: Date.now().toString(),
@@ -69,30 +91,14 @@ export default function HistoryScreen() {
       type: newType || "Général",
       color: "#A855F7"
     };
-    setRecords([newRecord, ...records]);
+    setRecords(prev => [newRecord, ...prev]);
     setNewTitle('');
     setNewType('');
     setModalVisible(false);
-  };
+  }, [newTitle, newDate, newTime, newType]);
 
-  const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
-    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
-      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
-        <Icon color={color} size={20} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.itemTitle}>{title}</Text>
-        <Text style={styles.itemType}>{type}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={styles.itemDate}>{date}</Text>
-        <View style={styles.statusBadge}>
-           <View style={styles.statusDot} />
-           <Text style={styles.itemStatus}>Terminé</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  const openModal = useCallback(() => setModalVisible(true), []);
+  const closeModal = useCallback(() => setModalVisible(false), []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -136,7 +142,7 @@ export default function HistoryScreen() {
 
          <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Activités récentes</Text>
-            <TouchableOpacity style={styles.addBtnContainer} onPress={() => setModalVisible(true)}>
+            <TouchableOpacity style={styles.addBtnContainer} onPress={openModal}>
                <Plus color="#A855F7" size={20} />
                <Text style={styles.addBtnText}>Nouveau</Text>
             </TouchableOpacity>
@@ -151,7 +157,7 @@ export default function HistoryScreen() {
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
 
-      <TouchableOpacity style={styles.fab} activeOpacity={0.9} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity style={styles.fab} activeOpacity={0.9} onPress={openModal}>
         <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.fabGradient}>
           <Plus color="white" size={28} />
         </LinearGradient>
@@ -163,7 +169,7 @@ export default function HistoryScreen() {
             <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 44 }]} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Nouvel Historique</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}><X color="white" size={24} /></TouchableOpacity>
+              <TouchableOpacity onPress={closeModal} style={styles.closeBtn}><X color="white" size={24} /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={styles.modalLabel}>TITRE DE LA VISITE</Text>
