@@ -1,0 +1,3 @@
+## 2025-05-15 - [Anti-pattern] Defining components inside render functions
+**Learning:** Defining a functional component (e.g., `HistoryItem`) inside the body of another component (e.g., `HistoryScreen`) causes the inner component to be re-created on every parent render. This forces a complete unmount and remount cycle (or unnecessary re-renders), which is extremely expensive for lists.
+**Action:** Always extract sub-components to module scope and wrap them in `React.memo` if they are pure presentational components, ensuring stable references and preventing redundant renders when parent state (like modal visibility or input text) changes.
