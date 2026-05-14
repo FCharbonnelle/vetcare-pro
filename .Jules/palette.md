@@ -1,0 +1,3 @@
+## 2025-05-14 - Onboarding Accessibility and Keyboard Flow
+**Learning:** Localized accessibility labels for multi-step onboarding (e.g., 'Étape 1 sur 3') significantly improve screen reader navigation by providing immediate context on progress. Additionally, mapping 'Enter' (via `onSubmitEditing` and `returnKeyType`) to the 'Next' action creates a much more fluid experience for keyboard and power users.
+**Action:** Always include `accessibilityRole="progressbar"` and localized progress labels in multi-step forms. Ensure `TextInput` components have appropriate `returnKeyType` and are linked to navigation actions.
