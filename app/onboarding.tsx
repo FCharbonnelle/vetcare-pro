@@ -16,12 +16,13 @@ export default function Onboarding() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 1000,
+      duration: 800,
       useNativeDriver: true,
     }).start();
-  }, [step]);
+  }, [step, fadeAnim]);
 
   const handleNext = async () => {
     if (step < 3) {
@@ -36,6 +37,9 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isSelected }}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -53,7 +57,13 @@ export default function Onboarding() {
       
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
+        <View
+          style={styles.progressBar}
+          accessible={true}
+          accessibilityRole="progressbar"
+          accessibilityLabel={`Étape ${step} sur 3`}
+          accessibilityValue={{ min: 1, max: 3, now: step }}
+        >
            {[1, 2, 3].map(s => (
               <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
            ))}
@@ -76,6 +86,10 @@ export default function Onboarding() {
                  value={name}
                  onChangeText={setName}
                  autoFocus
+                 returnKeyType="next"
+                 onSubmitEditing={handleNext}
+                 autoCapitalize="words"
+                 blurOnSubmit={false}
                />
             </View>
           </View>
@@ -105,6 +119,8 @@ export default function Onboarding() {
                  value={age}
                  onChangeText={setAge}
                  autoFocus
+                 returnKeyType="done"
+                 onSubmitEditing={handleNext}
                />
             </View>
           </View>
@@ -115,6 +131,8 @@ export default function Onboarding() {
              style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]} 
              onPress={handleNext}
              disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
+             accessibilityRole="button"
+             accessibilityLabel={step === 3 ? "C'est parti !" : "Suivant"}
            >
               <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
               <ChevronRight color="black" size={24} />
