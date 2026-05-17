@@ -1,0 +1,3 @@
+## 2025-05-15 - [Improving Screen Reader Context in Dashboards]
+**Learning:** In highly visual dashboards using icon-only buttons or complex card components (like `VetCard` or the Pet Hero card), the default screen reader experience is often just a generic "Button" or a reading of all child text without hierarchy. Explicitly defining `accessibilityRole="button"` and context-rich, localized `accessibilityLabel`s (e.g., "Voir les détails de {name}") transforms an opaque interface into a navigable one.
+**Action:** Always audit icon-only buttons and interactive cards for missing labels; prioritize dynamic labels that include the specific object's name to provide unique context for each element.
