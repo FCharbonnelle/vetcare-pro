@@ -1,6 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
 import { ChevronRight, Heart, Sparkles, Dog, Cat, Plus } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,18 +31,6 @@ export default function Onboarding() {
       router.push('/dashboard' as any);
     }
   };
-
-  const TypeCard = ({ icon: Icon, label, isSelected, onPress }: any) => (
-    <TouchableOpacity 
-      onPress={onPress}
-      style={[styles.typeCard, isSelected && styles.typeCardSelected]}
-    >
-      <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
-        <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
-      </View>
-      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -125,6 +113,26 @@ export default function Onboarding() {
     </SafeAreaView>
   );
 }
+
+interface TypeCardProps {
+  icon: any;
+  label: string;
+  isSelected: boolean;
+  onPress: () => void;
+}
+
+// Optimization: Extracted to module scope and memoized to prevent re-renders when other state changes
+const TypeCard = React.memo(({ icon: Icon, label, isSelected, onPress }: TypeCardProps) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+  >
+    <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
+      <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
+    </View>
+    <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
+  </TouchableOpacity>
+));
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
