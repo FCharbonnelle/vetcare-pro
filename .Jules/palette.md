@@ -1,0 +1,3 @@
+## 2026-05-18 - [Onboarding Accessibility & Keyboard Flow]
+**Learning:** Screen readers and keyboard users often struggle with multi-step onboarding flows that lack metadata (roles, values) or require constant manual focus shifting. In Expo Web/React Native, explicitly defining `accessibilityRole="progressbar"` and `accessibilityValue` provides immediate context to assistive tech, while `onSubmitEditing` and `returnKeyType` reduce cognitive load for mobile/web keyboard users.
+**Action:** Always include progress bar metadata and keyboard navigation helpers (`onSubmitEditing`, `returnKeyType`) in multi-step forms to ensure a seamless "Success Path" for all users.
