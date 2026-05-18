@@ -16,6 +16,7 @@ export default function Onboarding() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,
@@ -24,6 +25,11 @@ export default function Onboarding() {
   }, [step]);
 
   const handleNext = async () => {
+    // Validation
+    if (step === 1 && !name.trim()) return;
+    if (step === 2 && !type) return;
+    if (step === 3 && !age.trim()) return;
+
     if (step < 3) {
       setStep(step + 1);
     } else {
@@ -36,6 +42,8 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -53,7 +61,13 @@ export default function Onboarding() {
       
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
+        <View
+          style={styles.progressBar}
+          accessible={true}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 1, max: 3, now: step }}
+          accessibilityLabel={`Étape ${step} sur 3`}
+        >
            {[1, 2, 3].map(s => (
               <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
            ))}
@@ -76,6 +90,9 @@ export default function Onboarding() {
                  value={name}
                  onChangeText={setName}
                  autoFocus
+                 onSubmitEditing={handleNext}
+                 blurOnSubmit={false}
+                 returnKeyType="next"
                />
             </View>
           </View>
@@ -105,6 +122,9 @@ export default function Onboarding() {
                  value={age}
                  onChangeText={setAge}
                  autoFocus
+                 onSubmitEditing={handleNext}
+                 blurOnSubmit={false}
+                 returnKeyType="done"
                />
             </View>
           </View>
@@ -112,9 +132,11 @@ export default function Onboarding() {
 
         <View style={styles.footer}>
            <TouchableOpacity 
-             style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]} 
+             style={[styles.nextBtn, (!name.trim() && step === 1 || !type && step === 2 || !age.trim() && step === 3) && styles.nextBtnDisabled]}
              onPress={handleNext}
-             disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
+             disabled={!name.trim() && step === 1 || !type && step === 2 || !age.trim() && step === 3}
+             accessibilityRole="button"
+             accessibilityLabel={step === 3 ? "C'est parti !" : "Suivant"}
            >
               <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
               <ChevronRight color="black" size={24} />
