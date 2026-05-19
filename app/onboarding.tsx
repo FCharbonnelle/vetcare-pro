@@ -1,9 +1,23 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import { usePet } from '@/store/PetContext';
 import { ChevronRight, Heart, Sparkles, Dog, Cat, Plus } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const TypeCard = memo(({ icon: Icon, label, isSelected, onPress }: any) => {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+    >
+      <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
+        <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
+      </View>
+      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
+    </TouchableOpacity>
+  );
+});
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -32,17 +46,9 @@ export default function Onboarding() {
     }
   };
 
-  const TypeCard = ({ icon: Icon, label, isSelected, onPress }: any) => (
-    <TouchableOpacity 
-      onPress={onPress}
-      style={[styles.typeCard, isSelected && styles.typeCardSelected]}
-    >
-      <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
-        <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
-      </View>
-      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
-    </TouchableOpacity>
-  );
+  const selectChien = useCallback(() => setType('Chien'), []);
+  const selectChat = useCallback(() => setType('Chat'), []);
+  const selectAutre = useCallback(() => setType('Autre'), []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -86,9 +92,9 @@ export default function Onboarding() {
             <Text style={styles.title}>Quel type d'animal{'\n'}avez-vous ?</Text>
             <Text style={styles.subtitle}>Choisissez la catégorie qui lui correspond le mieux.</Text>
             <View style={styles.typeGrid}>
-              <TypeCard icon={Dog} label="Chien" isSelected={type === 'Chien'} onPress={() => setType('Chien')} />
-              <TypeCard icon={Cat} label="Chat" isSelected={type === 'Chat'} onPress={() => setType('Chat')} />
-              <TypeCard icon={Plus} label="Autre" isSelected={type === 'Autre'} onPress={() => setType('Autre')} />
+              <TypeCard icon={Dog} label="Chien" isSelected={type === 'Chien'} onPress={selectChien} />
+              <TypeCard icon={Cat} label="Chat" isSelected={type === 'Chat'} onPress={selectChat} />
+              <TypeCard icon={Plus} label="Autre" isSelected={type === 'Autre'} onPress={selectAutre} />
             </View>
           </View>
         )}
