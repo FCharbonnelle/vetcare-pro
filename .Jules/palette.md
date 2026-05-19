@@ -1,0 +1,3 @@
+## 2025-05-15 - [Onboarding UX and Accessibility Polish]
+**Learning:** Keyboard navigation in multi-step React Native forms is often overlooked. Using `returnKeyType` and `onSubmitEditing` significantly reduces friction for mobile users. Additionally, custom progress indicators need explicit accessibility roles and values to be perceivable by screen reader users.
+**Action:** When implementing multi-step flows, ensure `TextInput`s have appropriate return key types and that custom UI components (like progress bars or selection cards) use `accessibilityRole`, `accessibilityValue`, and `accessibilityState` to communicate their status.
