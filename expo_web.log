@@ -1,0 +1,25 @@
+
+> scratch@1.0.0 web /app
+> expo start --web
+
+Starting project at /app
+Starting Metro Bundler
+
+The following packages should be updated for best compatibility with the installed expo version:
+  @react-native-async-storage/async-storage@3.1.0 - expected version: 2.2.0
+  react-native@0.83.2 - expected version: 0.83.6
+  react-native-reanimated@4.3.1 - expected version: 4.2.1
+  react-native-svg@15.15.5 - expected version: 15.15.3
+  react-native-worklets@0.7.2 - expected version: 0.7.4
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules/.pnpm/expo-router@55.0.16_@expo+log-box@55.0.12_@expo+metro-runtime@55.0.11_@types+react@19.2_99519ec6ca79fd59d90c018cd6e225f0/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules/.pnpm/expo-router@55.0.16_@expo+log-box@55.0.12_@expo+metro-runtime@55.0.11_@types+react@19.2_99519ec6ca79fd59d90c018cd6e225f0/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 85.7% ( 761/2540)
+λ node_modules/.pnpm/@expo+router-server@55.0.18_@expo+metro-runtime@55.0.11_expo-constants@55.0.16_expo-fon_bd18e3913b085deef8d59da4a12a4a09/node_modules/@expo/router-server/node/render.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 58.9% (1832/2557)
+Web Bundled 4305ms node_modules/.pnpm/expo-router@55.0.16_@expo+log-box@55.0.12_@expo+metro-runtime@55.0.11_@types+react@19.2_99519ec6ca79fd59d90c018cd6e225f0/node_modules/expo-router/entry.js (2592 modules)
+λ Bundled 4537ms node_modules/.pnpm/@expo+router-server@55.0.18_@expo+metro-runtime@55.0.11_expo-constants@55.0.16_expo-fon_bd18e3913b085deef8d59da4a12a4a09/node_modules/@expo/router-server/node/render.js (2664 modules)
+"shadow*" style props are deprecated. Use "boxShadow".
+Web node_modules/.pnpm/expo-router@55.0.16_@expo+log-box@55.0.12_@expo+metro-runtime@55.0.11_@types+react@19.2_99519ec6ca79fd59d90c018cd6e225f0/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 2348ms node_modules/.pnpm/expo-router@55.0.16_@expo+log-box@55.0.12_@expo+metro-runtime@55.0.11_@types+react@19.2_99519ec6ca79fd59d90c018cd6e225f0/node_modules/expo-router/entry.js (2659 modules)
+ LOG  [web] Logs will appear in the browser console
