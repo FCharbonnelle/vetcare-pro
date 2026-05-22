@@ -1,0 +1,3 @@
+## 2025-05-22 - Sub-component Extraction and Reference Stability
+**Learning:** Defining component functions inside the render body of a parent functional component (like `HistoryItem` in `app/history.tsx`) causes a complete unmount/remount cycle on every parent update because the component type is technically new on every render. Furthermore, simply wrapping an extracted component in `React.memo` is insufficient if it receives inline anonymous functions as props (like `onPress={() => setType('...')}`), as these trigger re-renders by breaking prop equality checks.
+**Action:** Extract all sub-components to module scope, wrap them in `React.memo`, and use `React.useCallback` for any function props passed from the parent to maintain referential stability.
