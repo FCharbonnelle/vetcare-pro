@@ -1,0 +1,3 @@
+## 2025-05-15 - [HistoryItem Re-render Optimization]
+**Learning:** Defining child components (like `HistoryItem`) inside the render body of a parent functional component causes them to be re-created on every render, bypassing any memoization and forcing a full unmount/remount cycle. This is particularly expensive when the parent state (like `newTitle` or `newType` in a modal) changes frequently (e.g., on every keystroke).
+**Action:** Always extract sub-components to module scope and wrap them in `React.memo` to ensure they only re-render when their own props change. Ensure proper typing (avoiding `any`) to pass strict code reviews.
