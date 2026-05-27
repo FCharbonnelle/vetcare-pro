@@ -1,11 +1,42 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Modal, TextInput } from 'react-native';
-import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X, Clock } from 'lucide-react-native';
+import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X, Clock, LucideIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+interface HistoryItemProps {
+  icon: LucideIcon;
+  title: string;
+  date: string;
+  type: string;
+  color?: string;
+}
+
+const HistoryItem = React.memo(({ icon: Icon, title, date, type, color = "#A855F7" }: HistoryItemProps) => {
+  // console.log('RENDER HistoryItem', title);
+  return (
+    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
+      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
+        <Icon color={color} size={20} />
+      </View>
+      <View style={{ flex: 1, marginLeft: 16 }}>
+        <Text style={styles.itemTitle}>{title}</Text>
+        <Text style={styles.itemType}>{type}</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Text style={styles.itemDate}>{date}</Text>
+        <View style={styles.statusBadge}>
+           <View style={styles.statusDot} />
+           <Text style={styles.itemStatus}>Terminé</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+});
+
 export default function HistoryScreen() {
+  // console.log('RENDER HistoryScreen');
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -74,25 +105,6 @@ export default function HistoryScreen() {
     setNewType('');
     setModalVisible(false);
   };
-
-  const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
-    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
-      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
-        <Icon color={color} size={20} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.itemTitle}>{title}</Text>
-        <Text style={styles.itemType}>{type}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={styles.itemDate}>{date}</Text>
-        <View style={styles.statusBadge}>
-           <View style={styles.statusDot} />
-           <Text style={styles.itemStatus}>Terminé</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
