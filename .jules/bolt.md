@@ -1,0 +1,3 @@
+## 2025-05-29 - Inline Component Definitions Anti-pattern
+**Learning:** Found multiple instances (app/history.tsx, app/onboarding.tsx) where sub-components like HistoryItem or TypeCard are defined inside the render body of the parent screen. This causes React to recreate the component type on every render, triggering a full unmount/remount cycle of the child subtree instead of a simple diff, which is particularly expensive during text input or animations.
+**Action:** Always check for inline component definitions in large screens and extract them to module scope with React.memo to ensure stable component references and enable props-based memoization.
