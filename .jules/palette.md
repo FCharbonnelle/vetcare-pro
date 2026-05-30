@@ -1,0 +1,3 @@
+## 2025-05-30 - Focus Chaining and Visual Feedback in Modals
+**Learning:** In React Native forms, especially within modals, providing `returnKeyType` and `onSubmitEditing` significantly improves the mobile UX by reducing keyboard dismissals and manual field selection. Additionally, combining the `disabled` prop with a conditional `opacity` style on the container (like a `LinearGradient`) provides a clear, immediate visual cue to the user about the form's validity.
+**Action:** Always implement focus chaining using `useRef` for multi-field forms and ensure that action buttons reflect the component's state both logically (disabled prop) and visually (opacity).
