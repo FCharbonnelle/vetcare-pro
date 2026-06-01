@@ -75,14 +75,15 @@ export default function AppointmentsScreen() {
     }
   };
 
-  const apptDays = new Set(
+  // Memoize calendar markers to avoid O(N) recalculation on every render
+  const apptDays = useMemo(() => new Set(
     appointments
       .filter(a => {
         const d = new Date(a.date);
         return d.getFullYear() === year && d.getMonth() === month;
       })
       .map(a => new Date(a.date).getDate())
-  );
+  ), [appointments, year, month]);
 
   const selectedAppts = useMemo(() => {
     const todayStart = new Date();
