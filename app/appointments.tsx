@@ -151,7 +151,12 @@ export default function AppointmentsScreen() {
             <Text style={styles.headerSub}>PLANIFICATION</Text>
             <Text style={styles.headerTitle}>Agenda 📅</Text>
           </View>
-          <TouchableOpacity style={styles.addHeaderBtn} onPress={() => setModalVisible(true)}>
+          <TouchableOpacity
+            style={styles.addHeaderBtn}
+            onPress={() => setModalVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Ajouter un rappel"
+          >
             <Plus color="white" size={24} />
           </TouchableOpacity>
         </View>
@@ -159,9 +164,9 @@ export default function AppointmentsScreen() {
         <View style={styles.calendarCard}>
           <LinearGradient colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']} style={styles.calendarInner}>
             <View style={styles.calNav}>
-              <TouchableOpacity onPress={prevMonth} style={styles.navArrow}><Text style={styles.navArrowText}>‹</Text></TouchableOpacity>
+              <TouchableOpacity onPress={prevMonth} style={styles.navArrow} accessibilityLabel="Mois précédent"><Text style={styles.navArrowText}>‹</Text></TouchableOpacity>
               <Text style={styles.calMonth}>{MONTHS[month]} {year}</Text>
-              <TouchableOpacity onPress={nextMonth} style={styles.navArrow}><Text style={styles.navArrowText}>›</Text></TouchableOpacity>
+              <TouchableOpacity onPress={nextMonth} style={styles.navArrow} accessibilityLabel="Mois suivant"><Text style={styles.navArrowText}>›</Text></TouchableOpacity>
             </View>
 
             <View style={styles.daysHeader}>
@@ -181,6 +186,9 @@ export default function AppointmentsScreen() {
                     activeOpacity={0.7}
                     style={[styles.dayCell, isSelected && styles.dayCellSelected, isToday && !isSelected && styles.dayCellToday]}
                     onPress={() => setSelectedDay(dCell === selectedDay ? null : dCell)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isSelected }}
+                    accessibilityLabel={`${dCell} ${MONTHS[month]} ${year}${isSelected ? ', sélectionné' : ''}${hasAppt ? ', un rendez-vous prévu' : ''}`}
                   >
                     <Text style={[styles.dayNumber, isSelected && styles.dayNumberSelected, isToday && !isSelected && styles.dayNumberToday]}>
                       {dCell}
@@ -208,7 +216,12 @@ export default function AppointmentsScreen() {
                <CalendarDays color="rgba(168,85,247,0.4)" size={40} />
             </View>
             <Text style={styles.emptyText}>Aucun événement{selectedDay ? ' ce jour' : ''}</Text>
-            <TouchableOpacity style={styles.emptyBtn} onPress={() => setModalVisible(true)}>
+            <TouchableOpacity
+              style={styles.emptyBtn}
+              onPress={() => setModalVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Ajouter un rappel"
+            >
               <Text style={styles.emptyBtnText}>+ Ajouter</Text>
             </TouchableOpacity>
           </View>
@@ -219,7 +232,13 @@ export default function AppointmentsScreen() {
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
 
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.9}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setModalVisible(true)}
+        activeOpacity={0.9}
+        accessibilityRole="button"
+        accessibilityLabel="Ajouter un rappel"
+      >
         <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.fabGradient}>
           <Plus color="white" size={28} />
         </LinearGradient>
@@ -241,7 +260,12 @@ export default function AppointmentsScreen() {
               <View style={styles.modalRow}>
                  <View style={{flex: 1.5, marginRight: 12 }}>
                     <Text style={styles.modalLabel}>DATE</Text>
-                    <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowDatePicker(true)}>
+                    <TouchableOpacity
+                      style={styles.pickerTrigger}
+                      onPress={() => setShowDatePicker(true)}
+                      accessibilityLabel="Changer la date"
+                      accessibilityRole="button"
+                    >
                        <View style={styles.pickerInner}>
                           <CalendarIcon color="#A855F7" size={16} />
                           <Text style={styles.pickerValue}>{newDateStr}</Text>
@@ -250,7 +274,12 @@ export default function AppointmentsScreen() {
                  </View>
                  <View style={{flex: 1}}>
                     <Text style={styles.modalLabel}>HEURE</Text>
-                    <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowTimePicker(true)}>
+                    <TouchableOpacity
+                      style={styles.pickerTrigger}
+                      onPress={() => setShowTimePicker(true)}
+                      accessibilityLabel="Changer l'heure"
+                      accessibilityRole="button"
+                    >
                        <View style={styles.pickerInner}>
                           <Clock color="#A855F7" size={16} />
                           <Text style={styles.pickerValue}>{newTime}</Text>
