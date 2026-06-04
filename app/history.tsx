@@ -1,9 +1,42 @@
+import React, { useRef, useEffect, useState, memo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Modal, TextInput } from 'react-native';
-import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X, Clock } from 'lucide-react-native';
+import { Calendar, Stethoscope, Scissors, Syringe, Plus, ChevronLeft, Heart, Sparkles, Activity, Filter, X, Clock, LucideIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+interface HistoryItemProps {
+  icon: LucideIcon;
+  title: string;
+  date: string;
+  type: string;
+  color?: string;
+}
+
+/**
+ * Extracted HistoryItem to module scope and wrapped in memo to prevent
+ * unnecessary re-renders when the parent state (like newTitle) updates.
+ * This also avoids full unmount/remount cycles that occur when a component
+ * is defined inside a render function.
+ */
+const HistoryItem = memo(({ icon: Icon, title, date, type, color = "#A855F7" }: HistoryItemProps) => (
+  <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
+    <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
+      <Icon color={color} size={20} />
+    </View>
+    <View style={{ flex: 1, marginLeft: 16 }}>
+      <Text style={styles.itemTitle}>{title}</Text>
+      <Text style={styles.itemType}>{type}</Text>
+    </View>
+    <View style={{ alignItems: 'flex-end' }}>
+      <Text style={styles.itemDate}>{date}</Text>
+      <View style={styles.statusBadge}>
+         <View style={styles.statusDot} />
+         <Text style={styles.itemStatus}>Terminé</Text>
+      </View>
+    </View>
+  </TouchableOpacity>
+));
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -74,25 +107,6 @@ export default function HistoryScreen() {
     setNewType('');
     setModalVisible(false);
   };
-
-  const HistoryItem = ({ icon: Icon, title, date, type, color = "#A855F7" }: any) => (
-    <TouchableOpacity style={styles.historyItem} activeOpacity={0.85}>
-      <View style={[styles.iconContainer, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
-        <Icon color={color} size={20} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.itemTitle}>{title}</Text>
-        <Text style={styles.itemType}>{type}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={styles.itemDate}>{date}</Text>
-        <View style={styles.statusBadge}>
-           <View style={styles.statusDot} />
-           <Text style={styles.itemStatus}>Terminé</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
