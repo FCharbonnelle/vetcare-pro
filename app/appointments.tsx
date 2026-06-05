@@ -38,10 +38,16 @@ export default function AppointmentsScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfWeek(year, month);
+  const { year, month, daysInMonth, firstDay } = useMemo(() => {
+    const y = currentDate.getFullYear();
+    const m = currentDate.getMonth();
+    return {
+      year: y,
+      month: m,
+      daysInMonth: getDaysInMonth(y, m),
+      firstDay: getFirstDayOfWeek(y, m)
+    };
+  }, [currentDate]);
 
   useEffect(() => {
     Animated.parallel([
@@ -75,14 +81,15 @@ export default function AppointmentsScreen() {
     }
   };
 
-  const apptDays = new Set(
+  // Memoize appointment dates for the current month to avoid O(N) operations on every render
+  const apptDays = useMemo(() => new Set(
     appointments
       .filter(a => {
         const d = new Date(a.date);
         return d.getFullYear() === year && d.getMonth() === month;
       })
       .map(a => new Date(a.date).getDate())
-  );
+  ), [appointments, year, month]);
 
   const selectedAppts = useMemo(() => {
     const todayStart = new Date();
