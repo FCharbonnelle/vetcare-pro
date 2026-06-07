@@ -16,6 +16,7 @@ export default function Onboarding() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,

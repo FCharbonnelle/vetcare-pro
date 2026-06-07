@@ -1,0 +1,3 @@
+## 2025-05-15 - [AI Assistant Accessibility & Animation State Management]
+**Learning:** In React Native, `Animated.Value` instances must be explicitly reset (e.g., `setValue(0)`) when reused in a `useEffect` hook triggered by state changes (like onboarding steps) to ensure consistent transition effects. For asynchronous AI feedback loops, `accessibilityLiveRegion="polite"` is crucial to ensure screen reader users are notified when results appear without interrupting their current focus.
+**Action:** Always check if an `Animated` value needs a reset before starting a transition triggered by state updates. Apply `accessibilityLiveRegion` to any container that dynamically displays content based on asynchronous operations (AI, API calls, etc.).
