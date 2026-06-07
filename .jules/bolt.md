@@ -1,0 +1,3 @@
+## 2025-05-14 - HistoryItem Component Optimization
+**Learning:** Defining component functions inside the render body of a parent functional component causes a complete unmount and remount cycle on every parent update. This is because the child component's identity changes on every render, making React treat it as a brand new component tree. This is especially impactful in screens with modals and heavy state updates (like text inputs).
+**Action:** Always extract sub-components to module scope and wrap them with `React.memo` if they depend on stable props, ensuring they only re-render when necessary and never trigger redundant unmount/remount cycles.
