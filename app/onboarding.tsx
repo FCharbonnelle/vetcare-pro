@@ -36,6 +36,8 @@ export default function Onboarding() {
     <TouchableOpacity 
       onPress={onPress}
       style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+      accessibilityLabel={label}
+      accessibilityRole="button"
     >
       <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
         <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
@@ -115,6 +117,8 @@ export default function Onboarding() {
              style={[styles.nextBtn, (!name && step === 1 || !type && step === 2 || !age && step === 3) && styles.nextBtnDisabled]} 
              onPress={handleNext}
              disabled={!name && step === 1 || !type && step === 2 || !age && step === 3}
+             accessibilityLabel={step === 3 ? "C'est parti !" : "Suivant"}
+             accessibilityRole="button"
            >
               <Text style={styles.nextText}>{step === 3 ? "C'est parti !" : "Suivant"}</Text>
               <ChevronRight color="black" size={24} />
