@@ -1,0 +1,3 @@
+## 2025-06-12 - Optimizing Form Input Flow and Accessibility
+**Learning:** For mobile forms in modals, providing `autoFocus` on the primary field and chaining inputs with `returnKeyType="next"` and `onSubmitEditing` significantly reduces interaction friction. Additionally, localized `accessibilityLabel` and `accessibilityRole="button"` on all interactive triggers (close buttons, pickers, save buttons) ensure the form is usable by assistive technology.
+**Action:** Always implement focus chaining using `useRef` for multi-field forms and ensure that primary action buttons reflect the form's validity via `disabled` and `opacity` props.
