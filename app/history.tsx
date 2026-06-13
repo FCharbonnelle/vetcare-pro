@@ -136,7 +136,12 @@ export default function HistoryScreen() {
 
          <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Activités récentes</Text>
-            <TouchableOpacity style={styles.addBtnContainer} onPress={() => setModalVisible(true)}>
+            <TouchableOpacity
+              style={styles.addBtnContainer}
+              onPress={() => setModalVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Ajouter une visite"
+            >
                <Plus color="#A855F7" size={20} />
                <Text style={styles.addBtnText}>Nouveau</Text>
             </TouchableOpacity>
@@ -151,7 +156,13 @@ export default function HistoryScreen() {
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
 
-      <TouchableOpacity style={styles.fab} activeOpacity={0.9} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.fab}
+        activeOpacity={0.9}
+        onPress={() => setModalVisible(true)}
+        accessibilityRole="button"
+        accessibilityLabel="Ajouter une visite"
+      >
         <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.fabGradient}>
           <Plus color="white" size={28} />
         </LinearGradient>
@@ -163,11 +174,25 @@ export default function HistoryScreen() {
             <LinearGradient colors={['#1E1040', '#0E0824']} style={[StyleSheet.absoluteFill, { borderRadius: 44 }]} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Nouvel Historique</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeBtn}><X color="white" size={24} /></TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={styles.closeBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Fermer le formulaire"
+              >
+                <X color="white" size={24} />
+              </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={styles.modalLabel}>TITRE DE LA VISITE</Text>
-              <TextInput style={styles.modalInput} placeholder="Ex: Rappel Vaccin" placeholderTextColor="rgba(255,255,255,0.2)" value={newTitle} onChangeText={setNewTitle} />
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Ex: Rappel Vaccin"
+                placeholderTextColor="rgba(255,255,255,0.2)"
+                value={newTitle}
+                onChangeText={setNewTitle}
+                autoFocus
+              />
               
               <Text style={styles.modalLabel}>TYPE D'ACTIVITÉ</Text>
               <TextInput style={styles.modalInput} placeholder="Ex: Clinique, Hygiène..." placeholderTextColor="rgba(255,255,255,0.2)" value={newType} onChangeText={setNewType} />
@@ -175,7 +200,12 @@ export default function HistoryScreen() {
               <View style={styles.modalSplitRow}>
                 <View style={{ flex: 1, marginRight: 12 }}>
                   <Text style={styles.modalLabel}>DATE</Text>
-                  <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowDatePicker(true)}>
+                  <TouchableOpacity
+                    style={styles.pickerTrigger}
+                    onPress={() => setShowDatePicker(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Changer la date"
+                  >
                      <View style={styles.pickerInner}>
                        <Calendar color="#A855F7" size={16} />
                        <Text style={styles.pickerValue}>{newDate}</Text>
@@ -184,7 +214,12 @@ export default function HistoryScreen() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.modalLabel}>HEURE</Text>
-                  <TouchableOpacity style={styles.pickerTrigger} onPress={() => setShowTimePicker(true)}>
+                  <TouchableOpacity
+                    style={styles.pickerTrigger}
+                    onPress={() => setShowTimePicker(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Changer l'heure"
+                  >
                      <View style={styles.pickerInner}>
                        <Clock color="#A855F7" size={16} />
                        <Text style={styles.pickerValue}>{newTime}</Text>
@@ -210,7 +245,13 @@ export default function HistoryScreen() {
                 />
               )}
 
-              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleAddRecord}>
+              <TouchableOpacity
+                style={[styles.modalSaveBtn, !newTitle.trim() && { opacity: 0.5 }]}
+                onPress={handleAddRecord}
+                disabled={!newTitle.trim()}
+                accessibilityRole="button"
+                accessibilityLabel="Enregistrer l'activité"
+              >
                 <LinearGradient colors={['#A855F7', '#7C3AED']} style={styles.modalSaveGrad}>
                   <Text style={styles.modalSaveText}>Enregistrer l'activité</Text>
                 </LinearGradient>
