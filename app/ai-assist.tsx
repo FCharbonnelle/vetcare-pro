@@ -46,7 +46,12 @@ export default function AIAssist() {
         <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
           
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Retour"
+            >
                <ChevronLeft color="#FFFFFF" size={24} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Expert VetAI</Text>
@@ -72,7 +77,7 @@ export default function AIAssist() {
             </View>
 
             {result && (
-               <View style={styles.resultCard}>
+               <View style={styles.resultCard} accessibilityLiveRegion="polite">
                   <View style={styles.row}>
                      <Sparkles color="#A855F7" size={24} />
                      <Text style={styles.resultTag}>DIAGNOSTIC IA SIMULÉ</Text>
@@ -97,7 +102,11 @@ export default function AIAssist() {
                   />
                   <TouchableOpacity 
                     onPress={handleAnalyze} 
-                    style={styles.analyzeBtn}
+                    style={[styles.analyzeBtn, { opacity: !symptom.trim() ? 0.5 : 1 }]}
+                    disabled={!symptom.trim()}
+                    accessibilityRole="button"
+                    accessibilityLabel="Analyser les symptômes"
+                    accessibilityState={{ disabled: !symptom.trim() }}
                   >
                      <Text style={styles.analyzeText}>Analyser</Text>
                      <Send color="white" size={20} />
@@ -106,7 +115,7 @@ export default function AIAssist() {
             )}
 
             {analyzing && (
-               <View style={styles.analyzingContainer}>
+               <View style={styles.analyzingContainer} accessibilityLiveRegion="polite">
                   <ActivityIndicator size="large" color="#A855F7" />
                   <Text style={styles.analyzingText}>Consultation de la base de données...</Text>
                </View>
@@ -115,12 +124,14 @@ export default function AIAssist() {
             <TouchableOpacity 
               onPress={() => router.push('/paywall')}
               style={styles.upsellCard}
+              accessibilityRole="button"
+              accessibilityLabel="En savoir plus sur le mode expert"
             >
                <View style={styles.upsellRow}>
                   <Sparkles color="white" size={32} />
                   <View style={{ marginLeft: 20, flex: 1 }}>
-                     <Text style={styles.upsellTitle}>Unlock Expert Mode</Text>
-                     <Text style={styles.upsellSub}>Get step-by-step emergency care guides.</Text>
+                     <Text style={styles.upsellTitle}>Débloquez le mode Expert</Text>
+                     <Text style={styles.upsellSub}>Accédez aux guides de soins d'urgence.</Text>
                   </View>
                   <View style={styles.proBadge}>
                      <Text style={styles.proText}>PRO</Text>
