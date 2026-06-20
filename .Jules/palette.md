@@ -1,0 +1,3 @@
+## 2025-06-20 - Standardizing Accessibility for Interactive Elements
+**Learning:** This application extensively uses `TouchableOpacity` for custom buttons and list items, which by default do not announce their role or descriptive state to screen readers in Expo Web. Without explicit `accessibilityRole="button"` and `accessibilityLabel`, interactive elements like the FAB or record items are perceived as generic containers.
+**Action:** Always ensure `TouchableOpacity` wrappers have `accessibilityRole="button"` and a localized `accessibilityLabel`. For list items, use dynamic labels that combine key data points (e.g., name, type, date) to provide full context in a single announcement.
