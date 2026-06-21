@@ -28,8 +28,21 @@ export default function SettingsScreen() {
   }, []);
 
   const handleClearCache = async () => {
-    await resetPet();
-    router.push('/onboarding' as any);
+    Alert.alert(
+      'Effacer les données',
+      'Êtes-vous sûr de vouloir supprimer toutes les données de votre animal ? Cette action est irréversible.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Effacer',
+          style: 'destructive',
+          onPress: async () => {
+            await resetPet();
+            router.push('/onboarding' as any);
+          }
+        },
+      ]
+    );
   };
 
   const handleShare = async () => {
@@ -48,7 +61,12 @@ export default function SettingsScreen() {
   };
 
   const MenuItem = ({ icon: Icon, title, subtitle, color = "#A855F7", onPress }: any) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress || (() => Alert.alert(title, "Cette fonctionnalité sera disponible dans une prochaine mise à jour."))}>
+    <TouchableOpacity
+      style={styles.menuItem}
+      onPress={onPress || (() => Alert.alert(title, "Cette fonctionnalité sera disponible dans une prochaine mise à jour."))}
+      accessibilityRole="button"
+      accessibilityLabel={subtitle ? `${title}, ${subtitle}` : title}
+    >
       <View style={[styles.menuIconBg, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
         <Icon color={color} size={22} />
       </View>
@@ -73,6 +91,8 @@ export default function SettingsScreen() {
           activeOpacity={0.9} 
           onPress={() => router.push('/user-profile' as any)}
           style={styles.profileHeader}
+          accessibilityRole="button"
+          accessibilityLabel={`Profil de ${fullName}`}
         >
           <Image 
             source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=140&h=140&fit=crop' }} 
@@ -90,6 +110,8 @@ export default function SettingsScreen() {
         <TouchableOpacity 
           onPress={() => router.push('/paywall')}
           style={styles.upsellCard}
+          accessibilityRole="button"
+          accessibilityLabel="Passer à VetCare+, Support d'urgence 24/7 et scans illimités"
         >
           <LinearGradient
             colors={['#A855F7', '#6D28D9']}
@@ -123,7 +145,12 @@ export default function SettingsScreen() {
           <MenuItem icon={Trash2} title="Effacer les données" subtitle="Réinitialisation complète" color="#EF4444" onPress={handleClearCache} />
         </View>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={() => router.push('/onboarding' as any)}>
+        <TouchableOpacity
+          style={styles.logoutBtn}
+          onPress={() => router.push('/onboarding' as any)}
+          accessibilityRole="button"
+          accessibilityLabel="Déconnexion"
+        >
           <LogOut color="#EF4444" size={20} />
           <Text style={styles.logoutText}>Déconnexion</Text>
         </TouchableOpacity>
