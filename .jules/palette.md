@@ -1,0 +1,3 @@
+## 2026-06-25 - [Accessibility & UX Polishing on AI Assist]
+**Learning:** Combining accessibility attributes (`accessibilityRole`, `accessibilityLabel`) with reactive state feedback (disabled + opacity) significantly improves the perceived quality and inclusiveness of AI-driven interactive components. Localizing async status containers with `accessibilityLiveRegion="polite"` ensures screen reader users are not left in the dark during processing.
+**Action:** Always pair `disabled` props with visual feedback and ensure all async result/status views have appropriate ARIA live regions in future React Native screens.
