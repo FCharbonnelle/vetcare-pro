@@ -46,7 +46,12 @@ export default function AIAssist() {
         <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
           
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Retour"
+            >
                <ChevronLeft color="#FFFFFF" size={24} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Expert VetAI</Text>
@@ -94,10 +99,17 @@ export default function AIAssist() {
                     multiline
                     value={symptom}
                     onChangeText={setSymptom}
+                    autoFocus={true}
                   />
                   <TouchableOpacity 
                     onPress={handleAnalyze} 
-                    style={styles.analyzeBtn}
+                    style={[
+                      styles.analyzeBtn,
+                      (!symptom.trim() || analyzing) && styles.analyzeBtnDisabled
+                    ]}
+                    disabled={!symptom.trim() || analyzing}
+                    accessibilityRole="button"
+                    accessibilityLabel="Analyser les symptômes"
                   >
                      <Text style={styles.analyzeText}>Analyser</Text>
                      <Send color="white" size={20} />
@@ -115,6 +127,8 @@ export default function AIAssist() {
             <TouchableOpacity 
               onPress={() => router.push('/paywall')}
               style={styles.upsellCard}
+              accessibilityRole="button"
+              accessibilityLabel="En savoir plus sur le mode expert"
             >
                <View style={styles.upsellRow}>
                   <Sparkles color="white" size={32} />
@@ -153,6 +167,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '900', color: 'rgba(255,255,255,0.3)', marginBottom: 16, marginLeft: 8, textTransform: 'uppercase', letterSpacing: 1.5 },
   input: { backgroundColor: 'rgba(255,255,255,0.05)', padding: 28, borderRadius: 36, height: 180, fontSize: 17, color: '#FFFFFF', borderWidth: 1.2, borderColor: 'rgba(255,255,255,0.1)', textAlignVertical: 'top' },
   analyzeBtn: { position: 'absolute', bottom: 16, right: 16, backgroundColor: '#A855F7', paddingHorizontal: 28, paddingVertical: 14, borderRadius: 24, flexDirection: 'row', alignItems: 'center', shadowColor: '#A855F7', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 6 },
+  analyzeBtnDisabled: { opacity: 0.5 },
   analyzeText: { color: 'white', fontWeight: '800', marginRight: 12, fontSize: 15 },
   resultCard: { backgroundColor: 'rgba(255,255,255,0.08)', padding: 32, borderRadius: 44, borderWidth: 1.5, borderColor: 'rgba(168, 85, 247, 0.2)', marginBottom: 32, shadowColor: '#A855F7', shadowOffset: { width: 0, height: 15 }, shadowOpacity: 0.1, shadowRadius: 30, elevation: 4 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
