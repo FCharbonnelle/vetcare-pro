@@ -1,11 +1,38 @@
+import React, { memo, useRef, useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Alert, Animated, Share, Modal, Switch } from 'react-native';
-import { User, Bell, Shield, HelpCircle, LogOut, ChevronRight, Star, Share2, Trash2, Dog } from 'lucide-react-native';
+import { User, Bell, Shield, HelpCircle, LogOut, ChevronRight, Star, Share2, Trash2, Dog, X, LucideIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/store/AuthContext';
 import { usePet } from '@/store/PetContext';
-import { useRef, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X } from 'lucide-react-native';
+
+interface MenuItemProps {
+  icon: LucideIcon;
+  title: string;
+  subtitle?: string;
+  color?: string;
+  onPress?: () => void;
+}
+
+/**
+ * Performance: Extracted to module scope and wrapped in React.memo
+ * to prevent unnecessary unmounts/remounts when SettingsScreen state updates.
+ */
+const MenuItem = memo(({ icon: Icon, title, subtitle, color = "#A855F7", onPress }: MenuItemProps) => (
+  <TouchableOpacity
+    style={styles.menuItem}
+    onPress={onPress || (() => Alert.alert(title, "Cette fonctionnalité sera disponible dans une prochaine mise à jour."))}
+  >
+    <View style={[styles.menuIconBg, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
+      <Icon color={color} size={22} />
+    </View>
+    <View style={{ flex: 1, marginLeft: 16 }}>
+      <Text style={styles.menuTitle}>{title}</Text>
+      {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+    </View>
+    <ChevronRight color="rgba(255,255,255,0.2)" size={20} />
+  </TouchableOpacity>
+));
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -27,12 +54,12 @@ export default function SettingsScreen() {
     }).start();
   }, []);
 
-  const handleClearCache = async () => {
+  const handleClearCache = useCallback(async () => {
     await resetPet();
     router.push('/onboarding' as any);
-  };
+  }, [resetPet, router]);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     try {
       await Share.share({
         message: 'Rejoignez-moi sur VetCare Pro et prenez soin de votre animal avec l\'IA ! 🐾 https://vetcare.pro',
@@ -40,25 +67,16 @@ export default function SettingsScreen() {
     } catch (error) {
       Alert.alert('Erreur', 'Impossible d\'ouvrir le partage.');
     }
-  };
+  }, []);
 
-  const openSubSetting = (type: 'privacy') => {
+  const openSubSetting = useCallback((type: 'privacy') => {
     setModalType(type);
     setModalVisible(true);
-  };
+  }, []);
 
-  const MenuItem = ({ icon: Icon, title, subtitle, color = "#A855F7", onPress }: any) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress || (() => Alert.alert(title, "Cette fonctionnalité sera disponible dans une prochaine mise à jour."))}>
-      <View style={[styles.menuIconBg, { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${color}40` }]}>
-        <Icon color={color} size={22} />
-      </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={styles.menuTitle}>{title}</Text>
-        {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
-      </View>
-      <ChevronRight color="rgba(255,255,255,0.2)" size={20} />
-    </TouchableOpacity>
-  );
+  const navigateTo = useCallback((path: string) => {
+    router.push(path as any);
+  }, [router]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -111,14 +129,14 @@ export default function SettingsScreen() {
 
         <Text style={styles.sectionTitle}>Préférences App</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon={Dog} title="Profil de l'animal" subtitle="Identité, Santé & Notes" color="#A855F7" onPress={() => router.push('/pet-profile' as any)} />
-          <MenuItem icon={Bell} title="Rappels" subtitle="Vaccins, Toilettage, Médocs" onPress={() => router.push('/appointments' as any)} />
+          <MenuItem icon={Dog} title="Profil de l'animal" subtitle="Identité, Santé & Notes" color="#A855F7" onPress={() => navigateTo('/pet-profile')} />
+          <MenuItem icon={Bell} title="Rappels" subtitle="Vaccins, Toilettage, Médocs" onPress={() => navigateTo('/appointments')} />
           <MenuItem icon={Shield} title="Confidentialité" subtitle="Contrôle des données" color="#10B981" onPress={() => openSubSetting('privacy')} />
         </View>
 
         <Text style={styles.sectionTitle}>Support & Aide</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon={HelpCircle} title="Centre d'aide" color="#3B82F6" onPress={() => router.push('/ai-assist' as any)} />
+          <MenuItem icon={HelpCircle} title="Centre d'aide" color="#3B82F6" onPress={() => navigateTo('/ai-assist')} />
           <MenuItem icon={Share2} title="Inviter un membre" color="#F59E0B" onPress={handleShare} />
           <MenuItem icon={Trash2} title="Effacer les données" subtitle="Réinitialisation complète" color="#EF4444" onPress={handleClearCache} />
         </View>
