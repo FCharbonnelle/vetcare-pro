@@ -94,10 +94,14 @@ export default function AIAssist() {
                     multiline
                     value={symptom}
                     onChangeText={setSymptom}
+                    autoFocus={true}
                   />
                   <TouchableOpacity 
                     onPress={handleAnalyze} 
-                    style={styles.analyzeBtn}
+                    style={[styles.analyzeBtn, (!symptom.trim() || analyzing) && { opacity: 0.5 }]}
+                    disabled={!symptom.trim() || analyzing}
+                    accessibilityRole="button"
+                    accessibilityLabel="Analyser les symptômes"
                   >
                      <Text style={styles.analyzeText}>Analyser</Text>
                      <Send color="white" size={20} />
