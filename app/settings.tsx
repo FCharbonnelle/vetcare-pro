@@ -28,8 +28,21 @@ export default function SettingsScreen() {
   }, []);
 
   const handleClearCache = async () => {
-    await resetPet();
-    router.push('/onboarding' as any);
+    Alert.alert(
+      "Réinitialiser les données",
+      "Êtes-vous sûr de vouloir supprimer toutes les données de votre animal ? Cette action est irréversible.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Réinitialiser",
+          style: "destructive",
+          onPress: async () => {
+            await resetPet();
+            router.push('/onboarding' as any);
+          }
+        }
+      ]
+    );
   };
 
   const handleShare = async () => {
