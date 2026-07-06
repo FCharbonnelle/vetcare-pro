@@ -1,9 +1,41 @@
+import React, { memo, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { usePet } from '@/store/PetContext';
-import { ChevronRight, Heart, Sparkles, Dog, Cat, Plus } from 'lucide-react-native';
+import { ChevronRight, Heart, Sparkles, Dog, Cat, Plus, LucideIcon } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+interface TypeCardProps {
+  icon: LucideIcon;
+  label: string;
+  isSelected: boolean;
+  onPress: (label: string) => void;
+}
+
+const TypeCard = memo(({ icon: Icon, label, isSelected, onPress }: TypeCardProps) => {
+  return (
+    <TouchableOpacity
+      onPress={() => onPress(label)}
+      style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+    >
+      <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
+        <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
+      </View>
+      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
+    </TouchableOpacity>
+  );
+});
+
+const StepIndicator = memo(({ step }: { step: number }) => {
+  return (
+    <View style={styles.progressBar}>
+      {[1, 2, 3].map(s => (
+        <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
+      ))}
+    </View>
+  );
+});
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -12,6 +44,10 @@ export default function Onboarding() {
   const [age, setAge] = useState('');
   const router = useRouter();
   const { updatePet } = usePet();
+
+  const handleTypeSelect = useCallback((selectedType: string) => {
+    setType(selectedType);
+  }, []);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -32,18 +68,6 @@ export default function Onboarding() {
     }
   };
 
-  const TypeCard = ({ icon: Icon, label, isSelected, onPress }: any) => (
-    <TouchableOpacity 
-      onPress={onPress}
-      style={[styles.typeCard, isSelected && styles.typeCardSelected]}
-    >
-      <View style={[styles.typeIconBg, isSelected && styles.typeIconBgSelected]}>
-        <Icon color={isSelected ? 'white' : 'rgba(255,255,255,0.4)'} size={32} />
-      </View>
-      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]}>{label}</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -53,11 +77,7 @@ export default function Onboarding() {
       
       <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
         
-        <View style={styles.progressBar}>
-           {[1, 2, 3].map(s => (
-              <View key={s} style={[styles.progressStep, s <= step && styles.progressStepActive]} />
-           ))}
-        </View>
+        <StepIndicator step={step} />
 
         <View style={styles.hero}>
            <View style={styles.logoBg}><Heart color="white" fill="white" size={32} /></View>
@@ -86,9 +106,9 @@ export default function Onboarding() {
             <Text style={styles.title}>Quel type d'animal{'\n'}avez-vous ?</Text>
             <Text style={styles.subtitle}>Choisissez la catégorie qui lui correspond le mieux.</Text>
             <View style={styles.typeGrid}>
-              <TypeCard icon={Dog} label="Chien" isSelected={type === 'Chien'} onPress={() => setType('Chien')} />
-              <TypeCard icon={Cat} label="Chat" isSelected={type === 'Chat'} onPress={() => setType('Chat')} />
-              <TypeCard icon={Plus} label="Autre" isSelected={type === 'Autre'} onPress={() => setType('Autre')} />
+              <TypeCard icon={Dog} label="Chien" isSelected={type === 'Chien'} onPress={handleTypeSelect} />
+              <TypeCard icon={Cat} label="Chat" isSelected={type === 'Chat'} onPress={handleTypeSelect} />
+              <TypeCard icon={Plus} label="Autre" isSelected={type === 'Autre'} onPress={handleTypeSelect} />
             </View>
           </View>
         )}
